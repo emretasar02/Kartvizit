@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="tr" data-lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="description" content="eTekno — Edge AI platform for industrial SMEs. Raspberry Pi-based edge devices that connect to PLCs, robots and cameras on the local network, with Claude-powered analysis.">
+<title>eTekno Edge AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<script>
+(function(){var l=null;try{l=localStorage.getItem('etk-lang')}catch(e){}
+if(!l){l=(navigator.language||'en').toLowerCase().indexOf('tr')===0?'tr':'en'}
+document.documentElement.setAttribute('data-lang',l);document.documentElement.setAttribute('lang',l);})();
+</script>
+<style>
+/* eTekno — graphite + signal teal + alarm amber. Plex Sans/Mono: engineering, control-room feel. */
+:root{
+  --bg:#f3f5f4;--surface:#ffffff;--sunk:#e8ecea;--fg:#101614;--fg2:#4d5955;--fg3:#7b8783;
+  --line:#d6ddda;--accent:#0a9e7a;--accent-ink:#ffffff;--accent-soft:#dff2ec;
+  --amber:#b86e00;--amber-soft:#fbefd9;--red:#c2410c;
+  --con-bg:#0d1412;--con-fg:#cfe0da;--con-dim:#6f8580;--con-line:#1f2b28;--con-ok:#2fd3a3;--con-warn:#f2b24c;
+  --sans:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0b100f;--surface:#121a18;--sunk:#0f1614;--fg:#e7eeeb;--fg2:#9aa9a4;--fg3:#6c7b76;
+  --line:#22302c;--accent:#2fd3a3;--accent-ink:#04120d;--accent-soft:#10291f;
+  --amber:#f2b24c;--amber-soft:#2a1f0c;--red:#fb7a4a;
+  --con-bg:#070b0a;--con-fg:#cfe0da;--con-dim:#61756f;--con-line:#1a2522;--con-ok:#2fd3a3;--con-warn:#f2b24c;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0b100f;--surface:#121a18;--sunk:#0f1614;--fg:#e7eeeb;--fg2:#9aa9a4;--fg3:#6c7b76;
+  --line:#22302c;--accent:#2fd3a3;--accent-ink:#04120d;--accent-soft:#10291f;
+  --amber:#f2b24c;--amber-soft:#2a1f0c;--red:#fb7a4a;
+  --con-bg:#070b0a;--con-fg:#cfe0da;--con-dim:#61756f;--con-line:#1a2522;--con-ok:#2fd3a3;--con-warn:#f2b24c;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--fg);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+html[data-lang="tr"] .en,html[data-lang="en"] .tr{display:none!important}
+
+.shell{max-width:1160px;margin:0 auto;padding-inline:clamp(16px,5vw,48px)}
+section{padding-block:clamp(64px,9vw,104px)}
+.kicker{font-family:var(--mono);font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:500;display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.kicker b{color:var(--fg3);font-weight:500}
+.h2{font-size:clamp(1.75rem,3.6vw,2.6rem);font-weight:700;letter-spacing:-.025em;line-height:1.12;text-wrap:balance;max-width:22ch}
+.lede{color:var(--fg2);font-size:1.05rem;max-width:62ch;margin-top:16px}
+.sec-head{margin-bottom:48px}
+.rule{border:0;border-top:1px solid var(--line)}
+
+/* nav */
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.nav-in{display:flex;align-items:center;justify-content:space-between;gap:16px;height:60px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:700;font-size:1.12rem;letter-spacing:-.02em}
+.logo-mark{width:26px;height:26px;border-radius:6px;background:var(--fg);display:grid;place-items:center}
+.logo-mark i{width:10px;height:10px;border-radius:2px;background:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 30%,transparent)}
+.logo span{color:var(--accent)}
+.nav-r{display:flex;align-items:center;gap:24px}
+.links{display:flex;gap:22px;list-style:none}
+.links a{text-decoration:none;color:var(--fg2);font-size:.86rem;font-weight:500}
+.links a:hover{color:var(--accent)}
+.lang{display:flex;border:1px solid var(--line);border-radius:7px;overflow:hidden;background:var(--surface)}
+.lang button{border:0;background:none;color:var(--fg2);font:600 .72rem/1 var(--mono);letter-spacing:.06em;padding:8px 10px;cursor:pointer}
+.lang button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
+
+/* buttons */
+.btns{display:flex;gap:12px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:8px;font:600 .9rem/1 var(--sans);text-decoration:none;border:1px solid transparent;transition:filter .15s,border-color .15s,color .15s}
+.btn-p{background:var(--accent);color:var(--accent-ink)}
+.btn-p:hover{filter:brightness(1.07)}
+.btn-s{background:var(--surface);border-color:var(--line);color:var(--fg)}
+.btn-s:hover{border-color:var(--accent);color:var(--accent)}
+
+/* hero */
+.hero{padding-block:clamp(56px,8vw,96px) clamp(56px,8vw,88px)}
+.hero-g{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:clamp(32px,5vw,64px);align-items:center}
+.badge{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:.74rem;color:var(--fg2);border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;margin-bottom:24px}
+.badge i{width:7px;height:7px;border-radius:50%;background:var(--amber)}
+h1{font-size:clamp(2.3rem,5.4vw,4rem);font-weight:700;letter-spacing:-.035em;line-height:1.04;text-wrap:balance}
+h1 em{font-style:normal;color:var(--accent)}
+.hero p.sub{color:var(--fg2);font-size:1.08rem;max-width:56ch;margin:22px 0 32px}
+.facts{display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:34px;font-family:var(--mono);font-size:.78rem;color:var(--fg2)}
+.facts span::before{content:'✓ ';color:var(--accent)}
+
+/* console */
+.con{background:var(--con-bg);color:var(--con-fg);border-radius:14px;border:1px solid var(--con-line);font-family:var(--mono);font-size:.78rem;overflow:hidden;box-shadow:0 24px 60px -30px rgba(0,0,0,.45);min-width:0}
+.con-top span{white-space:nowrap}
+.con-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 16px;border-bottom:1px solid var(--con-line);color:var(--con-dim)}
+.con-top b{color:var(--con-fg);font-weight:500}
+.dots{display:flex;gap:6px}.dots i{width:9px;height:9px;border-radius:50%;background:var(--con-line)}
+.con-body{padding:14px 16px;display:flex;flex-direction:column;gap:2px;overflow-x:auto}
+.row{display:grid;grid-template-columns:118px 1fr auto;gap:12px;padding:7px 0;border-bottom:1px dashed var(--con-line);white-space:nowrap}
+.row:last-of-type{border-bottom:0}
+.row .src{color:var(--con-dim)}
+.row .val{font-variant-numeric:tabular-nums}
+.ok{color:var(--con-ok)}.warn{color:var(--con-warn)}
+.ai{margin-top:12px;border:1px solid var(--con-line);border-radius:10px;padding:12px 14px;background:color-mix(in srgb,var(--con-ok) 6%,transparent);white-space:normal;line-height:1.6}
+.ai .who{color:var(--con-ok);font-weight:600;margin-bottom:4px;display:block}
+.con-foot{padding:9px 16px;border-top:1px solid var(--con-line);color:var(--con-dim);font-size:.7rem}
+.blink{animation:bl 1.2s steps(2) infinite}
+@keyframes bl{50%{opacity:0}}
+
+/* problem */
+.prob{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;border-top:1px solid var(--line)}
+.prob div{padding:28px 28px 8px 0}
+.prob div+div{padding-left:28px;border-left:1px solid var(--line)}
+.prob .n{font-family:var(--mono);color:var(--amber);font-size:.8rem;margin-bottom:12px}
+.prob h3{font-size:1.08rem;font-weight:600;margin-bottom:8px;letter-spacing:-.01em}
+.prob p{color:var(--fg2);font-size:.94rem}
+
+/* use cases */
+.uc{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:26px;min-width:0}
+.card .ic{width:40px;height:40px;border-radius:10px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;margin-bottom:18px}
+.card h3{font-size:1.1rem;font-weight:600;margin-bottom:8px;letter-spacing:-.01em}
+.card p{color:var(--fg2);font-size:.94rem}
+.card .sig{margin-top:16px;font-family:var(--mono);font-size:.74rem;color:var(--fg3);display:flex;flex-wrap:wrap;gap:6px}
+.card .sig span{background:var(--sunk);border-radius:5px;padding:3px 8px}
+
+/* architecture */
+.arch-wrap{background:var(--sunk);border-block:1px solid var(--line)}
+.flow{display:grid;grid-template-columns:1fr 34px 1.15fr 34px 1fr 34px .9fr;align-items:stretch}
+.node{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px;min-width:0}
+.node.core{border:2px solid var(--accent)}
+.node .tier{font-family:var(--mono);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;color:var(--fg3);margin-bottom:8px}
+.node h4{font-size:1rem;font-weight:600;margin-bottom:12px}
+.node ul{list-style:none;display:flex;flex-direction:column;gap:7px;font-size:.86rem;color:var(--fg2)}
+.node li{padding-left:14px;position:relative}
+.node li::before{content:'';position:absolute;left:0;top:.62em;width:6px;height:2px;background:var(--accent)}
+.arrow{display:grid;place-items:center;color:var(--fg3);font-family:var(--mono)}
+.arrow::before{content:'→';font-size:1.1rem}
+.arch-note{margin-top:28px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.arch-note div{font-size:.9rem;color:var(--fg2);border-left:2px solid var(--accent);padding-left:14px}
+.arch-note b{display:block;color:var(--fg);font-weight:600;margin-bottom:2px}
+
+/* focus */
+.focus{display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.f-row{display:grid;grid-template-columns:80px minmax(0,1fr) minmax(0,1fr);gap:32px;padding:32px 0;border-bottom:1px solid var(--line)}
+.f-num{font-family:var(--mono);font-size:2rem;font-weight:500;color:var(--accent);line-height:1}
+.f-row h3{font-size:1.25rem;font-weight:600;letter-spacing:-.015em;line-height:1.3;text-wrap:balance}
+.f-row .tagline{font-family:var(--mono);font-size:.74rem;color:var(--fg3);margin-top:10px;text-transform:uppercase;letter-spacing:.05em}
+.f-row p{color:var(--fg2);font-size:.95rem}
+.f-row ul{margin-top:12px;padding-left:18px;color:var(--fg2);font-size:.92rem;display:flex;flex-direction:column;gap:5px}
+
+/* founder */
+.fd{display:grid;grid-template-columns:auto minmax(0,1fr);gap:clamp(24px,4vw,48px);align-items:start;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:clamp(22px,4vw,40px)}
+.fd img{width:128px;height:128px;border-radius:12px;object-fit:cover;max-width:100%}
+.fd h3{font-size:1.5rem;font-weight:700;letter-spacing:-.02em}
+.fd .role{font-family:var(--mono);font-size:.8rem;color:var(--accent);margin:4px 0 16px}
+.fd p{color:var(--fg2);max-width:66ch}
+.cred{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 22px}
+.cred > span{font-size:.8rem;border:1px solid var(--line);border-radius:6px;padding:4px 10px;color:var(--fg2);background:var(--bg)}
+
+/* contact */
+.ct{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:48px;align-items:start}
+.ct-list{display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.ct-row{display:grid;grid-template-columns:120px minmax(0,1fr);gap:16px;padding:16px 0;border-bottom:1px solid var(--line);align-items:baseline}
+.ct-row b{font-family:var(--mono);font-size:.74rem;text-transform:uppercase;letter-spacing:.06em;color:var(--fg3);font-weight:500}
+.ct-row span,.ct-row a{overflow-wrap:anywhere;user-select:all;text-decoration:none;font-weight:500}
+.ct-row a:hover{color:var(--accent)}
+footer{border-top:1px solid var(--line);padding-block:28px;color:var(--fg3);font-size:.82rem}
+footer .shell{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+footer a{text-decoration:none}footer a:hover{color:var(--accent)}
+
+@media(max-width:980px){
+  .links{display:none}
+  .hero-g{grid-template-columns:1fr}
+  .flow{grid-template-columns:1fr}
+  .arrow{height:30px}.arrow::before{content:'↓'}
+  .arch-note{grid-template-columns:1fr}
+}
+@media(max-width:760px){
+  .prob{grid-template-columns:1fr}
+  .prob div,.prob div+div{padding:24px 0 4px;border-left:0}
+  .prob div+div{border-top:1px solid var(--line)}
+  .uc{grid-template-columns:1fr}
+  .f-row{grid-template-columns:1fr;gap:12px}
+  .fd{grid-template-columns:1fr}
+  .ct{grid-template-columns:1fr;gap:32px}
+  .ct-row{grid-template-columns:1fr;gap:2px}
+  .row{grid-template-columns:minmax(0,1fr) auto;row-gap:2px}
+  .row .src{grid-column:1/-1;font-size:.7rem}
+  .dots{display:none}
+  .con-top{flex-wrap:wrap;row-gap:4px}
+}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.blink{animation:none}}
+.ghs{margin:4px 0 22px;border-top:1px solid var(--line)}
+.ghs-t{font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--fg3);margin:16px 0 8px}
+.ghs ul{list-style:none;display:flex;flex-direction:column}
+.ghs li{display:grid;grid-template-columns:minmax(0,190px) minmax(0,1fr);gap:14px;padding:8px 0;border-bottom:1px dashed var(--line);font-size:.88rem}
+.ghs code{font-family:var(--mono);font-size:.8rem;color:var(--accent);overflow-wrap:anywhere}
+.ghs li span{color:var(--fg2)}
+@media(max-width:760px){.ghs li{grid-template-columns:1fr;gap:2px}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="shell nav-in">
+    <a class="logo" href="#top"><span class="logo-mark"><i></i></span>eTekno</a>
+    <div class="nav-r">
+      <ul class="links">
+        <li><a href="#platform"><span class="tr">Platform</span><span class="en">Platform</span></a></li>
+        <li><a href="#usecases"><span class="tr">Kullanım</span><span class="en">Use cases</span></a></li>
+        <li><a href="#architecture"><span class="tr">Mimari</span><span class="en">Architecture</span></a></li>
+        <li><a href="#focus"><span class="tr">Odak</span><span class="en">Focus</span></a></li>
+        <li><a href="#founder"><span class="tr">Kurucu</span><span class="en">Founder</span></a></li>
+        <li><a href="#contact"><span class="tr">İletişim</span><span class="en">Contact</span></a></li>
+      </ul>
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" data-set="tr">TR</button>
+        <button type="button" data-set="en">EN</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="shell hero-g">
+    <div>
+      <div class="badge"><i></i><span class="tr">Geliştirme aşamasında · Kocaeli, Türkiye</span><span class="en">In development · Kocaeli, Türkiye</span></div>
+      <h1>
+        <span class="tr">Endüstriyel KOBİ'ler için <em>uç noktada yapay zekâ</em></span>
+        <span class="en"><em>Edge AI</em> for industrial SMEs</span>
+      </h1>
+      <p class="sub">
+        <span class="tr">eTekno, Raspberry Pi tabanlı uç cihazlarla PLC, robot ve saha ekipmanlarından yerel ağ üzerinden veri toplar; BT departmanına ihtiyaç duymadan üretim takibi, enerji izleme, kamera ile arıza tespiti ve uzaktan sorun giderme sağlar. Analiz ve raporlamada Claude ile çalışır.</span>
+        <span class="en">eTekno's Raspberry Pi-based edge devices collect data from PLCs, robots and field equipment over the local network — no IT department required — and deliver production tracking, energy monitoring, camera-based fault detection and remote troubleshooting, with Claude powering analysis and reporting.</span>
+      </p>
+      <div class="btns">
+        <a class="btn btn-p" href="#contact"><span class="tr">İletişime geçin</span><span class="en">Get in touch</span></a>
+        <a class="btn btn-s" href="#architecture"><span class="tr">Mimariyi inceleyin</span><span class="en">See the architecture</span></a>
+      </div>
+      <div class="facts">
+        <span class="tr">Yerinde (on-premise)</span><span class="en">On-premise</span>
+        <span class="tr">BT gerektirmez</span><span class="en">No IT required</span>
+        <span>Siemens S7 · Delta · Fanuc · Yaskawa</span>
+      </div>
+    </div>
+
+    <div class="con" aria-label="Sample edge device interface">
+      <div class="con-top"><div class="dots"><i></i><i></i><i></i></div><span><b>etk-edge-01</b> · Raspberry Pi · LAN</span><span class="ok">● online</span></div>
+      <div class="con-body">
+        <div class="row"><span class="src">S7-1500 · L2</span><span class="val"><span class="tr">Çevrim süresi</span><span class="en">Cycle time</span> 42.1 s</span><span class="warn">▲ 9%</span></div>
+        <div class="row"><span class="src">Fanuc · Cell 3</span><span class="val"><span class="tr">Durum</span><span class="en">State</span> RUN · 1 284 pcs</span><span class="ok">● OK</span></div>
+        <div class="row"><span class="src">Delta · Comp.</span><span class="val"><span class="tr">Güç</span><span class="en">Power</span> 18.6 kW</span><span class="warn">▲ peak</span></div>
+        <div class="row"><span class="src">Cam 04 · Weld</span><span class="val"><span class="tr">Anomali skoru</span><span class="en">Anomaly score</span> 0.82</span><span class="warn">⚠ check</span></div>
+        <div class="ai">
+          <span class="who">Claude ›</span>
+          <span class="tr">Hat 2'de çevrim süresi 14:00'ten beri %9 arttı; aynı aralıkta kompresör yükü de yükseldi. Önce pnömatik basıncı kontrol etmenizi öneririm.</span>
+          <span class="en">Line 2 cycle time is up 9% since 14:00, while compressor load rose in the same window. I'd check pneumatic pressure first.</span><span class="blink">▍</span>
+        </div>
+      </div>
+      <div class="con-foot"><span class="tr">Örnek arayüz — temsili veriler</span><span class="en">Sample interface — illustrative data</span></div>
+    </div>
+  </div>
+</header>
+
+<hr class="rule">
+
+<section id="platform">
+  <div class="shell">
+    <div class="sec-head">
+      <p class="kicker">01 <b>/</b> <span class="tr">Sorun</span><span class="en">The problem</span></p>
+      <h2 class="h2"><span class="tr">KOBİ'lerin makine verisi PLC'lerde kilitli kalıyor.</span><span class="en">SME machine data stays locked inside PLCs.</span></h2>
+      <p class="lede"><span class="tr">Büyük üreticiler dijitalleşmeye bütçe ayırabiliyor; tedarik zincirindeki küçük ve orta ölçekli fabrikalar ise genellikle aynı araçlara erişemiyor.</span><span class="en">Large manufacturers can fund digital transformation; the small and mid-sized plants in their supply chains usually can't access the same tools.</span></p>
+    </div>
+    <div class="prob">
+      <div>
+        <p class="n">P.1</p>
+        <h3><span class="tr">Veri var, görünürlük yok</span><span class="en">Data exists, visibility doesn't</span></h3>
+        <p><span class="tr">Çevrim süreleri, duruşlar ve enerji tüketimi makinelerde üretiliyor ama kaydedilmiyor ya da analiz edilmiyor.</span><span class="en">Cycle times, stoppages and energy use are generated by machines but rarely logged or analyzed.</span></p>
+      </div>
+      <div>
+        <p class="n">P.2</p>
+        <h3><span class="tr">BT ve bulut projeleri ağır</span><span class="en">IT and cloud projects are heavy</span></h3>
+        <p><span class="tr">Klasik endüstri 4.0 projeleri BT ekibi, ağ değişikliği ve uzun entegrasyon süreçleri gerektiriyor.</span><span class="en">Typical Industry 4.0 rollouts need an IT team, network changes and long integration cycles.</span></p>
+      </div>
+      <div>
+        <p class="n">P.3</p>
+        <h3><span class="tr">Arıza bilgisi birkaç kişide</span><span class="en">Fault know-how sits with a few people</span></h3>
+        <p><span class="tr">Arıza teşhisi çoğu zaman tek bir deneyimli teknisyene bağlı; bu kişi yokken duruş uzuyor.</span><span class="en">Diagnosis often depends on one experienced technician — when they're away, downtime grows.</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="usecases" style="padding-top:0">
+  <div class="shell">
+    <div class="sec-head">
+      <p class="kicker">02 <b>/</b> <span class="tr">Çözüm</span><span class="en">What it does</span></p>
+      <h2 class="h2"><span class="tr">Tek cihaz, dört temel kullanım alanı.</span><span class="en">One device, four core use cases.</span></h2>
+    </div>
+    <div class="uc">
+      <article class="card">
+        <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg></div>
+        <h3><span class="tr">Üretim takibi</span><span class="en">Production tracking</span></h3>
+        <p><span class="tr">Üretim adedi, çevrim süresi ve duruşlar PLC'den doğrudan okunur; vardiya ve hat bazında OEE görünür hale gelir.</span><span class="en">Part counts, cycle times and stoppages read straight from the PLC, giving per-shift and per-line OEE.</span></p>
+        <div class="sig"><span>OEE</span><span>cycle time</span><span>downtime</span></div>
+      </article>
+      <article class="card">
+        <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg></div>
+        <h3><span class="tr">Enerji izleme</span><span class="en">Energy monitoring</span></h3>
+        <p><span class="tr">Kompresör, fırın ve hat bazında tüketim izlenir; tepe yükler ve boşta çalışma kayıpları ortaya çıkar.</span><span class="en">Consumption tracked per compressor, furnace and line, exposing peak loads and idle-running losses.</span></p>
+        <div class="sig"><span>kW</span><span>kWh / part</span><span>peak</span></div>
+      </article>
+      <article class="card">
+        <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></div>
+        <h3><span class="tr">Kamera ile arıza tespiti</span><span class="en">Camera-based fault detection</span></h3>
+        <p><span class="tr">Görüntü işleme cihaz üzerinde, yerelde çalışır; kaynak, montaj ve yüzey hataları anında işaretlenir.</span><span class="en">Computer vision runs locally on the device, flagging weld, assembly and surface defects in real time.</span></p>
+        <div class="sig"><span>OpenCV</span><span>on-device</span><span>anomaly</span></div>
+      </article>
+      <article class="card">
+        <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/></svg></div>
+        <h3><span class="tr">Uzaktan sorun giderme</span><span class="en">Remote troubleshooting</span></h3>
+        <p><span class="tr">Alarm geçmişi ve sensör verisi Claude ile yorumlanır; teknisyen sahaya gitmeden olası nedenleri ve adımları görür.</span><span class="en">Alarm history and sensor data are interpreted with Claude, so technicians see likely causes and next steps before reaching the floor.</span></p>
+        <div class="sig"><span>alarms</span><span>root cause</span><span>Claude</span></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section id="architecture" class="arch-wrap">
+  <div class="shell">
+    <div class="sec-head">
+      <p class="kicker">03 <b>/</b> <span class="tr">Mimari</span><span class="en">Architecture</span></p>
+      <h2 class="h2"><span class="tr">Gerçek zamanlı iş sahada, akıl yürütme Claude'da.</span><span class="en">Real-time work at the edge, reasoning with Claude.</span></h2>
+      <p class="lede"><span class="tr">Zaman kritik işlemler cihazda kalır; Claude yalnızca özetlenmiş, gerekli veriyle analiz, raporlama ve sorun giderme için çağrılır.</span><span class="en">Time-critical processing stays on the device; Claude is called only with summarized, necessary data for analysis, reporting and troubleshooting.</span></p>
+    </div>
+    <div class="flow">
+      <div class="node">
+        <p class="tier"><span class="tr">Saha</span><span class="en">Field</span></p>
+        <h4><span class="tr">Makineler</span><span class="en">Machines</span></h4>
+        <ul><li>Siemens S7 / Delta PLC</li><li>Fanuc · Yaskawa · UR</li><li><span class="tr">IP kameralar</span><span class="en">IP cameras</span></li><li><span class="tr">Enerji analizörleri</span><span class="en">Energy meters</span></li></ul>
+      </div>
+      <div class="arrow" aria-hidden="true"></div>
+      <div class="node core">
+        <p class="tier"><span class="tr">Uç cihaz</span><span class="en">Edge</span></p>
+        <h4>eTekno Edge · Raspberry Pi</h4>
+        <ul><li><span class="tr">Yerel ağdan veri toplama</span><span class="en">Local-network data collection</span></li><li><span class="tr">Cihaz üzerinde görüntü işleme</span><span class="en">On-device computer vision</span></li><li><span class="tr">Ön işleme ve özetleme</span><span class="en">Pre-processing &amp; summarization</span></li><li><span class="tr">Bağlantı kesilirse tamponlama</span><span class="en">Buffering when offline</span></li></ul>
+      </div>
+      <div class="arrow" aria-hidden="true"></div>
+      <div class="node">
+        <p class="tier"><span class="tr">Akıl yürütme</span><span class="en">Reasoning</span></p>
+        <h4>Claude API</h4>
+        <ul><li><span class="tr">Kök neden analizi</span><span class="en">Root-cause analysis</span></li><li><span class="tr">Doğal dilde raporlar</span><span class="en">Natural-language reports</span></li><li><span class="tr">Sorun giderme asistanı</span><span class="en">Troubleshooting assistant</span></li></ul>
+      </div>
+      <div class="arrow" aria-hidden="true"></div>
+      <div class="node">
+        <p class="tier"><span class="tr">Kullanıcı</span><span class="en">People</span></p>
+        <h4><span class="tr">Fabrika ekibi</span><span class="en">Plant team</span></h4>
+        <ul><li><span class="tr">Pano</span><span class="en">Dashboard</span></li><li><span class="tr">Alarm bildirimleri</span><span class="en">Alerts</span></li><li><span class="tr">Vardiya raporu</span><span class="en">Shift report</span></li></ul>
+      </div>
+    </div>
+    <div class="arch-note">
+      <div><b><span class="tr">Düşük gecikme</span><span class="en">Low latency</span></b><span class="tr">Kontrol döngüsüne yakın işler buluta gitmeden yerelde yapılır.</span><span class="en">Anything near the control loop runs locally, never round-tripping to the cloud.</span></div>
+      <div><b><span class="tr">Veri minimizasyonu</span><span class="en">Data minimization</span></b><span class="tr">Ham görüntü ve ham sinyal tesis dışına çıkmaz; yalnızca özet bağlam gönderilir.</span><span class="en">Raw video and raw signals stay on-site; only summarized context is sent.</span></div>
+      <div><b><span class="tr">Kurulum kolaylığı</span><span class="en">Easy install</span></b><span class="tr">Mevcut ağa takılır, PLC programına dokunmadan okuma yapar.</span><span class="en">Plugs into the existing network and reads data without touching PLC programs.</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="focus">
+  <div class="shell">
+    <div class="sec-head">
+      <p class="kicker">04 <b>/</b> <span class="tr">2026 Odak Alanları</span><span class="en">2026 Focus Areas</span></p>
+      <h2 class="h2"><span class="tr">Önümüzdeki dönemde üç alana odaklanıyoruz.</span><span class="en">Three areas we're focused on next.</span></h2>
+    </div>
+    <div class="focus">
+      <div class="f-row">
+        <div class="f-num">01</div>
+        <div>
+          <h3><span class="tr">Raspberry Pi uç cihazlarda Claude entegrasyonu</span><span class="en">Claude integration on Raspberry Pi edge devices</span></h3>
+          <p class="tagline"><span class="tr">Geliştirme ve test</span><span class="en">Build &amp; test</span></p>
+        </div>
+        <div>
+          <p><span class="tr">Uç cihazdan Claude'a giden akışı geliştiriyor ve sahaya yakın koşullarda test ediyoruz.</span><span class="en">We're building and testing the edge-to-Claude pipeline under near-production conditions.</span></p>
+          <ul>
+            <li><span class="tr">PLC ve alarm verisinden bağlam oluşturma</span><span class="en">Building context from PLC and alarm data</span></li>
+            <li><span class="tr">Vardiya raporu ve kök neden analizi istemleri</span><span class="en">Prompts for shift reports and root-cause analysis</span></li>
+            <li><span class="tr">Test hattında uçtan uca doğrulama</span><span class="en">End-to-end validation on a test line</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="f-row">
+        <div class="f-num">02</div>
+        <div>
+          <h3><span class="tr">Düşük gecikmeli, yerinde endüstriyel ortamlar için optimizasyon</span><span class="en">Optimizing for low-latency, on-premise industrial environments</span></h3>
+          <p class="tagline"><span class="tr">Performans ve güvenilirlik</span><span class="en">Performance &amp; reliability</span></p>
+        </div>
+        <div>
+          <p><span class="tr">Fabrika ağlarında sınırlı bant genişliği ve kesintiler olağan; sistemi buna göre tasarlıyoruz.</span><span class="en">Limited bandwidth and outages are normal on factory networks, so we design for them.</span></p>
+          <ul>
+            <li><span class="tr">Yerel çıkarım ile Claude çağrıları arasında iş bölümü</span><span class="en">Splitting work between local inference and Claude calls</span></li>
+            <li><span class="tr">İstem önbellekleme ve bağlam sıkıştırma</span><span class="en">Prompt caching and context compression</span></li>
+            <li><span class="tr">Çevrimdışı mod ve kuyruklama</span><span class="en">Offline mode and request queuing</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="f-row">
+        <div class="f-num">03</div>
+        <div>
+          <h3><span class="tr">Türkiye ve Avrupa'da üretici müşterilere ulaşmak</span><span class="en">Reaching manufacturing customers in Türkiye and Europe</span></h3>
+          <p class="tagline"><span class="tr">Pazara giriş</span><span class="en">Go-to-market</span></p>
+        </div>
+        <div>
+          <p><span class="tr">İlk adım, Türkiye'nin sanayi merkezlerinden biri olan Kocaeli'deki üretici ve tedarikçi KOBİ'ler; ardından Avrupa.</span><span class="en">We start in Kocaeli, one of Türkiye's major industrial hubs, with manufacturers and supplier SMEs — then expand to Europe.</span></p>
+          <ul>
+            <li><span class="tr">Kocaeli'de pilot kurulumlar</span><span class="en">Pilot installations in Kocaeli</span></li>
+            <li><span class="tr">Sistem entegratörleriyle iş birlikleri</span><span class="en">Partnerships with system integrators</span></li>
+            <li><span class="tr">Avrupa tedarik zincirine açılım</span><span class="en">Expansion into European supply chains</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="founder" style="padding-top:0">
+  <div class="shell">
+    <div class="sec-head">
+      <p class="kicker">05 <b>/</b> <span class="tr">Kurucu</span><span class="en">Founder</span></p>
+      <h2 class="h2"><span class="tr">Sahadan gelen bir mühendislik geçmişi.</span><span class="en">Built by an engineer from the factory floor.</span></h2>
+    </div>
+    <div class="fd">
+      <img src="data:image/jpeg;base64,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" alt="Emre Taşar" width="128" height="128">
+      <div>
+        <h3>Emre Taşar</h3>
+        <p class="role"><span class="tr">Kurucu · Yazılım ve Robotik Mühendisi</span><span class="en">Founder · Software &amp; Robotics Engineer</span></p>
+        <p><span class="tr">Endüstriyel otomasyon, otonom mobil robotlar ve görüntü işleme alanında 6+ yıl deneyim. Tersane, robotik ve Endüstri 4.0 şirketlerinde Siemens/Delta PLC, Fanuc, Yaskawa ve Universal Robots ile projeler yürüttü; ROS ve Python ile AMR yazılımları geliştirdi. Elektrik-Elektronik Mühendisi; Kocaeli Üniversitesi'nde Mekatronik Mühendisliği yüksek lisansı yapıyor.</span><span class="en">6+ years in industrial automation, autonomous mobile robots and computer vision. Delivered projects with Siemens/Delta PLCs, Fanuc, Yaskawa and Universal Robots at shipbuilding, robotics and Industry 4.0 companies, and built AMR software with ROS and Python. Electrical &amp; Electronics Engineer; M.Sc. student in Mechatronics Engineering at Kocaeli University.</span></p>
+        <div class="cred">
+          <span>Sefine Shipyard</span><span>Metarob</span><span>Epik Robotik</span>
+          <span><span class="tr">TEKNOFEST Robotik Fetih 1453 — 1.lik</span><span class="en">TEKNOFEST Robotik Fetih 1453 — 1st place</span></span>
+          <span><span class="tr">5× Universal Robots sertifikası</span><span class="en">5× Universal Robots certified</span></span>
+        </div>
+        <div class="ghs"><p class="ghs-t"><span class="tr">GitHub'daki çalışmalar</span><span class="en">Work on GitHub</span></p><ul><li><code>mavlink-yer-istasyonu</code><span><span class="tr">MAVLink yer istasyonu ve otonom kara aracı görev planlayıcı (MATLAB, ROS 2)</span><span class="en">MAVLink ground station and autonomous rover mission planner (MATLAB, ROS 2)</span></span></li><li><code>yaskawa_moveit2</code><span><span class="tr">Yaskawa robot kolu için MoveIt 2 entegrasyonu</span><span class="en">MoveIt 2 integration for a Yaskawa arm</span></span></li><li><code>Ar_Tag_Docking</code><span><span class="tr">AR etiketiyle mobil robot otonom yanaşma</span><span class="en">AR-tag based autonomous robot docking</span></span></li><li><code>Realsense_DepthCloud</code><span><span class="tr">RealSense derinlik kamerası nokta bulutu</span><span class="en">RealSense depth-camera point clouds</span></span></li></ul></div>
+        <div class="btns">
+          <a class="btn btn-s" href="emre.html"><span class="tr">Kurucu profili</span><span class="en">Founder profile</span></a>
+          <a class="btn btn-s" href="https://github.com/emretasar02" target="_blank" rel="noopener">GitHub ↗</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="rule">
+
+<section id="contact">
+  <div class="shell ct">
+    <div>
+      <p class="kicker">06 <b>/</b> <span class="tr">İletişim</span><span class="en">Contact</span></p>
+      <h2 class="h2"><span class="tr">Pilot kurulum, ortaklık ya da yatırım için yazın.</span><span class="en">Write to us about pilots, partnerships or investment.</span></h2>
+      <p class="lede"><span class="tr">Kocaeli ve çevresinde pilot tesis olmak isteyen üreticilerle ve sistem entegratörleriyle görüşmek istiyoruz.</span><span class="en">We'd like to talk with manufacturers in and around Kocaeli who want to host a pilot, and with system integrators.</span></p>
+      <div class="btns" style="margin-top:28px"><a class="btn btn-p" href="mailto:emretasar@etekno.com.tr"><span class="tr">E-posta gönder</span><span class="en">Send an email</span></a></div>
+    </div>
+    <div class="ct-list">
+      <div class="ct-row"><b><span class="tr">E-posta</span><span class="en">Email</span></b><span>emretasar@etekno.com.tr</span></div>
+      <div class="ct-row"><b><span class="tr">Telefon</span><span class="en">Phone</span></b><span>+90 553 497 81 05</span></div>
+      <div class="ct-row"><b>Web</b><span>etekno.com.tr</span></div>
+      <div class="ct-row"><b>GitHub</b><a href="https://github.com/emretasar02" target="_blank" rel="noopener">github.com/emretasar02</a></div>
+      <div class="ct-row"><b><span class="tr">Konum</span><span class="en">Location</span></b><span>Kocaeli, Türkiye</span></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="shell">
+    <span>© 2026 eTekno · Kocaeli, Türkiye</span>
+    <span><a href="emre.html">Emre Taşar</a> · <a href="https://github.com/emretasar02" target="_blank" rel="noopener">GitHub</a></span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var root=document.documentElement,btns=document.querySelectorAll('.lang button');
+  function set(l){root.setAttribute('data-lang',l);root.setAttribute('lang',l);
+    btns.forEach(function(b){b.setAttribute('aria-pressed',b.dataset.set===l?'true':'false')});
+    try{localStorage.setItem('etk-lang',l)}catch(e){}}
+  set(root.getAttribute('data-lang')||'en');
+  btns.forEach(function(b){b.addEventListener('click',function(){set(b.dataset.set)})});
+})();
+</script>
+</body>
+</html>
