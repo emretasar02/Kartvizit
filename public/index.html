@@ -330,6 +330,7 @@ footer a{text-decoration:none}footer a:hover{color:var(--acc-txt)}
         <li><a href="demo.html">Demo</a></li>
         <li><a href="#field"><span class="tr">Saha</span><span class="en">Field</span></a></li>
         <li><a href="#architecture"><span class="tr">Mimari</span><span class="en">Architecture</span></a></li>
+        <li><a href="baglanti.html"><span class="tr">Bağlantı</span><span class="en">Connectivity</span></a></li>
         <li><a href="#compete"><span class="tr">Rekabet</span><span class="en">Competition</span></a></li>
         <li><a href="#roadmap"><span class="tr">Yol haritası</span><span class="en">Roadmap</span></a></li>
         <li><a href="#model"><span class="tr">İş modeli</span><span class="en">Business</span></a></li>
@@ -580,8 +581,10 @@ footer a{text-decoration:none}footer a:hover{color:var(--acc-txt)}
       <div><b><span class="tr">Düşük gecikme</span><span class="en">Low latency</span></b><span class="tr">Kontrol döngüsüne yakın işler ve arıza sınıflandırması yerelde yapılır; buluta gidip gelmez.</span><span class="en">Work near the control loop and fault classification run locally and never round-trip to the cloud.</span></div>
       <div><b><span class="tr">Veri minimizasyonu ve KVKK</span><span class="en">Data minimization &amp; GDPR</span></b><span class="tr">Ham görüntü ve ham sinyal tesiste kalır. Claude'a yalnızca olay etiketi ve özet gider; görüntü sınırlı süre saklanır.</span><span class="en">Raw video and raw signals stay on-site. Claude gets only event tags and summaries; footage is kept for a limited time.</span></div>
       <div><b><span class="tr">Kesintiye dayanıklı</span><span class="en">Outage-tolerant</span></b><span class="tr">Ağ kesilirse veri cihazda tamponlanır; bağlantı gelince sıradaki analizler çalışır.</span><span class="en">If the network drops, data is buffered on the device and queued analyses run once it's back.</span></div>
-      <div><b><span class="tr">Kolay kurulum</span><span class="en">Easy install</span></b><span class="tr">Mevcut ağa takılır; PLC programına dokunmadan, salt okuma ile çalışır.</span><span class="en">Plugs into the existing network and works read-only, without touching PLC programs.</span></div>
+      <div><b><span class="tr">Kolay kurulum</span><span class="en">Easy install</span></b><span class="tr">Mevcut ağa takılır ve salt okuma ile çalışır. PLC mantığı değişmez; bazı PLC'lerde yalnızca bir erişim ayarı açılır.</span><span class="en">Plugs into the existing network and works read-only. PLC logic does not change; some PLCs only need an access setting switched on.</span></div>
     </div>
+
+    <div class="btns" style="margin-top:28px"><a class="btn btn-s" href="baglanti.html"><span class="tr">Sahaya nasıl bağlanır? Ayrıntılı bağlantı şeması →</span><span class="en">How it connects to the floor: detailed connection map →</span></a></div>
 
     <h3 class="h3s mt"><span class="tr">Claude'a ne gider, ne döner?</span><span class="en">What goes to Claude, and what comes back</span></h3>
     <div class="cx">
@@ -682,7 +685,7 @@ footer a{text-decoration:none}footer a:hover{color:var(--acc-txt)}
       <article class="card">
         <p class="lbl"><span class="tr">Donanım dayanıklılığı</span><span class="en">Hardware durability</span></p>
         <ul class="chk">
-          <li><b><span class="tr">Sahada endüstriyel cihaz:</span><span class="en">Industrial hardware on site:</span></b> <span class="tr">prototip standart Raspberry Pi üzerinde çalışıyor. Sahada Compute Module tabanlı, DIN raya takılan, 24 V beslemeli, CE ve EN 61131-2 uyumlu kontrol cihazları hedefleniyor (örneğin KUNBUS Revolution Pi Connect 5).</span><span class="en">the prototype runs on a standard Raspberry Pi. On site the target is Compute Module-based controllers on DIN rail, with 24 V supply, CE and EN 61131-2 compliance (for example KUNBUS Revolution Pi Connect 5).</span></li>
+          <li><b><span class="tr">Sahada endüstriyel cihaz:</span><span class="en">Industrial hardware on site:</span></b> <span class="tr">prototip, Raspberry Pi OS'ta servis olarak çalışacak şekilde paketlendi; şimdilik geliştirme bilgisayarında simülatörle test ediliyor. Sahada Compute Module tabanlı, DIN raya takılan, 24 V beslemeli, CE ve EN 61131-2 uyumlu kontrol cihazları hedefleniyor (örneğin KUNBUS Revolution Pi Connect 5).</span><span class="en">the prototype is packaged to run as a service on Raspberry Pi OS and is tested on a development computer against the simulator for now. On site the target is Compute Module-based controllers on DIN rail, with 24 V supply, CE and EN 61131-2 compliance (for example KUNBUS Revolution Pi Connect 5).</span></li>
           <li><b><span class="tr">Uzun ömür:</span><span class="en">Long availability:</span></b> <span class="tr">Raspberry Pi, CM4'ü en az Ocak 2034'e, CM5'i en az Ocak 2036'ya kadar üretmeyi taahhüt ediyor.</span><span class="en">Raspberry Pi commits to producing the CM4 until at least January 2034 and the CM5 until at least January 2036.</span></li>
           <li><b><span class="tr">Kesintiye dayanıklı yazılım:</span><span class="en">Outage-tolerant software:</span></b> <span class="tr">bağlantı kesilince yerel tamponlama, PLC'ye salt okuma erişimi ve servis olarak otomatik yeniden başlama.</span><span class="en">local buffering when the link drops, read-only PLC access and automatic restart as a service.</span></li>
         </ul>
@@ -820,7 +823,7 @@ footer a{text-decoration:none}footer a:hover{color:var(--acc-txt)}
         <div class="cred">
           <span>Sefine Shipyard</span><span>Metarob</span><span>Epik Robotik</span>
           <span><span class="tr">TEKNOFEST Robotik Fetih 1453 — 1.lik</span><span class="en">TEKNOFEST Robotik Fetih 1453 — 1st place</span></span>
-          <span><span class="tr">5× Universal Robots sertifikası</span><span class="en">5× Universal Robots certified</span></span>
+          <span><span class="tr">4× Universal Robots sertifikası</span><span class="en">4× Universal Robots certified</span></span>
         </div>
         <div class="ghs"><p class="ghs-t"><span class="tr">GitHub'daki çalışmalar</span><span class="en">Work on GitHub</span></p><ul><li><code>mavlink-yer-istasyonu</code><span><span class="tr">MAVLink yer istasyonu ve otonom kara aracı görev planlayıcı (MATLAB, ROS 2)</span><span class="en">MAVLink ground station and autonomous rover mission planner (MATLAB, ROS 2)</span></span></li><li><code>yaskawa_moveit2</code><span><span class="tr">Yaskawa robot kolu için MoveIt 2 entegrasyonu</span><span class="en">MoveIt 2 integration for a Yaskawa arm</span></span></li><li><code>Ar_Tag_Docking</code><span><span class="tr">AR etiketiyle mobil robot otonom yanaşma</span><span class="en">AR-tag based autonomous robot docking</span></span></li><li><code>Realsense_DepthCloud</code><span><span class="tr">RealSense derinlik kamerası nokta bulutu</span><span class="en">RealSense depth-camera point clouds</span></span></li></ul></div>
         <div class="btns">
@@ -864,7 +867,7 @@ footer a{text-decoration:none}footer a:hover{color:var(--acc-txt)}
 <footer>
   <div class="shell">
     <span>© 2026 eTekno · Kocaeli, Türkiye</span>
-    <span><a href="emre.html">Emre Taşar</a> · <a href="https://github.com/emretasar02" target="_blank" rel="noopener">GitHub</a></span>
+    <span><a href="demo.html">Demo</a> · <a href="baglanti.html"><span class="tr">Bağlantı</span><span class="en">Connectivity</span></a> · <a href="emre.html">Emre Taşar</a> · <a href="https://github.com/emretasar02" target="_blank" rel="noopener">GitHub</a></span>
   </div>
 </footer>
 

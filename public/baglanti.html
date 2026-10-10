@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="tr" data-lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="description" content="How the eTekno Edge device connects to a plant: PLCs, robots, energy meters, cameras and digital signals, read-only, with separated machine and office networks and outbound-only HTTPS to Claude.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://etekno.com.tr/baglanti">
+<meta property="og:title" content="eTekno — How the edge device connects to the floor">
+<meta property="og:description" content="Interactive connection map: Siemens and Delta PLCs, safety PLC, robots, energy meters over RS-485, IP cameras and digital inputs into a Raspberry Pi-based edge device.">
+<title>eTekno Connectivity</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<script>
+(function(){var l=null;try{l=localStorage.getItem('etk-lang')}catch(e){}
+if(!l){l=(navigator.language||'en').toLowerCase().indexOf('tr')===0?'tr':'en'}
+document.documentElement.setAttribute('data-lang',l);document.documentElement.setAttribute('lang',l);})();
+</script>
+<style>
+:root{
+  --bg:#f3f5f4;--surface:#ffffff;--sunk:#e8ecea;--fg:#101614;--fg2:#4d5955;--fg3:#7b8783;--line:#d6ddda;
+  --accent:#0a9e7a;--accent-ink:#ffffff;--accent-soft:#dff2ec;--acc-txt:#08775c;
+  --amber:#b86e00;--amber-soft:#fbefd9;--amb-txt:#8a5300;--red:#c2410c;
+  --pro-bg:#e3edfb;--pro-txt:#1d5aa6;
+  /* link colours on the map */
+  --c-eth:#0a9e7a;--c-485:#d97706;--c-cam:#2a78d6;--c-di:#7b8783;--c-it:#7c5cff;
+  --node:#ffffff;--zone-ot:#eef6f3;--zone-it:#f2f0fb;
+  --sans:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0b100f;--surface:#121a18;--sunk:#0f1614;--fg:#e7eeeb;--fg2:#9aa9a4;--fg3:#6c7b76;--line:#22302c;
+  --accent:#2fd3a3;--accent-ink:#04120d;--accent-soft:#10291f;--acc-txt:#2fd3a3;
+  --amber:#f2b24c;--amber-soft:#2a1f0c;--amb-txt:#f2b24c;--red:#fb7a4a;
+  --pro-bg:#11223a;--pro-txt:#8ab8ff;
+  --c-eth:#2fd3a3;--c-485:#f2b24c;--c-cam:#5b9cf0;--c-di:#8a9a95;--c-it:#a594ff;
+  --node:#121a18;--zone-ot:#0f1d19;--zone-it:#16142a;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0b100f;--surface:#121a18;--sunk:#0f1614;--fg:#e7eeeb;--fg2:#9aa9a4;--fg3:#6c7b76;--line:#22302c;
+  --accent:#2fd3a3;--accent-ink:#04120d;--accent-soft:#10291f;--acc-txt:#2fd3a3;
+  --amber:#f2b24c;--amber-soft:#2a1f0c;--amb-txt:#f2b24c;--red:#fb7a4a;
+  --pro-bg:#11223a;--pro-txt:#8ab8ff;
+  --c-eth:#2fd3a3;--c-485:#f2b24c;--c-cam:#5b9cf0;--c-di:#8a9a95;--c-it:#a594ff;
+  --node:#121a18;--zone-ot:#0f1d19;--zone-it:#16142a;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--fg);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+html[data-lang="tr"] .en,html[data-lang="en"] .tr{display:none!important}
+.shell{max-width:1200px;margin:0 auto;padding-inline:clamp(16px,4vw,40px)}
+section{padding-block:clamp(48px,7vw,80px);scroll-margin-top:60px}
+.kicker{font-family:var(--mono);font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--acc-txt);font-weight:500;margin-bottom:12px}
+.kicker b{color:var(--fg3);font-weight:500}
+.h2{font-size:clamp(1.6rem,3.2vw,2.3rem);font-weight:700;letter-spacing:-.025em;line-height:1.15;text-wrap:balance;max-width:26ch}
+.lede{color:var(--fg2);font-size:1.03rem;max-width:72ch;margin-top:14px}
+.sec-head{margin-bottom:32px}
+.band{background:var(--sunk);border-block:1px solid var(--line)}
+.tag{display:inline-block;font:500 .64rem/1.5 var(--mono);letter-spacing:.05em;text-transform:uppercase;border-radius:5px;padding:2px 7px;white-space:nowrap;vertical-align:1px}
+.tag.proto{background:var(--accent-soft);color:var(--acc-txt)}
+.tag.plan{background:var(--sunk);color:var(--fg2)}
+.band .tag.plan{background:var(--bg)}
+.tag.rule{background:var(--amber-soft);color:var(--amb-txt)}
+.src-note{margin-top:16px;font-size:.8rem;color:var(--fg3);max-width:92ch}
+
+nav{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.nav-in{display:flex;align-items:center;justify-content:space-between;gap:16px;height:58px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:700;font-size:1.1rem;letter-spacing:-.02em}
+.logo-mark{width:26px;height:26px;border-radius:6px;background:var(--fg);display:grid;place-items:center}
+.logo-mark i{width:10px;height:10px;border-radius:2px;background:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 30%,transparent)}
+.logo small{font:500 .78rem var(--mono);color:var(--fg3)}
+.nav-r{display:flex;align-items:center;gap:18px}
+.nav-r>a{font-size:.86rem;color:var(--fg2);text-decoration:none;font-weight:500}
+.nav-r>a:hover{color:var(--acc-txt)}
+.lang{display:flex;border:1px solid var(--line);border-radius:7px;overflow:hidden;background:var(--surface)}
+.lang button{border:0;background:none;color:var(--fg2);font:600 .72rem/1 var(--mono);letter-spacing:.06em;padding:8px 10px;cursor:pointer}
+.lang button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
+.btns{display:flex;gap:12px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:8px;font:600 .9rem/1 var(--sans);text-decoration:none;border:1px solid transparent}
+.btn-p{background:var(--accent);color:var(--accent-ink)}
+.btn-s{background:var(--surface);border-color:var(--line);color:var(--fg)}
+.btn-s:hover{border-color:var(--accent);color:var(--acc-txt)}
+
+header.intro{padding-block:clamp(36px,6vw,64px) 8px}
+h1{font-size:clamp(1.9rem,4.2vw,3rem);font-weight:700;letter-spacing:-.03em;line-height:1.08;text-wrap:balance;max-width:24ch}
+.intro p.sub{color:var(--fg2);font-size:1.06rem;max-width:72ch;margin-top:16px}
+.principles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:28px}
+.principles div{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;font-size:.88rem;color:var(--fg2)}
+.principles b{display:block;color:var(--fg);font-weight:600;margin-bottom:2px;font-size:.92rem}
+
+/* ---- connection map ---- */
+.map-wrap{display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
+.map-card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px;min-width:0}
+.map-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.map-scroll svg{display:block;width:100%;min-width:860px;height:auto}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;padding:10px 6px 2px;font-size:.78rem;color:var(--fg2)}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.legend i{display:inline-block;width:22px;height:0;border-top:3px solid currentColor}
+.legend i.d{border-top-style:dashed}.legend i.o{border-top-style:dotted}
+.scroll-hint{display:none;font:500 .72rem var(--mono);color:var(--fg3);padding:4px 6px}
+svg text{font-family:var(--sans)}
+svg .mono{font-family:var(--mono)}
+.dev,.hub{cursor:pointer;outline:none}
+.dev rect.box,.hub rect.box{transition:stroke .15s,stroke-width .15s}
+.dev:hover rect.box,.dev:focus-visible rect.box,.hub:hover rect.box,.hub:focus-visible rect.box{stroke:var(--accent);stroke-width:2}
+.ln{fill:none;transition:opacity .2s,stroke-width .2s}
+.map.has-sel .ln:not(.on){opacity:.18}
+.map.has-sel .dev:not(.on),.map.has-sel .hub:not(.on){opacity:.45}
+.ln.on{stroke-width:4}
+.dev.on rect.box,.hub.on rect.box{stroke:var(--accent);stroke-width:2.5}
+.pulse{fill:var(--accent)}
+
+.detail{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:14px;padding:18px 20px;min-height:220px}
+.detail-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.detail h3{font-size:1.12rem;font-weight:700;letter-spacing:-.01em;line-height:1.3}
+.dgrid{display:grid;grid-template-columns:1.1fr 1.1fr 1.4fr .6fr;gap:14px 24px;margin-top:14px;font-size:.9rem}
+.dgrid dt,.dnote dt{font:500 .68rem/1.4 var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--fg3);margin-bottom:3px}
+.dgrid dd,.dnote dd{color:var(--fg2)}
+.dnote{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line);font-size:.9rem}
+.detail .hint{font-size:.78rem;color:var(--fg3);margin-top:12px}
+
+/* ---- tables ---- */
+.tbl{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:14px}
+table{width:100%;border-collapse:collapse;font-size:.88rem;min-width:760px}
+th{font:500 .68rem/1.4 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--fg3);text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);background:var(--sunk)}
+td{padding:11px 14px;border-bottom:1px dashed var(--line);vertical-align:top;color:var(--fg2)}
+td:first-child{color:var(--fg);font-weight:600}
+tr:last-child td{border-bottom:0}
+td code{font-family:var(--mono);font-size:.8rem;color:var(--fg)}
+
+/* ---- cabinet ---- */
+.cab{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:16px;align-items:start}
+.cab-card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;min-width:0}
+.cab-card svg{display:block;width:100%;height:auto}
+.cab-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.notes{display:flex;flex-direction:column;gap:12px}
+.note{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;font-size:.9rem;color:var(--fg2)}
+.note b{display:block;color:var(--fg);font-weight:600;margin-bottom:3px}
+
+/* ---- network rules ---- */
+.rules{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.rule{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;font-size:.9rem;color:var(--fg2)}
+.rule h3{font-size:.98rem;font-weight:600;color:var(--fg);margin:8px 0 6px}
+
+/* ---- steps ---- */
+.steps{counter-reset:s;display:flex;flex-direction:column;border-left:2px solid var(--line);margin-left:8px}
+.step{position:relative;padding:0 0 22px 30px;display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:4px 24px}
+.step:last-child{padding-bottom:2px}
+.step::before{counter-increment:s;content:counter(s);position:absolute;left:-14px;top:0;width:26px;height:26px;border-radius:50%;background:var(--surface);border:2px solid var(--accent);display:grid;place-items:center;font:600 .78rem var(--mono);color:var(--acc-txt)}
+.step h3{font-size:1rem;font-weight:600;margin-bottom:2px}
+.step p{color:var(--fg2);font-size:.9rem}
+.step .who{font:500 .74rem/1.5 var(--mono);color:var(--fg3);padding-top:4px}
+
+.cta{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px 24px}
+.cta p{color:var(--fg2);max-width:62ch}
+footer{border-top:1px solid var(--line);padding-block:24px;color:var(--fg3);font-size:.82rem}
+footer .shell{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+footer a{text-decoration:none}footer a:hover{color:var(--acc-txt)}
+
+@media(max-width:1020px){
+  .map-wrap{grid-template-columns:1fr}
+  .dgrid{grid-template-columns:1fr 1fr}
+  .principles{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .cab{grid-template-columns:1fr}
+  .rules{grid-template-columns:1fr 1fr}
+}
+@media(max-width:700px){
+  .principles,.rules{grid-template-columns:1fr}
+  .scroll-hint{display:block}
+  .cab-scroll svg{min-width:600px}
+  .step{grid-template-columns:1fr}
+  .dgrid{grid-template-columns:1fr}
+  .nav-r>a{display:none}
+}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.pulse{display:none}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="shell nav-in">
+    <a class="logo" href="/"><span class="logo-mark"><i></i></span>eTekno <small>/ <span class="tr">bağlantı</span><span class="en">connectivity</span></small></a>
+    <div class="nav-r">
+      <a href="/"><span class="tr">Ana sayfa</span><span class="en">Home</span></a>
+      <a href="demo.html">Demo</a>
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" data-set="tr">TR</button>
+        <button type="button" data-set="en">EN</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main>
+<header class="intro shell">
+  <p class="kicker"><span class="tr">Sahaya bağlantı</span><span class="en">Connecting to the floor</span></p>
+  <h1><span class="tr">eTekno Edge, sahadaki cihazlara nasıl bağlanır?</span><span class="en">How eTekno Edge connects to the equipment on the floor</span></h1>
+  <p class="sub"><span class="tr">Raspberry Pi tabanlı uç cihaz, tesisin elektrik panosuna DIN raya takılır. PLC'leri, robotları, enerji analizörlerini, kameraları ve dijital sinyalleri <b>yalnızca okuyarak</b> dinler. Makine ağı ile ofis ağını birbirinden ayrı tutar, internete yalnızca dışarıya doğru HTTPS ile çıkar. Aşağıdaki şemada bir cihaza tıklayarak bağlantı yolunu ve ayrıntılarını görebilirsiniz.</span><span class="en">The Raspberry Pi-based edge device mounts on a DIN rail in the plant's control cabinet. It listens to PLCs, robots, energy meters, cameras and digital signals <b>read-only</b>, keeps the machine network and the office network apart, and reaches the internet only through outbound HTTPS. Click a device in the map below to see its connection path and details.</span></p>
+  <div class="principles">
+    <div><b><span class="tr">Salt okuma</span><span class="en">Read-only</span></b><span class="tr">Cihaz istemci olarak bağlanır ve PLC'ye hiçbir değer yazmaz.</span><span class="en">The device connects as a client and never writes a value to a PLC.</span></div>
+    <div><b><span class="tr">Kontrol mantığı değişmez</span><span class="en">Control logic unchanged</span></b><span class="tr">Bazı PLC'lerde yalnızca bir erişim ayarının açılması gerekir.</span><span class="en">Some PLCs only need an access setting switched on.</span></div>
+    <div><b><span class="tr">Ağlar ayrı</span><span class="en">Separate networks</span></b><span class="tr">Makine ağı (OT) ile ofis ağı (BT) arasında cihaz yönlendirme yapmaz.</span><span class="en">The device does not route between the machine (OT) and office (IT) networks.</span></div>
+    <div><b><span class="tr">Yalnızca dışarı</span><span class="en">Outbound only</span></b><span class="tr">Dışarıya yalnızca HTTPS ile çıkılır; içeriye açık port yoktur.</span><span class="en">Outbound HTTPS only, with no inbound ports open.</span></div>
+  </div>
+</header>
+
+<section id="map">
+  <div class="shell">
+    <div class="sec-head">
+      <p class="kicker">01 <b>/</b> <span class="tr">Bağlantı şeması</span><span class="en">Connection map</span></p>
+      <h2 class="h2"><span class="tr">Her cihaz, hangi yoldan?</span><span class="en">Every device, and the path it takes</span></h2>
+    </div>
+    <div class="map-wrap">
+      <div class="map-card">
+        <p class="scroll-hint"><span class="tr">← Şemayı yatay kaydırın →</span><span class="en">← Scroll the map sideways →</span></p>
+        <div class="map-scroll">
+          <svg class="map" id="map-svg" viewBox="0 0 1120 640" role="group" aria-label="Connection map">
+            <defs>
+              <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--c-it)"/></marker>
+            </defs>
+            <!-- zones -->
+            <rect x="8" y="8" width="842" height="624" rx="14" fill="var(--zone-ot)"/>
+            <rect x="850" y="8" width="262" height="624" rx="14" fill="var(--zone-it)"/>
+            <line x1="850" y1="20" x2="850" y2="620" stroke="var(--fg3)" stroke-dasharray="6 6" opacity=".6"/>
+            <text x="24" y="34" class="mono" font-size="11" fill="var(--fg3)" letter-spacing="1"><tspan class="tr">SAHA CİHAZLARI · MAKİNE AĞI (OT)</tspan><tspan class="en">FIELD DEVICES · MACHINE NETWORK (OT)</tspan></text>
+            <text x="866" y="34" class="mono" font-size="11" fill="var(--fg3)" letter-spacing="1"><tspan class="tr">OFİS AĞI (BT) · İNTERNET</tspan><tspan class="en">OFFICE NETWORK (IT) · INTERNET</tspan></text>
+
+            <!-- ===== links (drawn first, under the boxes) ===== -->
+            <!-- Ethernet devices to the OT switch -->
+            <path class="ln" data-k="s7" d="M294 78 C330 78 330 196 368 196" stroke="var(--c-eth)" stroke-width="2.5"/>
+            <path class="ln" data-k="delta" d="M294 154 C325 154 330 208 368 208" stroke="var(--c-eth)" stroke-width="2.5"/>
+            <path class="ln" data-k="robot" d="M294 306 C330 306 330 232 368 232" stroke="var(--c-eth)" stroke-width="2.5"/>
+            <!-- safety PLC status is read through the cell PLC -->
+            <path class="ln" data-k="safety" d="M294 230 C318 230 318 92 294 92" stroke="var(--c-eth)" stroke-width="2.5" stroke-dasharray="2 5"/>
+            <!-- camera via PoE switch, uplink to OT switch on its own VLAN -->
+            <path class="ln" data-k="cam" d="M294 458 L368 458" stroke="var(--c-cam)" stroke-width="2.5"/>
+            <path class="ln" data-k="cam" d="M452 430 L452 268" stroke="var(--c-cam)" stroke-width="2.5" stroke-dasharray="7 5"/>
+            <!-- OT switch to the edge device (ETH0) -->
+            <path class="ln" data-k="s7 delta robot safety cam edge" d="M536 214 L640 214" stroke="var(--c-eth)" stroke-width="3.5"/>
+            <!-- RS-485 bus from the energy meters straight to the edge device -->
+            <path class="ln" data-k="meter" d="M294 382 L640 382" stroke="var(--c-485)" stroke-width="2.5" stroke-dasharray="9 5"/>
+            <!-- digital inputs -->
+            <path class="ln" data-k="di" d="M294 534 C470 534 470 512 640 512" stroke="var(--c-di)" stroke-width="2.5" stroke-dasharray="2 4"/>
+            <!-- ETH1 to the office network, dashboard, firewall and Claude -->
+            <path class="ln" data-k="it edge dash claude" d="M824 170 L884 170" stroke="var(--c-it)" stroke-width="3"/>
+            <path class="ln" data-k="dash" d="M940 222 L940 292" stroke="var(--c-it)" stroke-width="2.5"/>
+            <path class="ln" data-k="it claude" d="M1076 222 L1076 398" stroke="var(--c-it)" stroke-width="2.5" marker-end="url(#arr)"/>
+            <path class="ln" data-k="it claude" d="M1076 452 L1076 518" stroke="var(--c-it)" stroke-width="2.5" marker-end="url(#arr)"/>
+
+            <!-- ===== field devices ===== -->
+            <g class="dev" data-k="s7" tabindex="0" role="button" aria-label="Siemens S7 PLC">
+              <rect class="box" x="24" y="50" width="270" height="56" rx="10" fill="var(--node)" stroke="var(--line)"/>
+              <circle cx="276" cy="66" r="5" fill="var(--fg3)" opacity=".45"/>
+              <text x="40" y="74" font-size="14" font-weight="600" fill="var(--fg)">Siemens S7-1200 / 1500</text>
+              <text x="40" y="94" class="mono" font-size="11" fill="var(--fg2)">S7 · TCP 102 · OPC UA 4840</text>
+            </g>
+            <g class="dev" data-k="delta" tabindex="0" role="button" aria-label="Delta PLC">
+              <rect class="box" x="24" y="126" width="270" height="56" rx="10" fill="var(--node)" stroke="var(--line)"/>
+              <circle cx="276" cy="142" r="5" fill="var(--c-eth)"/>
+              <text x="40" y="150" font-size="14" font-weight="600" fill="var(--fg)">Delta PLC (DVP / AS)</text>
+              <text x="40" y="170" class="mono" font-size="11" fill="var(--fg2)">Modbus TCP 502 · Modbus RTU</text>
+            </g>
+            <g class="dev" data-k="safety" tabindex="0" role="button" aria-label="Safety PLC and area scanners">
+              <rect class="box" x="24" y="202" width="270" height="56" rx="10" fill="var(--node)" stroke="var(--line)"/>
+              <circle cx="276" cy="218" r="5" fill="var(--c-eth)"/>
+              <text x="40" y="226" font-size="14" font-weight="600" fill="var(--fg)"><tspan class="tr">Güvenlik PLC'si · tarayıcılar</tspan><tspan class="en">Safety PLC · area scanners</tspan></text>
+              <text x="40" y="246" class="mono" font-size="11" fill="var(--fg2)"><tspan class="tr">durum bitleri · PLC üzerinden</tspan><tspan class="en">status bits · via the cell PLC</tspan></text>
+            </g>
+            <g class="dev" data-k="robot" tabindex="0" role="button" aria-label="Robot controllers">
+              <rect class="box" x="24" y="278" width="270" height="56" rx="10" fill="var(--node)" stroke="var(--line)"/>
+              <circle cx="276" cy="294" r="5" fill="var(--fg3)" opacity=".45"/>
+              <text x="40" y="302" font-size="14" font-weight="600" fill="var(--fg)"><tspan class="tr">Robotlar · UR, Fanuc, Yaskawa</tspan><tspan class="en">Robots · UR, Fanuc, Yaskawa</tspan></text>
+              <text x="40" y="322" class="mono" font-size="11" fill="var(--fg2)"><tspan class="tr">UR RTDE 30004 · diğerleri PLC'den</tspan><tspan class="en">UR RTDE 30004 · others via PLC</tspan></text>
+            </g>
+            <g class="dev" data-k="meter" tabindex="0" role="button" aria-label="Energy meters">
+              <rect class="box" x="24" y="354" width="270" height="56" rx="10" fill="var(--node)" stroke="var(--line)"/>
+              <circle cx="276" cy="370" r="5" fill="var(--c-eth)"/>
+              <text x="40" y="378" font-size="14" font-weight="600" fill="var(--fg)"><tspan class="tr">Enerji analizörleri</tspan><tspan class="en">Energy meters</tspan></text>
+              <text x="40" y="398" class="mono" font-size="11" fill="var(--fg2)">Modbus RTU · RS-485 (A/B)</text>
+            </g>
+            <g class="dev" data-k="cam" tabindex="0" role="button" aria-label="IP cameras">
+              <rect class="box" x="24" y="430" width="270" height="56" rx="10" fill="var(--node)" stroke="var(--line)"/>
+              <circle cx="276" cy="446" r="5" fill="var(--c-eth)"/>
+              <text x="40" y="454" font-size="14" font-weight="600" fill="var(--fg)"><tspan class="tr">IP kameralar</tspan><tspan class="en">IP cameras</tspan></text>
+              <text x="40" y="474" class="mono" font-size="11" fill="var(--fg2)">RTSP 554 · ONVIF · PoE</text>
+            </g>
+            <g class="dev" data-k="di" tabindex="0" role="button" aria-label="Digital signals">
+              <rect class="box" x="24" y="506" width="270" height="56" rx="10" fill="var(--node)" stroke="var(--line)"/>
+              <circle cx="276" cy="522" r="5" fill="var(--fg3)" opacity=".45"/>
+              <text x="40" y="530" font-size="14" font-weight="600" fill="var(--fg)"><tspan class="tr">Dijital sinyaller</tspan><tspan class="en">Digital signals</tspan></text>
+              <text x="40" y="550" class="mono" font-size="11" fill="var(--fg2)"><tspan class="tr">24 V DI · yardımcı kontak</tspan><tspan class="en">24 V DI · auxiliary contacts</tspan></text>
+            </g>
+
+            <!-- OT switch -->
+            <g class="hub" data-k="otsw" tabindex="0" role="button" aria-label="Machine network switch">
+              <rect class="box" x="368" y="176" width="168" height="92" rx="10" fill="var(--node)" stroke="var(--line)"/>
+              <text x="384" y="200" font-size="13" font-weight="600" fill="var(--fg)"><tspan class="tr">OT anahtarı</tspan><tspan class="en">OT switch</tspan></text>
+              <text x="384" y="218" class="mono" font-size="10.5" fill="var(--fg2)"><tspan class="tr">makine ağı · VLAN 10</tspan><tspan class="en">machine net · VLAN 10</tspan></text>
+              <g fill="var(--sunk)" stroke="var(--line)"><rect x="384" y="232" width="16" height="12" rx="2"/><rect x="404" y="232" width="16" height="12" rx="2"/><rect x="424" y="232" width="16" height="12" rx="2"/><rect x="444" y="232" width="16" height="12" rx="2"/><rect x="464" y="232" width="16" height="12" rx="2"/><rect x="484" y="232" width="16" height="12" rx="2"/><rect x="504" y="232" width="16" height="12" rx="2"/></g>
+            </g>
+            <!-- PoE switch -->
+            <g class="hub" data-k="cam" tabindex="0" role="button" aria-label="PoE switch">
+              <rect class="box" x="368" y="430" width="168" height="56" rx="10" fill="var(--node)" stroke="var(--line)"/>
+              <text x="384" y="454" font-size="13" font-weight="600" fill="var(--fg)"><tspan class="tr">PoE anahtarı</tspan><tspan class="en">PoE switch</tspan></text>
+              <text x="384" y="474" class="mono" font-size="10.5" fill="var(--fg2)"><tspan class="tr">kamera VLAN 20</tspan><tspan class="en">camera VLAN 20</tspan></text>
+            </g>
+            <text x="460" y="362" class="mono" font-size="10.5" fill="var(--amb-txt)">RS-485 · 120 Ω ↔ 120 Ω</text>
+
+            <!-- edge device -->
+            <g class="hub" data-k="edge" tabindex="0" role="button" aria-label="eTekno Edge">
+              <rect class="box" x="640" y="92" width="184" height="476" rx="14" fill="var(--node)" stroke="var(--accent)" stroke-width="2"/>
+              <text x="656" y="120" font-size="15" font-weight="700" fill="var(--fg)">eTekno Edge</text>
+              <text x="656" y="138" class="mono" font-size="10" fill="var(--fg2)"><tspan class="tr">endüstriyel Raspberry Pi</tspan><tspan class="en">industrial Raspberry Pi</tspan></text>
+              <text x="656" y="152" class="mono" font-size="10" fill="var(--fg2)"><tspan class="tr">DIN ray · 24 V DC</tspan><tspan class="en">DIN rail · 24 V DC</tspan></text>
+              <g font-size="11.5" fill="var(--fg2)">
+                <text x="660" y="262"><tspan class="tr">• Toplayıcı (salt okuma)</tspan><tspan class="en">• Collector (read-only)</tspan></text>
+                <text x="660" y="284"><tspan class="tr">• Yerel arıza modeli</tspan><tspan class="en">• Local fault model</tspan></text>
+                <text x="660" y="306"><tspan class="tr">• Bakım sayaçları</tspan><tspan class="en">• Maintenance counters</tspan></text>
+                <text x="660" y="328"><tspan class="tr">• Görüntü analizi</tspan><tspan class="en">• On-device vision</tspan></text>
+                <text x="660" y="350"><tspan class="tr">• Yerel veri (SQLite)</tspan><tspan class="en">• Local data (SQLite)</tspan></text>
+                <text x="660" y="420"><tspan class="tr">• Pano (web)</tspan><tspan class="en">• Dashboard (web)</tspan></text>
+                <text x="660" y="442"><tspan class="tr">• Claude istemcisi</tspan><tspan class="en">• Claude client</tspan></text>
+                <text x="660" y="464"><tspan class="tr">  (çevrimdışı kuyruk)</tspan><tspan class="en">  (offline queue)</tspan></text>
+              </g>
+              <!-- ports -->
+              <g class="mono" font-size="9.5" font-weight="600">
+                <rect x="632" y="204" width="56" height="20" rx="4" fill="var(--c-eth)"/><text x="660" y="218" text-anchor="middle" fill="#0b100f">ETH0</text>
+                <rect x="632" y="372" width="56" height="20" rx="4" fill="var(--c-485)"/><text x="660" y="386" text-anchor="middle" fill="#1b1b1b">RS-485</text>
+                <rect x="632" y="502" width="56" height="20" rx="4" fill="var(--c-di)"/><text x="660" y="516" text-anchor="middle" fill="#0b100f">DI 1–8</text>
+                <rect x="776" y="160" width="56" height="20" rx="4" fill="var(--c-it)"/><text x="804" y="174" text-anchor="middle" fill="#0b100f">ETH1</text>
+              </g>
+              <text x="732" y="550" text-anchor="middle" class="mono" font-size="9.5" fill="var(--fg3)"><tspan class="tr">OT ↔ BT yönlendirme yok</tspan><tspan class="en">no OT ↔ IT routing</tspan></text>
+            </g>
+
+            <!-- office side -->
+            <g class="hub" data-k="it" tabindex="0" role="button" aria-label="Office network">
+              <rect class="box" x="884" y="146" width="212" height="76" rx="10" fill="var(--node)" stroke="var(--line)"/>
+              <text x="900" y="172" font-size="13" font-weight="600" fill="var(--fg)"><tspan class="tr">Ofis ağı (BT)</tspan><tspan class="en">Office network (IT)</tspan></text>
+              <text x="900" y="190" class="mono" font-size="10.5" fill="var(--fg2)"><tspan class="tr">tesis LAN'ı ya da 4G modem</tspan><tspan class="en">plant LAN or a 4G modem</tspan></text>
+              <text x="900" y="208" class="mono" font-size="10.5" fill="var(--fg2)"><tspan class="tr">içeri port yok</tspan><tspan class="en">no inbound ports</tspan></text>
+            </g>
+            <g class="hub" data-k="dash" tabindex="0" role="button" aria-label="Dashboard">
+              <rect class="box" x="884" y="292" width="122" height="66" rx="10" fill="var(--node)" stroke="var(--line)"/>
+              <text x="898" y="318" font-size="13" font-weight="600" fill="var(--fg)"><tspan class="tr">Pano</tspan><tspan class="en">Dashboard</tspan></text>
+              <text x="898" y="336" class="mono" font-size="10.5" fill="var(--fg2)"><tspan class="tr">tablet · PC</tspan><tspan class="en">tablet · PC</tspan></text>
+            </g>
+            <g class="hub" data-k="it" tabindex="0" role="button" aria-label="Firewall">
+              <rect class="box" x="1020" y="400" width="88" height="52" rx="10" fill="var(--node)" stroke="var(--line)"/>
+              <text x="1064" y="422" text-anchor="middle" font-size="11.5" font-weight="600" fill="var(--fg)"><tspan class="tr">Güvenlik</tspan><tspan class="en">Firewall</tspan></text>
+              <text x="1064" y="438" text-anchor="middle" font-size="11.5" font-weight="600" fill="var(--fg)"><tspan class="tr">duvarı</tspan><tspan class="en"> </tspan></text>
+            </g>
+            <g class="hub" data-k="claude" tabindex="0" role="button" aria-label="Claude API">
+              <rect class="box" x="884" y="520" width="212" height="72" rx="10" fill="var(--node)" stroke="var(--line)"/>
+              <text x="900" y="546" font-size="13" font-weight="600" fill="var(--fg)">Claude API</text>
+              <text x="900" y="564" class="mono" font-size="10.5" fill="var(--fg2)">api.anthropic.com</text>
+              <text x="900" y="580" class="mono" font-size="10.5" fill="var(--fg2)"><tspan class="tr">HTTPS 443 · yalnızca dışarı</tspan><tspan class="en">HTTPS 443 · outbound only</tspan></text>
+            </g>
+            <circle class="pulse" r="4" opacity="0"><animateMotion id="pm" dur="2.2s" repeatCount="indefinite" path="M536 214 L640 214"/></circle>
+          </svg>
+        </div>
+        <div class="legend">
+          <span style="color:var(--c-eth)"><i></i>Ethernet (Modbus TCP · S7 · OPC UA)</span>
+          <span style="color:var(--c-485)"><i class="d"></i>RS-485 (Modbus RTU)</span>
+          <span style="color:var(--c-cam)"><i></i><span class="tr">Kamera (RTSP)</span><span class="en">Camera (RTSP)</span></span>
+          <span style="color:var(--c-di)"><i class="o"></i><span class="tr">Dijital giriş</span><span class="en">Digital input</span></span>
+          <span style="color:var(--c-it)"><i></i><span class="tr">Ofis ağı · HTTPS</span><span class="en">Office network · HTTPS</span></span>
+          <span><svg width="12" height="12" aria-hidden="true"><circle cx="6" cy="6" r="5" fill="var(--c-eth)"/></svg><span class="tr">prototipte</span><span class="en">in prototype</span></span>
+          <span><svg width="12" height="12" aria-hidden="true"><circle cx="6" cy="6" r="5" fill="var(--fg3)" opacity=".45"/></svg><span class="tr">planlanan</span><span class="en">planned</span></span>
+        </div>
+      </div>
+
+      <aside class="detail" id="detail" aria-live="polite"></aside>
+    </div>
+    <p class="src-note"><span class="tr">Protokoller, portlar ve ayarlar örnektir; her tesiste saha keşfiyle netleşir. Prototip bugün Modbus TCP ile simülatöre karşı test ediliyor; "planlanan" bağlantılar henüz kodlanmadı.</span><span class="en">Protocols, ports and settings are examples and are confirmed during a site survey. The prototype is tested today over Modbus TCP against a simulator; "planned" connections are not implemented yet.</span></p>
+  </div>
+</section>
+
+<section id="table" class="band">
+  <div class="shell">
+    <div class="sec-head">
+      <p class="kicker">02 <b>/</b> <span class="tr">Cihaz bazında özet</span><span class="en">Summary by device</span></p>
+      <h2 class="h2"><span class="tr">Ne bağlanır, ne okunur?</span><span class="en">What connects, and what is read</span></h2>
+    </div>
+    <div class="tbl">
+      <table>
+        <thead><tr>
+          <th><span class="tr">Cihaz</span><span class="en">Device</span></th>
+          <th><span class="tr">Arayüz</span><span class="en">Interface</span></th>
+          <th><span class="tr">Protokol · port</span><span class="en">Protocol · port</span></th>
+          <th><span class="tr">Okunan veri</span><span class="en">Data read</span></th>
+          <th><span class="tr">Durum</span><span class="en">Status</span></th>
+        </tr></thead>
+        <tbody>
+          <tr><td>Siemens S7-1200 / 1500</td><td>Ethernet (ETH0)</td><td><code>S7 · TCP 102</code><br><code>OPC UA · 4840</code></td><td><span class="tr">Mod, durum, adım, sayaç, alarm, acil stop</span><span class="en">Mode, state, step, counter, alarm, E-stop</span></td><td><span class="tag plan"><span class="tr">Planlanan</span><span class="en">Planned</span></span></td></tr>
+          <tr><td>Delta PLC</td><td><span class="tr">Ethernet ya da RS-485</span><span class="en">Ethernet or RS-485</span></td><td><code>Modbus TCP · 502</code><br><code>Modbus RTU</code></td><td><span class="tr">D registerları ve M bitleri</span><span class="en">D registers and M bits</span></td><td><span class="tag proto"><span class="tr">Prototipte (TCP)</span><span class="en">Prototype (TCP)</span></span></td></tr>
+          <tr><td><span class="tr">Güvenlik PLC'si ve tarayıcılar</span><span class="en">Safety PLC and scanners</span></td><td><span class="tr">Hücre PLC'si üzerinden</span><span class="en">Via the cell PLC</span></td><td><span class="tr">PLC ile aynı</span><span class="en">Same as the PLC</span></td><td><span class="tr">Acil stop durumu ve kaynağı, kapı, muting</span><span class="en">E-stop state and source, doors, muting</span></td><td><span class="tag proto"><span class="tr">Prototipte</span><span class="en">Prototype</span></span></td></tr>
+          <tr><td><span class="tr">Robotlar</span><span class="en">Robots</span></td><td>Ethernet (ETH0)</td><td><code>UR RTDE · 30004</code><br><span class="tr">diğerleri PLC üzerinden</span><span class="en">others via the PLC</span></td><td><span class="tr">Robot modu, program durumu, alarm, isteğe bağlı motor akımları</span><span class="en">Robot mode, program state, alarms, optional motor currents</span></td><td><span class="tag plan"><span class="tr">Planlanan</span><span class="en">Planned</span></span></td></tr>
+          <tr><td><span class="tr">Enerji analizörleri</span><span class="en">Energy meters</span></td><td><span class="tr">İzole RS-485 ya da ağ geçidi</span><span class="en">Isolated RS-485 or a gateway</span></td><td><code>Modbus RTU</code><br><code>Modbus TCP · 502</code></td><td><span class="tr">Gerilim, akım, aktif güç, enerji sayacı, güç faktörü</span><span class="en">Voltage, current, active power, energy counter, power factor</span></td><td><span class="tag proto"><span class="tr">Prototipte (TCP)</span><span class="en">Prototype (TCP)</span></span></td></tr>
+          <tr><td><span class="tr">IP kameralar</span><span class="en">IP cameras</span></td><td><span class="tr">PoE anahtarı, kamera VLAN'ı</span><span class="en">PoE switch, camera VLAN</span></td><td><code>RTSP · 554</code><br><code>ONVIF</code></td><td><span class="tr">Görüntü cihazda işlenir; dışarıya yalnızca olay etiketi gider</span><span class="en">Video is processed on the device; only an event tag leaves it</span></td><td><span class="tag proto"><span class="tr">Prototipte (OpenCV)</span><span class="en">Prototype (OpenCV)</span></span></td></tr>
+          <tr><td><span class="tr">Dijital sinyaller</span><span class="en">Digital signals</span></td><td><span class="tr">İzole 24 V dijital giriş</span><span class="en">Isolated 24 V digital input</span></td><td>—</td><td><span class="tr">Kule lambası, çevrim başlat, yardımcı kontaklar</span><span class="en">Stack light, cycle start, auxiliary contacts</span></td><td><span class="tag plan"><span class="tr">Planlanan</span><span class="en">Planned</span></span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="src-note"><span class="tr">"Prototipte (TCP)": prototip bu cihaz türünü bugün Modbus TCP ile okuyor; RS-485 üzerinden Modbus RTU planlanan. Kamera tarafında prototip OpenCV ile USB kamera veya RTSP adresi okuyor; gerçek bir IP kamerayla henüz denenmedi.</span><span class="en">"Prototype (TCP)": the prototype reads this device type over Modbus TCP today; Modbus RTU over RS-485 is planned. For cameras, the prototype reads a USB camera or an RTSP address through OpenCV; it has not yet been tried with a real IP camera.</span></p>
+  </div>
+</section>
+
+<section id="cabinet">
+  <div class="shell">
+    <div class="sec-head">
+      <p class="kicker">03 <b>/</b> <span class="tr">Pano içi</span><span class="en">Inside the cabinet</span></p>
+      <h2 class="h2"><span class="tr">DIN raya montaj ve kablolama</span><span class="en">DIN-rail mounting and wiring</span></h2>
+      <p class="lede"><span class="tr">Cihaz, mevcut elektrik panosundaki 24 V besleme ile çalışır. Enerji analizörleri tek bir RS-485 hattına zincir şeklinde bağlanır. Dijital sinyaller yalnızca yardımcı kontaklardan alınır.</span><span class="en">The device runs from the cabinet's existing 24 V supply. Energy meters are daisy-chained on one RS-485 line, and digital signals are taken only from auxiliary contacts.</span></p>
+    </div>
+    <div class="cab">
+      <div class="cab-card">
+        <p class="scroll-hint"><span class="tr">← Çizimi yatay kaydırın →</span><span class="en">← Scroll the drawing sideways →</span></p>
+        <div class="cab-scroll">
+        <svg viewBox="0 0 640 420" role="img" aria-label="Cabinet wiring">
+          <rect x="8" y="8" width="624" height="404" rx="12" fill="var(--sunk)" stroke="var(--line)"/>
+          <!-- outgoing network cables -->
+          <path d="M190 70 L190 30 L398 30" fill="none" stroke="var(--c-eth)" stroke-width="2.5"/>
+          <text x="406" y="34" class="mono" font-size="11" fill="var(--fg2)"><tspan class="tr">ETH0 → OT anahtarı (makine ağı)</tspan><tspan class="en">ETH0 → OT switch (machine network)</tspan></text>
+          <path d="M246 70 L246 52 L398 52" fill="none" stroke="var(--c-it)" stroke-width="2.5"/>
+          <text x="406" y="56" class="mono" font-size="11" fill="var(--fg2)"><tspan class="tr">ETH1 → ofis ağı ya da 4G</tspan><tspan class="en">ETH1 → office network or 4G</tspan></text>
+          <!-- DIN rail -->
+          <rect x="24" y="118" width="592" height="10" rx="2" fill="var(--fg3)" opacity=".45"/>
+          <text x="610" y="112" text-anchor="end" class="mono" font-size="10" fill="var(--fg3)"><tspan class="tr">DIN ray</tspan><tspan class="en">DIN rail</tspan></text>
+          <!-- power supply -->
+          <rect x="36" y="80" width="100" height="88" rx="8" fill="var(--surface)" stroke="var(--line)"/>
+          <text x="86" y="112" text-anchor="middle" font-size="13" font-weight="600" fill="var(--fg)"><tspan class="tr">Güç kaynağı</tspan><tspan class="en">Power supply</tspan></text>
+          <text x="86" y="130" text-anchor="middle" class="mono" font-size="11" fill="var(--fg2)">24 V DC</text>
+          <path d="M136 124 L168 124" fill="none" stroke="var(--red)" stroke-width="3"/>
+          <!-- edge device -->
+          <rect x="168" y="70" width="176" height="104" rx="10" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+          <g class="mono" font-size="10" font-weight="600">
+            <rect x="172" y="62" width="40" height="16" rx="3" fill="var(--c-eth)"/><text x="192" y="74" text-anchor="middle" fill="#0b100f">ETH0</text>
+            <rect x="226" y="62" width="40" height="16" rx="3" fill="var(--c-it)"/><text x="246" y="74" text-anchor="middle" fill="#0b100f">ETH1</text>
+          </g>
+          <text x="256" y="104" text-anchor="middle" font-size="14" font-weight="700" fill="var(--fg)">eTekno Edge</text>
+          <text x="256" y="122" text-anchor="middle" class="mono" font-size="10" fill="var(--fg3)">24 V · <tspan class="tr">izole RS-485</tspan><tspan class="en">isolated RS-485</tspan></text>
+          <g class="mono" font-size="10" font-weight="600">
+            <rect x="180" y="166" width="70" height="16" rx="3" fill="var(--c-di)"/><text x="215" y="178" text-anchor="middle" fill="#0b100f">DI 1…8</text>
+            <rect x="262" y="166" width="70" height="16" rx="3" fill="var(--c-485)"/><text x="297" y="178" text-anchor="middle" fill="#1b1b1b">A · B · GND</text>
+          </g>
+          <!-- RS-485 chain with termination at both ends -->
+          <path d="M297 182 L297 230 L390 230 L390 262 M390 230 L546 230 L546 262" fill="none" stroke="var(--c-485)" stroke-width="2.5" stroke-dasharray="8 4"/>
+          <g fill="var(--surface)" stroke="var(--c-485)" stroke-width="1.6"><rect x="304" y="196" width="34" height="13" rx="2"/><rect x="578" y="223.5" width="34" height="13" rx="2"/></g>
+          <path d="M297 202.5 L304 202.5 M546 230 L578 230" stroke="var(--c-485)" stroke-width="1.6"/>
+          <text x="344" y="207" class="mono" font-size="10.5" fill="var(--amb-txt)">120 Ω</text>
+          <text x="595" y="252" text-anchor="middle" class="mono" font-size="10.5" fill="var(--amb-txt)">120 Ω</text>
+          <g>
+            <rect x="318" y="262" width="144" height="64" rx="8" fill="var(--surface)" stroke="var(--line)"/>
+            <text x="390" y="288" text-anchor="middle" font-size="12" font-weight="600" fill="var(--fg)"><tspan class="tr">Analizör 1</tspan><tspan class="en">Meter 1</tspan></text>
+            <text x="390" y="306" text-anchor="middle" class="mono" font-size="9.5" fill="var(--fg2)"><tspan class="tr">adres 1 · ana besleme</tspan><tspan class="en">address 1 · main feed</tspan></text>
+            <rect x="474" y="262" width="144" height="64" rx="8" fill="var(--surface)" stroke="var(--line)"/>
+            <text x="546" y="288" text-anchor="middle" font-size="12" font-weight="600" fill="var(--fg)"><tspan class="tr">Analizör 2</tspan><tspan class="en">Meter 2</tspan></text>
+            <text x="546" y="306" text-anchor="middle" class="mono" font-size="9.5" fill="var(--fg2)"><tspan class="tr">adres 2 · kaynak ünitesi</tspan><tspan class="en">address 2 · welder</tspan></text>
+          </g>
+          <text x="468" y="350" text-anchor="middle" class="mono" font-size="10" fill="var(--fg3)"><tspan class="tr">zincir bağlantı · bükümlü çift kablo</tspan><tspan class="en">daisy chain · twisted pair</tspan></text>
+          <!-- auxiliary contacts into the digital inputs -->
+          <path d="M215 182 L215 262" fill="none" stroke="var(--c-di)" stroke-width="2.5" stroke-dasharray="2 4"/>
+          <rect x="36" y="262" width="260" height="138" rx="8" fill="var(--surface)" stroke="var(--line)"/>
+          <text x="50" y="286" font-size="12" font-weight="600" fill="var(--fg)"><tspan class="tr">Yardımcı kontaklar (potansiyelsiz)</tspan><tspan class="en">Auxiliary contacts (volt-free)</tspan></text>
+          <g stroke="var(--fg2)" stroke-width="1.6" fill="none">
+            <path d="M52 310 h10 l8 -7"/><path d="M52 334 h10 l8 -7"/><path d="M52 358 h10 l8 -7"/><path d="M52 382 h10 l8 -7"/>
+          </g>
+          <g class="mono" font-size="10.5" fill="var(--fg2)">
+            <text x="80" y="314"><tspan class="tr">DI1 · kule lambası (çalışıyor)</tspan><tspan class="en">DI1 · stack light (running)</tspan></text>
+            <text x="80" y="338"><tspan class="tr">DI2 · çevrim başlat</tspan><tspan class="en">DI2 · cycle start</tspan></text>
+            <text x="80" y="362"><tspan class="tr">DI3 · acil stop yardımcı kontağı</tspan><tspan class="en">DI3 · E-stop auxiliary contact</tspan></text>
+            <text x="80" y="386"><tspan class="tr">DI4 · kapı anahtarı yardımcısı</tspan><tspan class="en">DI4 · door switch auxiliary</tspan></text>
+          </g>
+        </svg>
+        </div>
+      </div>
+      <div class="notes">
+        <div class="note"><b><span class="tr">Besleme</span><span class="en">Power</span></b><span class="tr">Panodaki 24 V DC kaynaktan, ayrı bir sigorta üzerinden beslenir. Kesintisiz güç kaynağı isteğe bağlıdır; ani kesintide veri tabanı korunur.</span><span class="en">Fed from the cabinet's 24 V DC supply through its own fuse. A UPS is optional; the database survives a sudden power cut.</span></div>
+        <div class="note"><b>RS-485</b><span class="tr">Bükümlü çift kablo (A, B) ve referans (GND) kullanılır. Hattın iki ucuna 120 Ω sonlandırma direnci takılır. Analizörler zincir şeklinde bağlanır ve her birine ayrı Modbus adresi verilir. Baud hızı ve parite cihazlarla aynı olmalıdır (örneğin 9600 ya da 19200).</span><span class="en">Use twisted pair (A, B) plus a reference (GND), with a 120 Ω termination resistor at both ends of the line. Meters are daisy-chained, each with its own Modbus address, and baud rate and parity must match the devices (for example 9600 or 19200).</span></div>
+        <div class="note"><b><span class="tr">Dijital girişler</span><span class="en">Digital inputs</span></b><span class="tr">Yalnızca potansiyelsiz yardımcı kontaklardan ya da ayrı bir röleden alınır. Güvenlik devresine hiçbir şey eklenmez. Bağlantıyı tesisin yetkili elektrikçisi yapar.</span><span class="en">Taken only from volt-free auxiliary contacts or a separate relay. Nothing is added to the safety circuit, and the plant's authorised electrician does the wiring.</span></div>
+        <div class="note"><b><span class="tr">Donanım</span><span class="en">Hardware</span></b><span class="tr">Sahada Compute Module tabanlı endüstriyel cihazlar hedefleniyor: iki Ethernet portu, izole RS-485, dijital giriş genişlemesi, CE ve EN 61131-2 uyumu (örneğin KUNBUS Revolution Pi Connect 5). Prototip, Raspberry Pi OS'ta servis olarak çalışacak şekilde paketlendi; şimdilik geliştirme bilgisayarında simülatörle test ediliyor.</span><span class="en">The target on site is Compute Module-based industrial hardware: two Ethernet ports, isolated RS-485, digital-input expansion, CE and EN 61131-2 compliance (for example KUNBUS Revolution Pi Connect 5). The prototype is packaged to run as a service on Raspberry Pi OS and is tested on a development computer against the simulator for now.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="network" class="band">
+  <div class="shell">
+    <div class="sec-head">
+      <p class="kicker">04 <b>/</b> <span class="tr">Ağ ve güvenlik</span><span class="en">Network &amp; security</span></p>
+      <h2 class="h2"><span class="tr">Makine ağı korunur, veri tesiste kalır</span><span class="en">The machine network stays protected and the data stays on-site</span></h2>
+    </div>
+    <div class="rules">
+      <div class="rule"><span class="tag rule"><span class="tr">İlke</span><span class="en">Principle</span></span><h3><span class="tr">İki ayrı ağ arayüzü</span><span class="en">Two separate network interfaces</span></h3><span class="tr">ETH0 makine ağında, varsayılan ağ geçidi olmadan sabit bir adresle çalışır. ETH1 ofis ağına ya da bir 4G modeme bağlanır. Cihaz iki ağ arasında paket yönlendirmez.</span><span class="en">ETH0 sits on the machine network with a static address and no default gateway. ETH1 connects to the office network or a 4G modem, and the device does not forward packets between the two.</span></div>
+      <div class="rule"><span class="tag proto"><span class="tr">Prototipte</span><span class="en">Prototype</span></span><h3><span class="tr">Salt okuma istemcisi</span><span class="en">Read-only client</span></h3><span class="tr">Toplayıcı yalnızca okuma isteği gönderir; yazma fonksiyon kodları kullanılmaz. PLC tarafında bağlantı yalnızca okuma için açılır.</span><span class="en">The collector sends read requests only; write function codes are never used. On the PLC side the connection is opened for reading only.</span></div>
+      <div class="rule"><span class="tag rule"><span class="tr">İlke</span><span class="en">Principle</span></span><h3><span class="tr">Yalnızca dışarıya HTTPS</span><span class="en">Outbound HTTPS only</span></h3><span class="tr">İnternete yalnızca 443 portundan, Claude API adresine çıkılır. İçeriye açık port ve uzaktan erişim yoktur; güvenlik duvarında tek kural yeterlidir.</span><span class="en">The device goes out on port 443 to the Claude API only. There are no inbound ports and no remote access, so one firewall rule is enough.</span></div>
+      <div class="rule"><span class="tag proto"><span class="tr">Prototipte</span><span class="en">Prototype</span></span><h3><span class="tr">İnternet yoksa da çalışır</span><span class="en">Works without the internet</span></h3><span class="tr">Toplama, yerel arıza modeli ve bakım sayaçları internet olmadan çalışmaya devam eder. Claude analizleri kuyrukta bekler, bağlantı gelince gönderilir.</span><span class="en">Collection, the local fault model and maintenance counters keep running offline. Claude analyses wait in a queue and go out once the link is back.</span></div>
+      <div class="rule"><span class="tag proto"><span class="tr">Prototipte</span><span class="en">Prototype</span></span><h3><span class="tr">Ham görüntü tesiste</span><span class="en">Raw video stays on-site</span></h3><span class="tr">Kamera görüntüsü cihazda işlenir. Yüzler bulanıklaştırılır, klipler 7 gün sonra otomatik silinir. Claude'a yalnızca etiket ve özet gider.</span><span class="en">Video is processed on the device, faces are blurred and clips are deleted automatically after 7 days. Claude only receives tags and a summary.</span></div>
+      <div class="rule"><span class="tag plan"><span class="tr">Planlanan</span><span class="en">Planned</span></span><h3><span class="tr">Pano girişi ve imzalı güncelleme</span><span class="en">Dashboard login and signed updates</span></h3><span class="tr">Pano için kullanıcı girişi ve rol bazlı yetki, erişim kaydı ve imzalı yazılım güncellemeleri pilot öncesi eklenecek.</span><span class="en">Dashboard login with role-based access, an access log and signed software updates will be added before a pilot.</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="install">
+  <div class="shell">
+    <div class="sec-head">
+      <p class="kicker">05 <b>/</b> <span class="tr">Kurulum</span><span class="en">Installation</span></p>
+      <h2 class="h2"><span class="tr">Sahada kurulum adımları</span><span class="en">On-site installation steps</span></h2>
+      <p class="lede"><span class="tr">Hedef: kurulumu tek vardiyada bitirmek, ardından bir vardiya boyunca gözlem yapmak. Bu bir hedeftir; ilk pilotta ölçülecek.</span><span class="en">The goal is to finish installation within one shift, then observe for a shift. That is a target to be measured in the first pilot.</span></p>
+    </div>
+    <div class="steps">
+      <div class="step"><div><h3><span class="tr">Saha keşfi</span><span class="en">Site survey</span></h3><p><span class="tr">PLC markası, modeli ve yazılım sürümü; ağ yapısı; okunacak etiketlerin listesi (PLC projesinden dışa aktarılır); enerji analizörlerinin modeli ve adresleri; kamera ihtiyacı.</span><span class="en">PLC make, model and firmware; network layout; the list of tags to read (exported from the PLC project); energy meter models and addresses; camera needs.</span></p></div><p class="who"><span class="tr">eTekno + tesis otomasyon sorumlusu</span><span class="en">eTekno + plant automation lead</span></p></div>
+      <div class="step"><div><h3><span class="tr">Erişim ayarı</span><span class="en">Access setting</span></h3><p><span class="tr">Gerekiyorsa PLC'de salt okuma erişimi açılır: S7 için PUT/GET izni ya da OPC UA sunucusu. Kontrol mantığına dokunulmaz; ayar PLC'ye yüklenirken üretim durdurulmuş olmalıdır.</span><span class="en">If needed, read access is enabled on the PLC: PUT/GET permission for S7, or the OPC UA server. Control logic is not touched; production should be stopped while the setting is loaded.</span></p></div><p class="who"><span class="tr">Tesis otomasyon sorumlusu</span><span class="en">Plant automation lead</span></p></div>
+      <div class="step"><div><h3><span class="tr">Montaj ve kablolama</span><span class="en">Mounting and wiring</span></h3><p><span class="tr">Cihaz DIN raya takılır ve 24 V ile beslenir. RS-485 hattı ve dijital girişler bağlanır, Ethernet kabloları takılır.</span><span class="en">The device goes on the DIN rail with 24 V power; the RS-485 line and digital inputs are wired and the Ethernet cables plugged in.</span></p></div><p class="who"><span class="tr">Yetkili elektrikçi</span><span class="en">Authorised electrician</span></p></div>
+      <div class="step"><div><h3><span class="tr">Etiket haritası</span><span class="en">Tag map</span></h3><p><span class="tr">Tesisin etiketleri cihazın veri modeline eşlenir (mod, durum, faz, sayaç, alarm, acil stop, güç, enerji). Bu, kod değil bir yapılandırma dosyasıdır.</span><span class="en">The plant's tags are mapped to the device's data model (mode, state, phase, counter, alarm, E-stop, power, energy). This is a configuration file, not code.</span></p></div><p class="who">eTekno</p></div>
+      <div class="step"><div><h3><span class="tr">Gizlilik ve iş güvenliği</span><span class="en">Privacy and safety</span></h3><p><span class="tr">Kamera kullanılacaksa: aydınlatma metni, uyarı tabelası, erişim yetkisi ve çalışan temsilcileriyle görüşme.</span><span class="en">If cameras are used: privacy notice, signage, access rights and consultation with worker representatives.</span></p></div><p class="who"><span class="tr">Tesis İSG ve KVKK sorumlusu</span><span class="en">Plant safety and privacy lead</span></p></div>
+      <div class="step"><div><h3><span class="tr">Devreye alma</span><span class="en">Commissioning</span></h3><p><span class="tr">Bir vardiya boyunca okumalar doğrulanır. Cihaz ilk temiz çevrimlerden hattın referans profilini öğrenir, bakım aralıkları tesisin değerleriyle ayarlanır.</span><span class="en">Readings are verified over a shift. The device learns the line's reference profile from the first clean cycles, and maintenance intervals are set to the plant's values.</span></p></div><p class="who"><span class="tr">eTekno + bakım ekibi</span><span class="en">eTekno + maintenance team</span></p></div>
+    </div>
+  </div>
+</section>
+
+<section id="registers" class="band">
+  <div class="shell">
+    <div class="sec-head">
+      <p class="kicker">06 <b>/</b> <span class="tr">Okunan veri örneği</span><span class="en">Example of what is read</span></p>
+      <h2 class="h2"><span class="tr">Prototipin register haritası</span><span class="en">The prototype's register map</span></h2>
+      <p class="lede"><span class="tr">Prototip, hat PLC'sini ve enerji analizörünü bu Modbus haritasıyla okur. Gerçek bir hatta, tesisin PLC etiketleri bu düzene eşlenir.</span><span class="en">The prototype reads the line PLC and the energy meter with this Modbus map. On a real line, the plant's PLC tags are mapped onto this layout.</span></p>
+    </div>
+    <div class="tbl">
+      <table>
+        <thead><tr><th><span class="tr">Cihaz</span><span class="en">Device</span></th><th><span class="tr">Adres</span><span class="en">Address</span></th><th><span class="tr">Ad</span><span class="en">Name</span></th><th><span class="tr">Anlamı</span><span class="en">Meaning</span></th></tr></thead>
+        <tbody>
+          <tr><td>PLC</td><td><code>0</code></td><td><code>HEARTBEAT</code></td><td><span class="tr">Her okumada artan sayaç; bağlantının canlı olduğunu gösterir</span><span class="en">Counter that increments each read; shows the link is alive</span></td></tr>
+          <tr><td>PLC</td><td><code>1</code></td><td><code>MODE</code></td><td><span class="tr">0 manuel, 1 otomatik</span><span class="en">0 manual, 1 auto</span></td></tr>
+          <tr><td>PLC</td><td><code>2</code></td><td><code>STATE</code></td><td><span class="tr">0 beklemede, 1 çalışıyor, 2 arıza, 3 acil stop</span><span class="en">0 idle, 1 running, 2 fault, 3 E-stop</span></td></tr>
+          <tr><td>PLC</td><td><code>3</code></td><td><code>PHASE</code></td><td><span class="tr">1 taşıma ve hazırlık, 2 boşta hareket, 3 kaynak</span><span class="en">1 handling, 2 idle movement, 3 welding</span></td></tr>
+          <tr><td>PLC</td><td><code>4–5</code></td><td><code>CYCLE_COUNT · POSITION</code></td><td><span class="tr">Biten profil sayısı ve kaynak pozisyonu</span><span class="en">Profiles completed and weld position</span></td></tr>
+          <tr><td>PLC</td><td><code>6</code></td><td><code>LAST_CYCLE_DS</code></td><td><span class="tr">Son çevrim süresi (0,1 s)</span><span class="en">Last cycle time (0.1 s)</span></td></tr>
+          <tr><td>PLC</td><td><code>7–9</code></td><td><code>ALARM · ESTOP · ESTOP_SOURCE</code></td><td><span class="tr">Aktif alarm kodu, acil stop ve kaynağı (panel, tarayıcı 1, tarayıcı 2)</span><span class="en">Active alarm code, E-stop and its source (panel, scanner 1, scanner 2)</span></td></tr>
+          <tr><td><span class="tr">Analizör</span><span class="en">Meter</span></td><td><code>0–1</code></td><td><code>POWER_W</code></td><td><span class="tr">Aktif güç, W (32 bit)</span><span class="en">Active power, W (32-bit)</span></td></tr>
+          <tr><td><span class="tr">Analizör</span><span class="en">Meter</span></td><td><code>2–3</code></td><td><code>ENERGY_DWH</code></td><td><span class="tr">Enerji sayacı, 0,1 Wh (32 bit)</span><span class="en">Energy counter, 0.1 Wh (32-bit)</span></td></tr>
+          <tr><td><span class="tr">Analizör</span><span class="en">Meter</span></td><td><code>4</code></td><td><code>VOLTAGE_DV</code></td><td><span class="tr">Hat gerilimi, 0,1 V</span><span class="en">Line voltage, 0.1 V</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="src-note"><span class="tr">Okuma sıklığı varsayılan olarak 0,5 saniyedir. Veri hacmi çok küçüktür: iki cihaz için saniyede yalnızca birkaç yüz bayt.</span><span class="en">The default read interval is 0.5 seconds. Data volume is tiny: a few hundred bytes per second for two devices.</span></p>
+  </div>
+</section>
+
+<section>
+  <div class="shell">
+    <div class="cta">
+      <div>
+        <p class="kicker"><span class="tr">Sonraki adım</span><span class="en">Next</span></p>
+        <p><span class="tr">Bu bağlantıların ürettiği veriyle cihazın nasıl tepki verdiğini canlı demoda görün. Hattınızda pilot için de yazabilirsiniz.</span><span class="en">See how the device reacts to the data these connections produce in the live demo, or write to us about a pilot on your line.</span></p>
+      </div>
+      <div class="btns">
+        <a class="btn btn-p" href="demo.html"><span class="tr">Canlı demo</span><span class="en">Live demo</span></a>
+        <a class="btn btn-s" href="/#contact"><span class="tr">İletişim</span><span class="en">Contact</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="shell">
+    <span>© 2026 eTekno · Kocaeli, Türkiye</span>
+    <span><a href="/">etekno.com.tr</a> · <a href="demo.html">Demo</a> · <a href="emre.html">Emre Taşar</a></span>
+  </div>
+</footer>
+
+<script>
+(function(){
+"use strict";
+var D = {
+  s7: {st:"plan", tr:{t:"Siemens S7-1200 / S7-1500", c:"Ethernet · OT anahtarı → ETH0", p:"S7 protokolü (ISO-on-TCP, port 102) ya da OPC UA (port 4840)", r:"Mod, durum, adım/faz, çevrim sayacı, alarm kodu, acil stop durumu (veri bloğu veya merker adresleri)", n:"Kontrol mantığı değişmez. S7 ile okumak için CPU ayarlarında “PUT/GET erişimine izin ver” açılır ve okunan veri bloğunda optimize erişim kapatılır. Alternatif olarak PLC'nin OPC UA sunucusu etkinleştirilir; bunun için lisans gerekebilir. Ayarın PLC'ye yüklenmesi tesisin otomasyon sorumlusuyla, üretim dururken yapılır.", f:"0,25–1 s"},
+               en:{t:"Siemens S7-1200 / S7-1500", c:"Ethernet · OT switch → ETH0", p:"S7 protocol (ISO-on-TCP, port 102) or OPC UA (port 4840)", r:"Mode, state, step/phase, cycle counter, alarm code, E-stop state (data-block or marker addresses)", n:"Control logic does not change. Reading over S7 needs “Permit access with PUT/GET” enabled in the CPU settings and optimized access turned off on the data block being read. Alternatively the PLC's OPC UA server is enabled, which may need a licence. Loading the setting into the PLC is done with the plant's automation lead while production is stopped.", f:"0.25–1 s"}},
+  delta: {st:"proto", tr:{t:"Delta PLC (DVP / AS serisi)", c:"Ethernet'li modellerde OT anahtarı → ETH0; diğerlerinde RS-485", p:"Modbus TCP (port 502) ya da Modbus RTU", r:"D registerları ve M bitleri: mod, durum, sayaç, alarm", n:"Delta PLC'ler Modbus'ı yerleşik olarak destekler; D ve M aygıtları Modbus adreslerine eşlenmiştir (adres tablosu modele göre değişir). Genellikle PLC'de ayar gerekmez; yalnızca istasyon adresi ve okunacak register listesi belirlenir.", f:"0,25–1 s"},
+               en:{t:"Delta PLC (DVP / AS series)", c:"Ethernet models: OT switch → ETH0; others over RS-485", p:"Modbus TCP (port 502) or Modbus RTU", r:"D registers and M bits: mode, state, counter, alarm", n:"Delta PLCs support Modbus natively, with D and M devices mapped to Modbus addresses (the table depends on the model). Usually no PLC setting is needed; only the station address and the list of registers to read are agreed.", f:"0.25–1 s"}},
+  safety: {st:"proto", tr:{t:"Güvenlik PLC'si ve alan tarayıcıları", c:"Doğrudan bağlanmaz; durum hücre PLC'si üzerinden okunur", p:"Hücre PLC'siyle aynı (S7 / Modbus / OPC UA)", r:"Acil stop durumu ve kaynağı (panel, tarayıcı 1, tarayıcı 2), kapı ve muting durumları: güvenli olmayan teşhis bitleri", n:"Güvenlik zincirine hiçbir şey eklenmez ve hiçbir değer yazılmaz. eTekno bir güvenlik fonksiyonu değildir; yalnızca olayın ne zaman ve hangi kaynaktan geldiğini kaydeder.", f:"0,25–0,5 s"},
+               en:{t:"Safety PLC and area scanners", c:"Not connected directly; state is read through the cell PLC", p:"Same as the cell PLC (S7 / Modbus / OPC UA)", r:"E-stop state and source (panel, scanner 1, scanner 2), door and muting states: non-safety diagnostic bits", n:"Nothing is added to the safety chain and nothing is written. eTekno is not a safety function; it only records when an event happened and where it came from.", f:"0.25–0.5 s"}},
+  robot: {st:"plan", tr:{t:"Robot denetleyicileri", c:"Ethernet · OT anahtarı → ETH0, ya da hücre PLC'si üzerinden", p:"Universal Robots: RTDE (port 30004), yalnızca çıkış aboneliği. Fanuc ve Yaskawa: çoğu hücrede robot durumu zaten PLC'ye aktarılıyor (EtherNet/IP, PROFINET gibi); eTekno bunu PLC'den okur.", r:"Robot modu, program durumu, alarm; isteğe bağlı eklem/motor akımları (aşınma takibi için)", n:"Robot programına dokunulmaz. Doğrudan bağlantı, robotun sahip olduğu Ethernet seçeneklerine bağlıdır ve sahada keşifle netleşir.", f:"0,1–1 s"},
+               en:{t:"Robot controllers", c:"Ethernet · OT switch → ETH0, or through the cell PLC", p:"Universal Robots: RTDE (port 30004), output subscription only. Fanuc and Yaskawa: in most cells robot state already goes to the PLC (EtherNet/IP, PROFINET and similar), and eTekno reads it from there.", r:"Robot mode, program state, alarms; optional joint/motor currents (for wear tracking)", n:"Robot programs are not touched. A direct link depends on the robot's Ethernet options and is settled during the site survey.", f:"0.1–1 s"}},
+  meter: {st:"proto", tr:{t:"Enerji analizörleri", c:"İzole RS-485 girişine zincir hat, ya da Modbus TCP ağ geçidi", p:"Modbus RTU (RS-485) · Modbus TCP (port 502)", r:"Gerilim, akım, aktif güç, enerji sayacı (kWh), güç faktörü", n:"Bükümlü çift kablo (A, B) ve referans kullanılır; hattın iki ucuna 120 Ω sonlandırma takılır. Her analizöre ayrı Modbus adresi verilir; baud hızı ve parite cihazlarla aynı olmalıdır. Enerji ölçümü, makinenin o anki fazıyla eşleştirilerek faz bazlı Wh hesaplanır.", f:"0,5–1 s"},
+               en:{t:"Energy meters", c:"Daisy-chained to the isolated RS-485 input, or through a Modbus TCP gateway", p:"Modbus RTU (RS-485) · Modbus TCP (port 502)", r:"Voltage, current, active power, energy counter (kWh), power factor", n:"Use twisted pair (A, B) and a reference, with 120 Ω termination at both ends of the line. Each meter gets its own Modbus address, and baud rate and parity must match. Energy is matched to the machine's current phase to give Wh per phase.", f:"0.5–1 s"}},
+  cam: {st:"proto", tr:{t:"IP kameralar", c:"PoE anahtarı · kamera VLAN'ı → OT anahtarı → ETH0", p:"RTSP (port 554); keşif için ONVIF", r:"Görüntü cihazda işlenir: koruma alanında kişi var mı, olay klibi (öncesi ve sonrası)", n:"Ham görüntü tesis dışına çıkmaz; Claude'a yalnızca etiket gider. Kliplerde yüzler bulanıklaştırılır, klipler 7 gün sonra otomatik silinir. Kamera kullanmadan önce aydınlatma metni, tabela ve erişim yetkisi hazırlanır.", f:"5–10 kare/s"},
+               en:{t:"IP cameras", c:"PoE switch · camera VLAN → OT switch → ETH0", p:"RTSP (port 554); ONVIF for discovery", r:"Video is processed on the device: is anyone in the guarded zone, plus an event clip (before and after)", n:"Raw video never leaves the site; Claude only gets a tag. Faces in clips are blurred and clips are deleted automatically after 7 days. Before cameras are used, a privacy notice, signage and access rights are prepared.", f:"5–10 fps"}},
+  di: {st:"plan", tr:{t:"Dijital sinyaller", c:"İzole 24 V dijital giriş genişleme modülü → DI", p:"Doğrudan giriş (protokol yok)", r:"Kule lambası (çalışıyor / arıza), çevrim başlat, acil stop ve kapı anahtarının yardımcı kontakları", n:"PLC'ye erişimin olmadığı eski makineler için. Yalnızca potansiyelsiz yardımcı kontaklardan ya da ayrı bir röleden alınır; güvenlik devresine müdahale edilmez. Bağlantıyı tesisin yetkili elektrikçisi yapar.", f:"anlık (kenar algılama)"},
+            en:{t:"Digital signals", c:"Isolated 24 V digital-input expansion module → DI", p:"Direct input (no protocol)", r:"Stack light (running / fault), cycle start, auxiliary contacts of the E-stop and door switch", n:"For older machines where the PLC can't be reached. Taken only from volt-free auxiliary contacts or a separate relay, with no change to the safety circuit. The plant's authorised electrician does the wiring.", f:"instant (edge detection)"}},
+  otsw: {st:"proto", tr:{t:"OT anahtarı (makine ağı)", c:"Tesisin mevcut makine ağı anahtarı", p:"Ethernet; kameralar ayrı VLAN'da", r:"—", n:"eTekno Edge'in ETH0 portu bu ağa, varsayılan ağ geçidi olmadan sabit bir adresle bağlanır. Makine ağına yeni bir internet çıkışı açılmaz.", f:"—"},
+         en:{t:"OT switch (machine network)", c:"The plant's existing machine-network switch", p:"Ethernet; cameras on their own VLAN", r:"—", n:"eTekno Edge's ETH0 joins this network with a static address and no default gateway. No new internet path is opened into the machine network.", f:"—"}},
+  edge: {st:"proto", tr:{t:"eTekno Edge", c:"DIN ray · 24 V · ETH0 (OT), ETH1 (BT), izole RS-485, dijital giriş", p:"İstemci olarak: Modbus, S7, OPC UA, RTDE, RTSP", r:"Tüm okumalar cihazda işlenir: faz bazlı süre ve enerji, olaylar, yerel arıza modeli, bakım sayaçları", n:"Cihaz iki ağ arasında yönlendirme yapmaz. Prototip bugün Modbus TCP ile ve simülatöre karşı çalışıyor; diğer protokoller planlanan.", f:"0,5 s (varsayılan)"},
+          en:{t:"eTekno Edge", c:"DIN rail · 24 V · ETH0 (OT), ETH1 (IT), isolated RS-485, digital inputs", p:"As a client: Modbus, S7, OPC UA, RTDE, RTSP", r:"Everything is processed on the device: per-phase time and energy, events, the local fault model, maintenance counters", n:"The device does not route between the two networks. The prototype runs today over Modbus TCP against a simulator; the other protocols are planned.", f:"0.5 s (default)"}},
+  it: {st:"proto", tr:{t:"Ofis ağı ve internet", c:"ETH1 → tesis ağı ya da 4G modem → güvenlik duvarı", p:"HTTPS (port 443), yalnızca dışarıya, Claude API adresine", r:"—", n:"İçeriye açık port yoktur. İnternet kesilirse toplama, yerel model ve bakım sayaçları çalışmaya devam eder; Claude analizleri kuyrukta bekler.", f:"olay anında"},
+        en:{t:"Office network and internet", c:"ETH1 → plant LAN or a 4G modem → firewall", p:"HTTPS (port 443), outbound only, to the Claude API", r:"—", n:"No inbound ports are open. If the internet drops, collection, the local model and maintenance counters keep running; Claude analyses wait in a queue.", f:"on events"}},
+  dash: {st:"proto", tr:{t:"Pano", c:"Ofis ağındaki tablet ya da PC tarayıcısı", p:"Cihazın yerel web arayüzü", r:"Canlı hat durumu, güç, olaylar, yerel model, bakım sayaçları, Claude analizleri", n:"Kullanıcı girişi ve rol bazlı yetki pilot öncesi eklenecek.", f:"1 s"},
+          en:{t:"Dashboard", c:"A tablet or PC browser on the office network", p:"The device's local web interface", r:"Live line state, power, events, local model, maintenance counters, Claude analyses", n:"User login and role-based access will be added before a pilot.", f:"1 s"}},
+  claude: {st:"proto", tr:{t:"Claude API", c:"ETH1 → güvenlik duvarı → api.anthropic.com", p:"HTTPS (port 443)", r:"Yalnızca özet bağlam: durumlar, süreler, enerji özetleri, alarm kodları, görüntü etiketi; ham veri ve kişisel veri yok", n:"Çağrılar olay anında ve vardiya sonunda yapılır, sürekli akış yoktur. Prototipte kodlandı ve otomatik testlerle doğrulandı; gerçek API ile uçtan uca deneme sırada.", f:"olay anında"},
+            en:{t:"Claude API", c:"ETH1 → firewall → api.anthropic.com", p:"HTTPS (port 443)", r:"Summarized context only: states, durations, energy summaries, alarm codes, a vision tag; no raw or personal data", n:"Calls happen at events and at the end of a shift, never as a stream. Implemented in the prototype and covered by automated tests; an end-to-end run against the live API is next.", f:"on events"}}
+};
+var L = {tr:{conn:"Bağlantı", proto:"Protokol · port", read:"Okunan veri", need:"Sahada gereken ve notlar", freq:"Okuma sıklığı", sp:"Prototipte", sl:"Planlanan", hint:"Ayrıntı için şemada bir cihaza tıklayın."},
+         en:{conn:"Connection", proto:"Protocol · port", read:"Data read", need:"On-site needs and notes", freq:"Read interval", sp:"Prototype", sl:"Planned", hint:"Click a device in the map for details."}};
+var root = document.documentElement, svg = document.getElementById("map-svg"), box = document.getElementById("detail");
+var cur = "edge", picked = false;
+function lang(){ return root.getAttribute("data-lang") === "en" ? "en" : "tr"; }
+function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+function select(k){
+  if (!D[k]) return;
+  cur = k;
+  svg.classList.toggle("has-sel", picked);
+  svg.querySelectorAll(".dev,.hub").forEach(function(n){ n.classList.toggle("on", n.getAttribute("data-k") === k); });
+  svg.querySelectorAll(".ln").forEach(function(l){ l.classList.toggle("on", l.getAttribute("data-k").split(" ").indexOf(k) >= 0); });
+  var d = D[k], g = d[lang()], l = L[lang()];
+  box.innerHTML = '<div class="detail-h"><span class="tag ' + (d.st === "proto" ? "proto" : "plan") + '">' + (d.st === "proto" ? l.sp : l.sl) + '</span>' +
+    '<h3>' + esc(g.t) + '</h3></div><dl class="dgrid">' +
+    '<div><dt>' + l.conn + '</dt><dd>' + esc(g.c) + '</dd></div>' +
+    '<div><dt>' + l.proto + '</dt><dd>' + esc(g.p) + '</dd></div>' +
+    '<div><dt>' + l.read + '</dt><dd>' + esc(g.r) + '</dd></div>' +
+    '<div><dt>' + l.freq + '</dt><dd>' + esc(g.f) + '</dd></div></dl>' +
+    '<dl class="dnote"><dt>' + l.need + '</dt><dd>' + esc(g.n) + '</dd></dl>' +
+    '<p class="hint">' + l.hint + '</p>';
+}
+svg.querySelectorAll(".dev,.hub").forEach(function(n){
+  var k = n.getAttribute("data-k");
+  n.addEventListener("click", function(){ picked = true; select(k); });
+  n.addEventListener("keydown", function(e){ if (e.key === "Enter" || e.key === " "){ e.preventDefault(); picked = true; select(k); } });
+});
+// a dot travelling along the ETH0 link: data flowing into the device
+var dot = svg.querySelector(".pulse");
+if (dot && !matchMedia("(prefers-reduced-motion: reduce)").matches) dot.setAttribute("opacity", "1");
+
+var btns = document.querySelectorAll(".lang button");
+function setLang(l){
+  root.setAttribute("data-lang", l); root.setAttribute("lang", l);
+  btns.forEach(function(b){ b.setAttribute("aria-pressed", b.dataset.set === l ? "true" : "false"); });
+  try{ localStorage.setItem("etk-lang", l); }catch(e){}
+  select(cur);
+}
+btns.forEach(function(b){ b.addEventListener("click", function(){ setLang(b.dataset.set); }); });
+setLang(lang());
+})();
+</script>
+</body>
+</html>
