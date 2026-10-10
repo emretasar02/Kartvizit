@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="description" content="eTekno is designing a Raspberry Pi-based edge device for industrial SMEs: production state, per-phase energy use and safety events are processed on-site, with Claude for root-cause analysis and reporting.">
+<meta name="description" content="eTekno is building a Raspberry Pi-based edge device for industrial SMEs: an on-device fault model and maintenance counters work offline, and Claude handles deeper root-cause analysis and reporting. Working prototype and live demo.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://etekno.com.tr/">
 <meta property="og:title" content="eTekno — Edge AI for industrial SMEs">
-<meta property="og:description" content="A Raspberry Pi-based edge device that reads PLCs, energy meters and cameras on-site, with Claude for root-cause analysis and reporting. Design stage, Kocaeli, Türkiye.">
+<meta property="og:description" content="A Raspberry Pi-based edge device that reads PLCs, energy meters and cameras on-site, with an on-device fault model and Claude for root-cause analysis. Prototype stage, Kocaeli, Türkiye.">
 <meta property="og:locale" content="tr_TR">
 <meta property="og:locale:alternate" content="en_US">
 <title>eTekno Edge AI</title>
@@ -26,7 +26,7 @@ document.documentElement.setAttribute('data-lang',l);document.documentElement.se
   --amber:#b86e00;--amber-soft:#fbefd9;--amb-txt:#8a5300;--red:#c2410c;
   --con-bg:#0d1412;--con-fg:#cfe0da;--con-dim:#6f8580;--con-line:#1f2b28;--con-ok:#2fd3a3;--con-warn:#f2b24c;
   /* chart: validated categorical slots (welding / idle / handling) */
-  --s1:#0a9e7a;--s2:#d97706;--s3:#2a78d6;--seg-ink:#0b100f;
+  --s1:#0a9e7a;--s2:#d97706;--s3:#2a78d6;--seg-ink:#0b100f;--pro-bg:#e3edfb;--pro-txt:#1d5aa6;
   --sans:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
   --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   color-scheme:light;
@@ -36,7 +36,7 @@ document.documentElement.setAttribute('data-lang',l);document.documentElement.se
   --line:#22302c;--accent:#2fd3a3;--accent-ink:#04120d;--accent-soft:#10291f;--acc-txt:#2fd3a3;
   --amber:#f2b24c;--amber-soft:#2a1f0c;--amb-txt:#f2b24c;--red:#fb7a4a;
   --con-bg:#070b0a;--con-fg:#cfe0da;--con-dim:#61756f;--con-line:#1a2522;--con-ok:#2fd3a3;--con-warn:#f2b24c;
-  --s1:#199e70;--s2:#c98500;--s3:#3987e5;
+  --s1:#199e70;--s2:#c98500;--s3:#3987e5;--pro-bg:#11223a;--pro-txt:#8ab8ff;
   color-scheme:dark;
 }}
 :root[data-theme="dark"]{
@@ -44,7 +44,7 @@ document.documentElement.setAttribute('data-lang',l);document.documentElement.se
   --line:#22302c;--accent:#2fd3a3;--accent-ink:#04120d;--accent-soft:#10291f;--acc-txt:#2fd3a3;
   --amber:#f2b24c;--amber-soft:#2a1f0c;--amb-txt:#f2b24c;--red:#fb7a4a;
   --con-bg:#070b0a;--con-fg:#cfe0da;--con-dim:#61756f;--con-line:#1a2522;--con-ok:#2fd3a3;--con-warn:#f2b24c;
-  --s1:#199e70;--s2:#c98500;--s3:#3987e5;
+  --s1:#199e70;--s2:#c98500;--s3:#3987e5;--pro-bg:#11223a;--pro-txt:#8ab8ff;
   color-scheme:dark;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -69,6 +69,7 @@ section{padding-block:clamp(64px,9vw,104px);scroll-margin-top:60px}
 .tag.field{background:var(--accent-soft);color:var(--acc-txt)}
 .tag.design{background:var(--amber-soft);color:var(--amb-txt)}
 .tag.plain{background:var(--sunk);color:var(--fg2)}
+.tag.proto{background:var(--pro-bg);color:var(--pro-txt)}
 
 /* nav */
 nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
@@ -156,40 +157,52 @@ h1 em{font-style:normal;color:var(--accent)}
 .arrow{display:grid;place-items:center;color:var(--fg3);font-family:var(--mono)}
 .arrow::before{content:'→';font-size:1.1rem}
 
-.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
-.kpi{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px}
-.kpi .v{font:600 clamp(1.6rem,2.6vw,2.1rem)/1.1 var(--mono);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
-.kpi .l{color:var(--fg2);font-size:.88rem;margin-top:10px;line-height:1.45}
+.src-note{margin-top:20px;font-size:.8rem;color:var(--fg3);max-width:92ch}
+.src-note a{color:inherit}
 
-.phase{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:clamp(18px,3vw,28px);margin-top:16px}
-.phase-h{display:flex;justify-content:space-between;align-items:baseline;gap:12px 24px;flex-wrap:wrap;margin-bottom:18px}
-.phase-h h3{font-size:1.05rem;font-weight:600;letter-spacing:-.01em}
-.lg{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.84rem;color:var(--fg2)}
-.lg span{display:inline-flex;align-items:center;gap:7px}
-.sw{width:10px;height:10px;border-radius:3px;display:inline-block;flex:none}
-.sw.s1{background:var(--s1)}.sw.s2{background:var(--s2)}.sw.s3{background:var(--s3)}
-.pb-row{display:grid;grid-template-columns:120px minmax(0,1fr);gap:16px;align-items:center;margin-top:12px}
-.pb-lab{font-size:.9rem;font-weight:600;line-height:1.25}
-.pb-lab small{display:block;font:400 .76rem/1.4 var(--mono);color:var(--fg3)}
-.pb{display:flex;gap:2px;height:36px}
-.pb > span{flex-basis:0;min-width:3px;display:flex;align-items:center;justify-content:center;font:600 .76rem/1 var(--mono);color:var(--seg-ink);cursor:default;outline-offset:2px}
-.pb > span:first-child{border-radius:4px 0 0 4px}
-.pb > span:last-child{border-radius:0 4px 4px 0}
-.pb .s1{background:var(--s1)}.pb .s2{background:var(--s2)}.pb .s3{background:var(--s3)}
-.pb > span:hover,.pb > span:focus-visible{filter:brightness(1.08)}
-.tbl-wrap{overflow-x:auto;margin-top:24px}
-.pt{width:100%;border-collapse:collapse;font-size:.88rem;min-width:520px}
-.pt th{font:500 .7rem/1.4 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--fg3);text-align:right;padding:8px 10px;border-bottom:1px solid var(--line)}
-.pt th:first-child,.pt td:first-child{text-align:left;padding-left:0}
-.pt td{padding:9px 10px;border-bottom:1px dashed var(--line);text-align:right;font-variant-numeric:tabular-nums;color:var(--fg2)}
-.pt td:first-child{color:var(--fg)}
-.pt td:first-child .sw{margin-right:8px;vertical-align:-1px}
-.pt tr.tot td{border-bottom:0;font-weight:600;color:var(--fg)}
-.insight{margin-top:22px;border-left:2px solid var(--accent);padding-left:14px;color:var(--fg2);font-size:.95rem;max-width:80ch}
-.insight b{color:var(--fg);font-weight:600}
-.src-note{margin-top:20px;font-size:.8rem;color:var(--fg3);max-width:90ch}
-.tip{position:fixed;z-index:80;pointer-events:none;background:var(--fg);color:var(--bg);font:500 .76rem/1.4 var(--mono);padding:6px 9px;border-radius:6px;opacity:0;transition:opacity .08s;white-space:nowrap}
-.tip.on{opacity:1}
+/* product: wide card */
+.uc .card.wide{grid-column:1/-1}
+.card .go{margin-top:14px;font-weight:600;font-size:.9rem;color:var(--acc-txt);text-decoration:none;align-self:flex-start}
+.card .go:hover{text-decoration:underline}
+
+/* demo call-to-action */
+.cta{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:24px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:clamp(20px,3vw,32px);position:relative;overflow:hidden}
+.cta::after{content:'';position:absolute;inset:auto -60px -80px auto;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--accent) 18%,transparent),transparent 70%);pointer-events:none}
+.cta h3{font-size:clamp(1.25rem,2.4vw,1.6rem);font-weight:700;letter-spacing:-.02em;line-height:1.2;margin-bottom:8px}
+.cta p{color:var(--fg2);font-size:.95rem;max-width:72ch}
+.cta .kicker{margin-bottom:8px}
+.cta .btn{justify-self:start}
+.mini-estop{width:64px;height:64px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ff6b6b,#d40d0d 55%,#8f0606);box-shadow:0 0 0 6px #f5c518,0 0 0 8px #1b1b1b,0 6px 14px 6px rgba(0,0,0,.25);flex:none}
+
+/* competition */
+.cmp{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.cmp .card h3{font-size:1.05rem}
+.cmp .who{font-family:var(--mono);font-size:.76rem;color:var(--fg3);margin:4px 0 10px;line-height:1.5}
+.cmp .card > p:last-child{color:var(--fg2);font-size:.92rem}
+.edge-box{margin-top:16px;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:14px;padding:clamp(18px,3vw,26px)}
+.diff{list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.diff li{color:var(--fg2);font-size:.92rem}
+.diff b{display:block;color:var(--fg);font-weight:600;margin-bottom:4px}
+
+/* trust */
+.trust{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:16px;align-items:start}
+.lbl{font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--fg3);margin-bottom:12px}
+.chk{list-style:none;display:flex;flex-direction:column;gap:12px;font-size:.9rem;color:var(--fg2)}
+.chk b{color:var(--fg);font-weight:600}
+.chk .tag{margin-right:4px;vertical-align:1px}
+
+/* market tiles */
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:12px}
+.st{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px}
+.st .v{font:600 clamp(1.5rem,2.4vw,1.9rem)/1.1 var(--mono);letter-spacing:-.02em}
+.st p{color:var(--fg2);font-size:.86rem;margin-top:8px;line-height:1.45}
+.bm{margin-top:28px}
+
+/* team */
+.team{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.team .card{padding:20px}
+.team h4{font-size:.98rem;font-weight:600;margin-bottom:6px}
+.team p{color:var(--fg2);font-size:.88rem}
 
 /* architecture */
 .arch-wrap{background:var(--sunk);border-block:1px solid var(--line)}
@@ -274,7 +287,11 @@ footer a{text-decoration:none}footer a:hover{color:var(--acc-txt)}
   .chain .node,.chain.short .node{flex:none}
   .chain .arrow{flex:none}
   .arch-note{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .trust,.team{grid-template-columns:1fr 1fr}
+  .trust .card:first-child{grid-column:1/-1}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .cta{grid-template-columns:minmax(0,1fr)}
+  .mini-estop{display:none}
   .cx{grid-template-columns:1fr}
 }
 @media(max-width:760px){
@@ -292,14 +309,12 @@ footer a{text-decoration:none}footer a:hover{color:var(--acc-txt)}
   .con-top{flex-wrap:wrap;row-gap:4px}
   .arch-note{grid-template-columns:1fr}
   .rm-i{grid-template-columns:1fr;padding-left:22px}
-  .pb-row{grid-template-columns:1fr;gap:6px}
   .cx pre{font-size:.7rem}
-  .pt{min-width:0}
-  .pt th:nth-child(3),.pt td:nth-child(3),.pt th:nth-child(5),.pt td:nth-child(5){display:none}
+  .cmp,.diff,.trust,.team{grid-template-columns:1fr}
   .ghs li{grid-template-columns:1fr;gap:2px}
 }
 @media(max-width:420px){
-  .kpis{grid-template-columns:1fr}
+  .stats{grid-template-columns:1fr}
 }
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.blink{animation:none}}
 </style>
@@ -312,12 +327,13 @@ footer a{text-decoration:none}footer a:hover{color:var(--acc-txt)}
     <div class="nav-r">
       <ul class="links">
         <li><a href="#product"><span class="tr">Ürün</span><span class="en">Product</span></a></li>
-        <li><a href="#field"><span class="tr">Saha çalışması</span><span class="en">Field work</span></a></li>
+        <li><a href="demo.html">Demo</a></li>
+        <li><a href="#field"><span class="tr">Saha</span><span class="en">Field</span></a></li>
         <li><a href="#architecture"><span class="tr">Mimari</span><span class="en">Architecture</span></a></li>
+        <li><a href="#compete"><span class="tr">Rekabet</span><span class="en">Competition</span></a></li>
         <li><a href="#roadmap"><span class="tr">Yol haritası</span><span class="en">Roadmap</span></a></li>
-        <li><a href="#model"><span class="tr">İş modeli</span><span class="en">Business model</span></a></li>
-        <li><a href="#founder"><span class="tr">Kurucu</span><span class="en">Founder</span></a></li>
-        <li><a href="#contact"><span class="tr">İletişim</span><span class="en">Contact</span></a></li>
+        <li><a href="#model"><span class="tr">İş modeli</span><span class="en">Business</span></a></li>
+        <li><a href="#founder"><span class="tr">Ekip</span><span class="en">Team</span></a></li>
       </ul>
       <div class="lang" role="group" aria-label="Language">
         <button type="button" data-set="tr">TR</button>
@@ -330,32 +346,33 @@ footer a{text-decoration:none}footer a:hover{color:var(--acc-txt)}
 <header class="hero" id="top">
   <div class="shell hero-g">
     <div>
-      <div class="badge"><i></i><span class="tr">Tasarım aşaması · Kocaeli, Türkiye</span><span class="en">Design stage · Kocaeli, Türkiye</span></div>
+      <div class="badge"><i></i><span class="tr">Prototip aşaması · Kocaeli, Türkiye</span><span class="en">Prototype stage · Kocaeli, Türkiye</span></div>
       <h1>
         <span class="tr">Endüstriyel KOBİ'ler için <em>uç noktada yapay zekâ</em></span>
         <span class="en"><em>Edge AI</em> for industrial SMEs</span>
       </h1>
       <p class="sub">
-        <span class="tr">eTekno; PLC, enerji analizörü ve kameralardan tesisin yerel ağı üzerinden veri toplayan, Raspberry Pi tabanlı bir uç cihaz tasarlıyor. Üretim durumu, faz bazlı enerji tüketimi ve güvenlik olayları tesiste işlenir; Claude yalnızca özetlenmiş bağlamla kök neden analizi ve raporlama yapar. Tasarım, kurucunun gerçek bir tersane üretim hattında yürüttüğü saha çalışmasına dayanıyor.</span>
-        <span class="en">eTekno is designing a Raspberry Pi-based edge device that collects data from PLCs, energy meters and cameras over the plant's local network. Production state, per-phase energy use and safety events are processed on-site; Claude receives only summarized context for root-cause analysis and reporting. The design builds on field work the founder carried out on a live shipyard production line.</span>
+        <span class="tr">eTekno; PLC, enerji analizörü ve kameralardan tesisin yerel ağı üzerinden veri toplayan, Raspberry Pi tabanlı bir uç cihaz geliştiriyor. Cihazdaki yerel arıza modeli üretim durumunu, faz bazlı enerjiyi ve güvenlik olaylarını internet olmadan değerlendirir ve bakım zamanını önceden söyler. Claude ise yalnızca özetlenmiş bağlamla derin kök neden analizi ve raporlama yapar. Yaklaşım, kurucunun gerçek bir tersane hattındaki saha çalışmasına dayanıyor; simülatörle çalışan prototip hazır.</span>
+        <span class="en">eTekno is building a Raspberry Pi-based edge device that collects data from PLCs, energy meters and cameras over the plant's local network. An on-device fault model assesses production state, per-phase energy and safety events offline and tells you ahead of time when maintenance is due. Claude receives only summarized context for deeper root-cause analysis and reporting. The approach builds on the founder's field work on a live shipyard line, and a prototype already runs against a simulator.</span>
       </p>
       <div class="btns">
-        <a class="btn btn-p" href="#field"><span class="tr">Saha çalışmasını inceleyin</span><span class="en">See the field work</span></a>
-        <a class="btn btn-s" href="#contact"><span class="tr">İletişime geçin</span><span class="en">Get in touch</span></a>
+        <a class="btn btn-p" href="demo.html"><span class="tr">Canlı demoyu deneyin</span><span class="en">Try the live demo</span></a>
+        <a class="btn btn-s" href="#field"><span class="tr">Saha çalışması</span><span class="en">Field work</span></a>
       </div>
       <div class="facts">
-        <span class="tr">Yerinde işleme</span><span class="en">On-site processing</span>
+        <span class="tr">Yerel arıza modeli</span><span class="en">On-device fault model</span>
         <span class="tr">PLC'ye salt okuma erişimi</span><span class="en">Read-only PLC access</span>
         <span class="tr">Ham görüntü tesisten çıkmaz</span><span class="en">Raw video stays on-site</span>
       </div>
     </div>
 
-    <div class="con" aria-label="Design mock-up of the edge device interface">
+    <div class="con" aria-label="Illustration of the edge device interface">
       <div class="con-top"><div class="dots"><i></i><i></i><i></i></div><span><b>etk-edge-01</b> · Raspberry Pi · LAN</span><span class="ok">● online</span></div>
       <div class="con-body">
         <div class="row"><span class="src"><span class="tr">S7-1200 · Hat 2</span><span class="en">S7-1200 · Line 2</span></span><span class="val"><span class="tr">Çevrim 46,8 s</span><span class="en">Cycle 46.8 s</span></span><span class="warn">▲ <span class="tr">%6</span><span class="en">6%</span></span></div>
         <div class="row"><span class="src"><span class="tr">Enerji analizörü</span><span class="en">Energy meter</span></span><span class="val"><span class="tr">Boşta tüketim 3,4 kW</span><span class="en">Idle draw 3.4 kW</span></span><span class="warn">▲ <span class="tr">boşta</span><span class="en">idle</span></span></div>
         <div class="row"><span class="src">Safety PLC</span><span class="val"><span class="tr">Acil stop · 14:32:07</span><span class="en">E-stop · 14:32:07</span></span><span class="warn">⚠ <span class="tr">olay</span><span class="en">event</span></span></div>
+        <div class="row"><span class="src"><span class="tr">Yerel model</span><span class="en">Local model</span></span><span class="val"><span class="tr">Koruma alanına giriş</span><span class="en">Guarded-zone entry</span></span><span class="warn"><span class="tr">%100</span><span class="en">100%</span></span></div>
         <div class="row"><span class="src"><span class="tr">Kam 02 · İst. 3</span><span class="en">Cam 02 · Stn 3</span></span><span class="val"><span class="tr">Olay klibi ±30 s</span><span class="en">Event clip ±30 s</span></span><span class="ok">● <span class="tr">yerel</span><span class="en">on-site</span></span></div>
         <div class="ai">
           <span class="who">Claude ›</span>
@@ -363,7 +380,7 @@ footer a{text-decoration:none}footer a:hover{color:var(--acc-txt)}
           <span class="en">The E-stop came from the area scanner while the line was in auto mode. On-device vision detected a person inside station 3's guarded zone at the same moment. Wire-feed alarms over the last 10 minutes point to why they went in — I'd check the wire feeder first.</span><span class="blink">▍</span>
         </div>
       </div>
-      <div class="con-foot"><span class="tr">Tasarım maketi — temsili veriler</span><span class="en">Design mock-up — illustrative data</span></div>
+      <div class="con-foot"><span class="tr">Temsili veriler · canlı sürümü <a href="demo.html">demo sayfasında</a></span><span class="en">Illustrative data · live version on the <a href="demo.html">demo page</a></span></div>
     </div>
   </div>
 </header>
@@ -401,8 +418,8 @@ footer a{text-decoration:none}footer a:hover{color:var(--acc-txt)}
   <div class="shell">
     <div class="sec-head">
       <p class="kicker">02 <b>/</b> <span class="tr">Ürün</span><span class="en">Product</span></p>
-      <h2 class="h2"><span class="tr">Tek uç cihaz, dört modül.</span><span class="en">One edge device, four modules.</span></h2>
-      <p class="lede"><span class="tr">eTekno şu an tasarım aşamasında. İlk üç modülün yaklaşımı, kurucunun önceki saha çalışmasında gerçek bir üretim hattında kullanıldı. Her kartta sahada ne yapıldığı ve eTekno'da neyin tasarlandığı ayrı ayrı yazıyor.</span><span class="en">eTekno is at the design stage. The approach behind the first three modules was used on a live production line in the founder's earlier field work. Each card states separately what was done in the field and what eTekno is designing.</span></p>
+      <h2 class="h2"><span class="tr">Tek uç cihaz, beş modül.</span><span class="en">One edge device, five modules.</span></h2>
+      <p class="lede"><span class="tr">Prototip simülatörle çalışıyor. İlk üç modülün yaklaşımı, kurucunun saha çalışmasında gerçek bir üretim hattında kullanıldı. Her kartta sahada ne yapıldığı ve prototipte şu an neyin çalıştığı ayrı ayrı yazıyor.</span><span class="en">The prototype runs against a simulator. The approach behind the first three modules was used on a live production line in the founder's field work. Each card states separately what was done in the field and what the prototype does today.</span></p>
     </div>
     <div class="uc">
       <article class="card">
@@ -412,8 +429,8 @@ footer a{text-decoration:none}footer a:hover{color:var(--acc-txt)}
         <div class="proof"><dl>
           <dt><span class="tag field"><span class="tr">Sahada</span><span class="en">In the field</span></span></dt>
           <dd><span class="tr">Hattın tüm operasyonu, PLC'ye bağlı bir Raspberry Pi ile gerçek zamanlı kaydedildi.</span><span class="en">All line operations were logged in real time by a Raspberry Pi connected to the PLC.</span></dd>
-          <dt><span class="tag design"><span class="tr">eTekno</span><span class="en">eTekno</span></span></dt>
-          <dd><span class="tr">Farklı PLC markalarından okuma, rehberli kurulum, vardiya panosu.</span><span class="en">Multi-vendor PLC reads, guided setup, shift dashboard.</span></dd>
+          <dt><span class="tag proto"><span class="tr">Prototipte</span><span class="en">Prototype</span></span></dt>
+          <dd><span class="tr">PLC'den Modbus TCP ile salt okuma; makine durumu, faz, çevrim ve olaylar çıkarılıyor. Simülatörle uçtan uca test edildi.</span><span class="en">Read-only Modbus TCP polling of the PLC; machine state, phases, cycles and events are extracted. Tested end to end against the simulator.</span></dd>
         </dl></div>
       </article>
       <article class="card">
@@ -423,32 +440,56 @@ footer a{text-decoration:none}footer a:hover{color:var(--acc-txt)}
         <div class="proof"><dl>
           <dt><span class="tag field"><span class="tr">Sahada</span><span class="en">In the field</span></span></dt>
           <dd><span class="tr">Ana beslemedeki enerji analizörü PLC'ye bağlandı; tüketim operasyon fazlarına göre ölçüldü.</span><span class="en">An energy analyzer on the main supply was wired to the PLC; consumption was measured per operating phase.</span></dd>
-          <dt><span class="tag design">eTekno</span></dt>
-          <dd><span class="tr">Modbus üzerinden analizör okuma, parça başına Wh raporu, boşta kayıp uyarısı.</span><span class="en">Modbus meter reads, Wh-per-part reports, idle-loss alerts.</span></dd>
+          <dt><span class="tag proto"><span class="tr">Prototipte</span><span class="en">Prototype</span></span></dt>
+          <dd><span class="tr">Analizör sayacı faz bazında süre ve Wh'ye ayrılıyor; profil başına enerji raporlanıyor.</span><span class="en">The meter's counter is split into time and Wh per phase; energy per profile is reported.</span></dd>
         </dl></div>
       </article>
       <article class="card">
         <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/></svg></div>
         <h3><span class="tr">Güvenlik ve olay analizi</span><span class="en">Safety &amp; incident analysis</span></h3>
-        <p><span class="tr">Kamera görüntüsü tesiste döngüsel olarak kaydedilir. Acil stop ya da alarm anında olayın öncesi ve sonrası, PLC olay kaydıyla aynı zaman çizelgesine konur. Böylece olayın hangi makine adımından ya da hangi operatör müdahalesinden kaynaklandığı netleşir.</span><span class="en">Camera footage is recorded on-site in a rolling buffer. On an E-stop or alarm, the moments before and after are placed on the same timeline as the PLC event log, making clear whether the incident came from a machine step or an operator intervention.</span></p>
+        <p><span class="tr">Kamera görüntüsü tesiste döngüsel olarak tutulur. Acil stop ya da alarm anında olayın öncesi ve sonrası, PLC olay kaydıyla aynı zaman çizelgesine konur. Böylece olayın hangi makine adımından ya da hangi operatör müdahalesinden kaynaklandığı netleşir.</span><span class="en">Camera footage is kept on-site in a rolling buffer. On an E-stop or alarm, the moments before and after are placed on the same timeline as the PLC event log, making clear whether the incident came from a machine step or an operator intervention.</span></p>
         <div class="proof"><dl>
           <dt><span class="tag field"><span class="tr">Sahada</span><span class="en">In the field</span></span></dt>
           <dd><span class="tr">Hattaki kamera kaydı, olası bir kazada nedenin ve ilgili kişinin tespit edilebilmesini sağladı.</span><span class="en">Line camera footage made it possible to identify the cause — and who was involved — in the event of an accident.</span></dd>
-          <dt><span class="tag design">eTekno</span></dt>
-          <dd><span class="tr">Olay klibinin PLC kaydıyla otomatik eşleştirilmesi; görüntü tesis dışına çıkmaz (KVKK/GDPR).</span><span class="en">Automatic matching of event clips to the PLC log; footage never leaves the site (KVKK/GDPR).</span></dd>
+          <dt><span class="tag proto"><span class="tr">Prototipte</span><span class="en">Prototype</span></span></dt>
+          <dd><span class="tr">Acil stopta olay kaydı, cihaz üzerinde kişi tespiti ve isteğe bağlı kamera klibi. Yüzler bulanıklaştırılır, klipler 7 gün sonra otomatik silinir.</span><span class="en">On an E-stop: event record, on-device person detection and an optional camera clip. Faces are blurred and clips are deleted automatically after 7 days.</span></dd>
         </dl></div>
       </article>
       <article class="card">
         <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 13h5"/></svg></div>
         <h3><span class="tr">Claude ile kök neden ve raporlama</span><span class="en">Root cause &amp; reporting with Claude</span></h3>
-        <p><span class="tr">Vardiya sonu raporu, alarm anında olası nedenler ve kontrol adımları, teknisyenin doğal dilde sorduğu sorular. Claude'a ham veri değil, uç cihazın hazırladığı özet bağlam gider.</span><span class="en">End-of-shift reports, likely causes and checks when an alarm fires, and technicians' plain-language questions. Claude receives summarized context prepared on the device, not raw data.</span></p>
+        <p><span class="tr">Olay anında olası nedenler ve kontrol sırası, vardiya sonu raporu, teknisyenin doğal dilde sorduğu sorular. Claude'a ham veri değil, uç cihazın hazırladığı özet bağlam gider.</span><span class="en">Likely causes and an ordered checklist when a stop happens, end-of-shift reports and technicians' plain-language questions. Claude receives summarized context prepared on the device, not raw data.</span></p>
         <div class="proof"><dl>
           <dt><span class="tag field"><span class="tr">Sahada</span><span class="en">In the field</span></span></dt>
           <dd><span class="tr">Kayıtlar mühendislik ekibince sonradan analiz edildi; bu adım otomatik değildi.</span><span class="en">Logs were analyzed afterwards by the engineering team; this step was not automated.</span></dd>
-          <dt><span class="tag design">eTekno</span></dt>
-          <dd><span class="tr">Bağlam formatı, istemler ve yerel veriyi sorgulamak için araç (tool) tanımları.</span><span class="en">Context format, prompts, and tool definitions for querying local data.</span></dd>
+          <dt><span class="tag proto"><span class="tr">Prototipte</span><span class="en">Prototype</span></span></dt>
+          <dd><span class="tr">Olay analizi ve vardiya raporu kodlandı; Claude yerel modelin tespitini teyit ediyor ya da kanıtla itiraz ediyor. Gerçek API ile uçtan uca deneme sırada.</span><span class="en">Incident analysis and shift reports are implemented; Claude confirms the local model's verdict or challenges it with evidence. An end-to-end run against the live API is next.</span></dd>
         </dl></div>
       </article>
+      <article class="card wide">
+        <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/></svg></div>
+        <h3><span class="tr">Yerel arıza modeli ve kestirimci bakım</span><span class="en">On-device fault model &amp; predictive maintenance</span></h3>
+        <p><span class="tr">Cihazdaki küçük bir karar ağacı her çevrimi hattın referans profiliyle karşılaştırır ve internet olmadan, milisaniyeler içinde sınıflandırır: tel besleme bozulması, hidrolik basınç düşüşü, olağandışı güç tüketimi (örneğin kontak meme aşınması ya da kızak sürtünmesi), koruma alanına giriş ve panelden acil stop. Duruş olmadan erken uyarı verir ve anında yerel rapor yazar. Bakım sayaçları puntaları, ark süresini ve çevrimleri sayarak kontak meme, gaz memesi, tel kılavuzu ve ray yağlama zamanını önceden söyler.</span><span class="en">A small decision tree on the device compares every cycle with the line's reference profile and classifies it offline, in milliseconds: wire feed degradation, hydraulic pressure drop, unusual power draw (for example a worn contact tip or slider friction), guarded-zone entry and panel E-stop. It warns before anything stops and writes a local report at once. Maintenance counters track tack welds, arc time and cycles to say ahead of time when the contact tip, gas nozzle, wire liner and rail lubrication are due.</span></p>
+        <div class="proof"><dl>
+          <dt><span class="tag proto"><span class="tr">Prototipte</span><span class="en">Prototype</span></span></dt>
+          <dd><span class="tr">Simülatörün gerçek arıza etiketleriyle eğitildi; ayrılan test bölümlerinde %97 doğruluk. Bu bir simülasyon sonucudur ve sahada yeniden ölçülecek. Eğitimde Claude çıktısı kullanılmaz; teknisyenin onayladığı etiketler bir sonraki eğitime girer.</span><span class="en">Trained on the simulator's ground-truth fault labels; 97% accuracy on held-out episodes. That is a simulation result and will be re-measured on a real line. No Claude output is used for training; technician-confirmed labels feed the next training run.</span></dd>
+        </dl></div>
+        <a class="go" href="demo.html"><span class="tr">Demoda deneyin →</span><span class="en">Try it in the demo →</span></a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section id="demo-cta" style="padding-top:0">
+  <div class="shell">
+    <div class="cta">
+      <span class="mini-estop" aria-hidden="true"></span>
+      <div>
+        <p class="kicker"><span class="tr">Canlı demo</span><span class="en">Live demo</span></p>
+        <h3><span class="tr">Robotlu hattı tarayıcınızda durdurun.</span><span class="en">Stop a robotic line in your browser.</span></h3>
+        <p><span class="tr">Acil stopa basın, operatörü koruma alanına sokun ya da bir aşınma başlatın. Olay kaydını, yerel modelin anlık tespitini, bakım sayaçlarını ve Claude'a gidecek özet bağlamı izleyin. Yerel model prototiptekiyle aynı karar ağacı; Claude yanıtı örnek metindir.</span><span class="en">Press the E-stop, send the operator into a guarded zone or start a wear scenario. Watch the event log, the local model's instant verdict, the maintenance counters and the summarized context for Claude. The local model is the same decision tree as in the prototype; the Claude response is sample text.</span></p>
+      </div>
+      <a class="btn btn-p" href="demo.html"><span class="tr">Demoyu açın →</span><span class="en">Open the demo →</span></a>
     </div>
   </div>
 </section>
@@ -458,7 +499,7 @@ footer a{text-decoration:none}footer a:hover{color:var(--acc-txt)}
     <div class="sec-head">
       <p class="kicker">03 <b>/</b> <span class="tr">Saha çalışması</span><span class="en">Field work</span></p>
       <h2 class="h2"><span class="tr">Yaklaşım gerçek bir üretim hattında denendi.</span><span class="en">The approach was tested on a live production line.</span></h2>
-      <p class="lede"><span class="tr">Kurucu, bir tersanede yarı otonom robotik profil puntalama hattının saha testlerini yürüttü. Hatta enerji analizörü PLC'ye bağlandı, operasyon PLC'ye bağlı bir Raspberry Pi ile gerçek zamanlı kaydedildi ve kamera kaydı güvenlik için kullanıldı. Bu çalışma özellikle üretim durumunun izlenmesinde ve enerji analizinde ekibe destek sağladı. eTekno, aynı kurulumu KOBİ'ler için tekrarlanabilir bir ürüne dönüştürmek üzere tasarlanıyor.</span><span class="en">The founder led field tests of a semi-autonomous robotic tack-welding line for steel profiles at a shipyard. An energy analyzer was wired to the PLC, operations were logged in real time by a Raspberry Pi connected to the PLC, and camera footage was used for safety. The work supported the team especially in production-state monitoring and energy analysis. eTekno is being designed to turn this setup into a repeatable product for SMEs.</span></p>
+      <p class="lede"><span class="tr">Kurucu, bir tersanede yarı otonom robotik profil puntalama hattının saha testlerini yürüttü. Hatta enerji analizörü PLC'ye bağlandı, operasyon PLC'ye bağlı bir Raspberry Pi ile gerçek zamanlı kaydedildi ve kamera kaydı güvenlik için kullanıldı. Bu çalışma özellikle üretim durumunun izlenmesinde ve enerji analizinde ekibe destek sağladı. eTekno, aynı kurulumu KOBİ'ler için tekrarlanabilir bir ürüne dönüştürmek için geliştiriliyor.</span><span class="en">The founder led field tests of a semi-autonomous robotic tack-welding line for steel profiles at a shipyard. An energy analyzer was wired to the PLC, operations were logged in real time by a Raspberry Pi connected to the PLC, and camera footage was used for safety. The work supported the team especially in production-state monitoring and energy analysis. eTekno is being built to turn this setup into a repeatable product for SMEs.</span></p>
     </div>
 
     <div class="chain-wrap">
@@ -480,60 +521,7 @@ footer a{text-decoration:none}footer a:hover{color:var(--acc-txt)}
       </div>
     </div>
 
-    <h3 class="h3s mt"><span class="tr">Saha ölçümleri</span><span class="en">Field measurements</span></h3>
-    <div class="kpis">
-      <div class="kpi"><div class="v">14 × 12 m</div><p class="l"><span class="tr">Gerçek üretim koşullarında kaydedilen profil (toplam 168 m)</span><span class="en">Profiles logged under real production conditions (168 m in total)</span></p></div>
-      <div class="kpi"><div class="v"><span class="tr">44,2 s</span><span class="en">44.2 s</span></div><p class="l"><span class="tr">Ortalama konumlama çevrimi (n = 154); kararlılık kayıttan izlendi</span><span class="en">Mean positioning cycle (n = 154); stability tracked from the log</span></p></div>
-      <div class="kpi"><div class="v">711 Wh</div><p class="l"><span class="tr">Profil başına ölçülen ortalama enerji</span><span class="en">Measured mean energy per profile</span></p></div>
-      <div class="kpi"><div class="v"><span class="tr">%80,4</span><span class="en">80.4%</span></div><p class="l"><span class="tr">Enerjinin kaynak fazında tüketilen payı</span><span class="en">Share of energy consumed by welding</span></p></div>
-    </div>
-
-    <figure class="phase" aria-labelledby="phase-title">
-      <div class="phase-h">
-        <h3 id="phase-title"><span class="tr">Bir profilin çevrimi: süre ve enerji nereye gidiyor?</span><span class="en">One profile cycle: where do time and energy go?</span></h3>
-        <div class="lg" aria-hidden="true">
-          <span><i class="sw s1"></i><span class="tr">Kaynak (otomatik)</span><span class="en">Welding (auto)</span></span>
-          <span><i class="sw s2"></i><span class="tr">Boşta hareket (otomatik)</span><span class="en">Idle movement (auto)</span></span>
-          <span><i class="sw s3"></i><span class="tr">Taşıma ve hazırlık (operatör)</span><span class="en">Handling &amp; prep (operator)</span></span>
-        </div>
-      </div>
-      <div class="pb-row">
-        <div class="pb-lab"><span class="tr">Süre</span><span class="en">Time</span><small><span class="tr">19,8 dk</span><span class="en">19.8 min</span></small></div>
-        <div class="pb">
-          <span class="s1" style="flex-grow:12.5" tabindex="0" data-tip-tr="Kaynak · 12,5 dk · %63" data-tip-en="Welding · 12.5 min · 63%"><span class="tr">%63</span><span class="en">63%</span></span>
-          <span class="s2" style="flex-grow:5.1" tabindex="0" data-tip-tr="Boşta hareket · 5,1 dk · %26" data-tip-en="Idle movement · 5.1 min · 26%"><span class="tr">%26</span><span class="en">26%</span></span>
-          <span class="s3" style="flex-grow:2.2" tabindex="0" data-tip-tr="Taşıma ve hazırlık · 2,2 dk · %11" data-tip-en="Handling &amp; prep · 2.2 min · 11%"></span>
-        </div>
-      </div>
-      <div class="pb-row">
-        <div class="pb-lab"><span class="tr">Enerji</span><span class="en">Energy</span><small>711 Wh</small></div>
-        <div class="pb">
-          <span class="s1" style="flex-grow:571.4" tabindex="0" data-tip-tr="Kaynak · 571,4 Wh · %80,4" data-tip-en="Welding · 571.4 Wh · 80.4%"><span class="tr">%80</span><span class="en">80%</span></span>
-          <span class="s2" style="flex-grow:85.7" tabindex="0" data-tip-tr="Boşta hareket · 85,7 Wh · %12,1" data-tip-en="Idle movement · 85.7 Wh · 12.1%"></span>
-          <span class="s3" style="flex-grow:53.8" tabindex="0" data-tip-tr="Taşıma ve hazırlık · 53,8 Wh · %7,6" data-tip-en="Handling &amp; prep · 53.8 Wh · 7.6%"></span>
-        </div>
-      </div>
-      <div class="tbl-wrap">
-        <table class="pt">
-          <thead><tr>
-            <th scope="col"><span class="tr">Faz</span><span class="en">Phase</span></th>
-            <th scope="col"><span class="tr">Süre (dk)</span><span class="en">Time (min)</span></th>
-            <th scope="col"><span class="tr">Pay</span><span class="en">Share</span></th>
-            <th scope="col"><span class="tr">Enerji (Wh)</span><span class="en">Energy (Wh)</span></th>
-            <th scope="col"><span class="tr">Pay</span><span class="en">Share</span></th>
-          </tr></thead>
-          <tbody>
-            <tr><td><i class="sw s1"></i><span class="tr">Kaynak (otomatik)</span><span class="en">Welding (auto)</span></td><td><span class="tr">12,5</span><span class="en">12.5</span></td><td><span class="tr">%63</span><span class="en">63%</span></td><td><span class="tr">571,4</span><span class="en">571.4</span></td><td><span class="tr">%80,4</span><span class="en">80.4%</span></td></tr>
-            <tr><td><i class="sw s2"></i><span class="tr">Boşta hareket (otomatik)</span><span class="en">Idle movement (auto)</span></td><td><span class="tr">5,1</span><span class="en">5.1</span></td><td><span class="tr">%26</span><span class="en">26%</span></td><td><span class="tr">85,7</span><span class="en">85.7</span></td><td><span class="tr">%12,1</span><span class="en">12.1%</span></td></tr>
-            <tr><td><i class="sw s3"></i><span class="tr">Taşıma ve hazırlık (operatör)</span><span class="en">Handling &amp; prep (operator)</span></td><td><span class="tr">2,2</span><span class="en">2.2</span></td><td><span class="tr">%11</span><span class="en">11%</span></td><td><span class="tr">53,8</span><span class="en">53.8</span></td><td><span class="tr">%7,6</span><span class="en">7.6%</span></td></tr>
-            <tr class="tot"><td><span class="tr">Toplam</span><span class="en">Total</span></td><td><span class="tr">19,8</span><span class="en">19.8</span></td><td></td><td><span class="tr">710,9</span><span class="en">710.9</span></td><td></td></tr>
-          </tbody>
-        </table>
-      </div>
-      <p class="insight"><span class="tr"><b>Boşta hareket, çevrim süresinin yaklaşık dörtte birini alırken enerjinin yalnızca %12'sini tüketiyor.</b> Toplam kWh sayacı bu ayrımı göstermez; faz bazlı kayıt, sürenin ve enerjinin nereye gittiğini ayrı ayrı görünür kıldı.</span><span class="en"><b>Idle movement takes about a quarter of the cycle time but only 12% of the energy.</b> A total-kWh meter can't show that split; phase-level logging made time and energy visible separately.</span></p>
-    </figure>
-
-    <p class="src-note"><span class="tr">Kaynak: kurucunun saha ölçümleri. Hat, kurucunun çalıştığı tersanenin Ar-Ge projesidir; burada yalnızca izleme ve enerji verileri paylaşılıyor. Bu rakamlar eTekno ürününün sonucu değildir.</span><span class="en">Source: the founder's field measurements. The line is an R&amp;D project of the shipyard where the founder works; only monitoring and energy data are shared here. These figures are not results of the eTekno product.</span></p>
+    <p class="src-note"><span class="tr">Saha verileri işverene aittir ve burada paylaşılmıyor; yalnızca yöntem anlatılıyor. eTekno prototipi işverene ait hiçbir kod veya veri kullanmadan sıfırdan yazıldı ve sentetik bir simülatörle çalışıyor.</span><span class="en">The field data belongs to the employer and is not shared here; only the method is described. The eTekno prototype was written from scratch without any of the employer's code or data, and runs against a synthetic simulator.</span></p>
 
     <h3 class="h3s mt"><span class="tr">Sahadan çıkan üç ders</span><span class="en">Three lessons from the field</span></h3>
     <div class="prob lessons">
@@ -550,7 +538,7 @@ footer a{text-decoration:none}footer a:hover{color:var(--acc-txt)}
       <div>
         <p class="n">L.3</p>
         <h3><span class="tr">Görüntü ve makine durumu birlikte</span><span class="en">Video and machine state together</span></h3>
-        <p><span class="tr">Kamera kaydı, olası bir kazada nedenin ve ilgili müdahalenin tespit edilebilmesini sağladı. eTekno bunu PLC olay kaydıyla otomatik olarak aynı zaman çizelgesinde birleştirecek.</span><span class="en">Camera footage made it possible to identify the cause of an accident and the intervention involved. eTekno will put it on one timeline with the PLC event log automatically.</span></p>
+        <p><span class="tr">Kamera kaydı, olası bir kazada nedenin ve ilgili müdahalenin tespit edilebilmesini sağladı. eTekno prototipi bunu PLC olay kaydıyla aynı zaman çizelgesinde otomatik birleştiriyor.</span><span class="en">Camera footage made it possible to identify the cause of an accident and the intervention involved. The eTekno prototype puts it on one timeline with the PLC event log automatically.</span></p>
       </div>
     </div>
   </div>
@@ -560,8 +548,8 @@ footer a{text-decoration:none}footer a:hover{color:var(--acc-txt)}
   <div class="shell">
     <div class="sec-head">
       <p class="kicker">04 <b>/</b> <span class="tr">Mimari</span><span class="en">Architecture</span></p>
-      <h2 class="h2"><span class="tr">Gerçek zamanlı iş sahada, akıl yürütme Claude'da.</span><span class="en">Real-time work at the edge, reasoning with Claude.</span></h2>
-      <p class="lede"><span class="tr">Zaman kritik işlemler cihazda kalır. Claude yalnızca özetlenmiş ve gerekli veriyle; analiz, raporlama ve sorun giderme için çağrılır.</span><span class="en">Time-critical processing stays on the device. Claude is called only with summarized, necessary data for analysis, reporting and troubleshooting.</span></p>
+      <h2 class="h2"><span class="tr">Anlık karar sahada, derin akıl yürütme Claude'da.</span><span class="en">Instant decisions at the edge, deeper reasoning with Claude.</span></h2>
+      <p class="lede"><span class="tr">Zaman kritik işler ve arıza sınıflandırması cihazda kalır. Claude yalnızca olay anında ve vardiya sonunda, özetlenmiş bağlamla; kök neden analizi ve raporlama için çağrılır.</span><span class="en">Time-critical work and fault classification stay on the device. Claude is called only at a stop or at the end of a shift, with summarized context, for root-cause analysis and reporting.</span></p>
     </div>
     <div class="flow">
       <div class="node">
@@ -573,13 +561,13 @@ footer a{text-decoration:none}footer a:hover{color:var(--acc-txt)}
       <div class="node core">
         <p class="tier"><span class="tr">Uç cihaz</span><span class="en">Edge</span></p>
         <h4>eTekno Edge · Raspberry Pi</h4>
-        <ul><li><span class="tr">Yerel ağdan salt okuma</span><span class="en">Read-only collection over LAN</span></li><li><span class="tr">Faz ve olay eşleştirme</span><span class="en">Phase and event matching</span></li><li><span class="tr">Cihaz üzerinde görüntü analizi</span><span class="en">On-device vision</span></li><li><span class="tr">Olay klibi için döngüsel tampon</span><span class="en">Rolling buffer for event clips</span></li><li><span class="tr">Bağlantı kesilirse kuyruklama</span><span class="en">Queuing when offline</span></li></ul>
+        <ul><li><span class="tr">Yerel ağdan salt okuma</span><span class="en">Read-only collection over LAN</span></li><li><span class="tr">Faz ve olay eşleştirme</span><span class="en">Phase and event matching</span></li><li><span class="tr">Yerel arıza modeli ve bakım sayaçları</span><span class="en">Local fault model and maintenance counters</span></li><li><span class="tr">Cihaz üzerinde görüntü analizi</span><span class="en">On-device vision</span></li><li><span class="tr">Olay klibi için döngüsel tampon</span><span class="en">Rolling buffer for event clips</span></li><li><span class="tr">Bağlantı kesilirse kuyruklama</span><span class="en">Queuing when offline</span></li></ul>
       </div>
       <div class="arrow" aria-hidden="true"></div>
       <div class="node">
         <p class="tier"><span class="tr">Akıl yürütme</span><span class="en">Reasoning</span></p>
         <h4>Claude API</h4>
-        <ul><li><span class="tr">Kök neden taslağı</span><span class="en">Root-cause drafts</span></li><li><span class="tr">Vardiya ve olay raporu</span><span class="en">Shift and incident reports</span></li><li><span class="tr">Teknisyen soru-cevap; araç kullanımıyla yerel veri sorgusu</span><span class="en">Technician Q&amp;A; local data queries via tool use</span></li></ul>
+        <ul><li><span class="tr">Derin kök neden analizi</span><span class="en">Deeper root-cause analysis</span></li><li><span class="tr">Yerel tespiti teyit veya itiraz</span><span class="en">Confirms or challenges the local verdict</span></li><li><span class="tr">Vardiya ve olay raporu</span><span class="en">Shift and incident reports</span></li><li><span class="tr">Araç kullanımıyla yerel veri sorgusu</span><span class="en">Local data queries via tool use</span></li></ul>
       </div>
       <div class="arrow" aria-hidden="true"></div>
       <div class="node">
@@ -589,7 +577,7 @@ footer a{text-decoration:none}footer a:hover{color:var(--acc-txt)}
       </div>
     </div>
     <div class="arch-note">
-      <div><b><span class="tr">Düşük gecikme</span><span class="en">Low latency</span></b><span class="tr">Kontrol döngüsüne yakın her iş yerelde yapılır; buluta gidip gelmez.</span><span class="en">Anything near the control loop runs locally and never round-trips to the cloud.</span></div>
+      <div><b><span class="tr">Düşük gecikme</span><span class="en">Low latency</span></b><span class="tr">Kontrol döngüsüne yakın işler ve arıza sınıflandırması yerelde yapılır; buluta gidip gelmez.</span><span class="en">Work near the control loop and fault classification run locally and never round-trip to the cloud.</span></div>
       <div><b><span class="tr">Veri minimizasyonu ve KVKK</span><span class="en">Data minimization &amp; GDPR</span></b><span class="tr">Ham görüntü ve ham sinyal tesiste kalır. Claude'a yalnızca olay etiketi ve özet gider; görüntü sınırlı süre saklanır.</span><span class="en">Raw video and raw signals stay on-site. Claude gets only event tags and summaries; footage is kept for a limited time.</span></div>
       <div><b><span class="tr">Kesintiye dayanıklı</span><span class="en">Outage-tolerant</span></b><span class="tr">Ağ kesilirse veri cihazda tamponlanır; bağlantı gelince sıradaki analizler çalışır.</span><span class="en">If the network drops, data is buffered on the device and queued analyses run once it's back.</span></div>
       <div><b><span class="tr">Kolay kurulum</span><span class="en">Easy install</span></b><span class="tr">Mevcut ağa takılır; PLC programına dokunmadan, salt okuma ile çalışır.</span><span class="en">Plugs into the existing network and works read-only, without touching PLC programs.</span></div>
@@ -610,6 +598,7 @@ footer a{text-decoration:none}footer a:hover{color:var(--acc-txt)}
     <span class="k">"alarms"</span>: [<span class="w">"A217 wire_feed"</span>]
   },
   <span class="k">"vision_tag"</span>: <span class="s">"person_in_zone:station_3"</span>,
+  <span class="k">"local_model"</span>: {<span class="k">"label"</span>: <span class="w">"intrusion"</span>, <span class="k">"confidence"</span>: 1.0},
   <span class="k">"clip"</span>: <span class="s">"local://clips/1432_st3.mp4"</span>
 }</pre>
         <div class="con-foot"><span class="tr">Ham görüntü gönderilmez; yalnızca etiket ve yerel klip referansı.</span><span class="en">No raw video is sent — only a tag and a local clip reference.</span></div>
@@ -618,20 +607,97 @@ footer a{text-decoration:none}footer a:hover{color:var(--acc-txt)}
         <div class="con-top"><span><b>Claude</b></span><span><span class="tr">olay özeti</span><span class="en">incident summary</span></span></div>
         <div class="reply">
           <span class="who">Claude ›</span>
-          <div class="tr"><p>Acil stop 14:32:07'de alan tarayıcısı 2'den geldi; hat otomatik moddaydı ve kaynak fazındaydı. Cihaz üzerindeki görüntü analizi aynı anda istasyon 3'ün koruma alanında bir kişi algıladı.</p><p>Son 10 dakikada çevrim süresi %12 uzamış ve A217 tel besleme alarmı oluşmuş. Operatör büyük olasılıkla tel beslemeye müdahale etmek için alana girdi.</p><ol><li>Tel besleme ünitesini kontrol edin.</li><li>Müdahale prosedürünü (önce hattı durdur, sonra alana gir) vardiya ekibiyle gözden geçirin.</li></ol><p>Klip inceleme için yerelde kayıtlı.</p></div>
-          <div class="en"><p>The E-stop came from area scanner 2 at 14:32:07, with the line in auto mode and in the welding phase. On-device vision detected a person inside station 3's guarded zone at the same moment.</p><p>Cycle time rose 12% over the last 10 minutes and alarm A217 (wire feed) fired. The operator most likely entered the zone to deal with the wire feed.</p><ol><li>Check the wire-feed unit.</li><li>Review the intervention procedure (stop the line first, then enter) with the shift team.</li></ol><p>The clip is stored locally for review.</p></div>
+          <div class="tr"><p>Acil stop 14:32:07'de alan tarayıcısı 2'den geldi; hat otomatik moddaydı ve kaynak fazındaydı. Cihaz üzerindeki görüntü analizi aynı anda istasyon 3'ün koruma alanında bir kişi algıladı.</p><p>Son 10 dakikada çevrim süresi %12 uzamış ve A217 tel besleme alarmı oluşmuş. Operatör büyük olasılıkla tel beslemeye müdahale etmek için alana girdi. Yerel modelin “koruma alanına giriş” tespiti kanıtla uyumlu; asıl kök neden tel besleme sorunu.</p><ol><li>Tel besleme ünitesini kontrol edin.</li><li>Müdahale prosedürünü (önce hattı durdur, sonra alana gir) vardiya ekibiyle gözden geçirin.</li></ol><p>Klip inceleme için yerelde kayıtlı.</p></div>
+          <div class="en"><p>The E-stop came from area scanner 2 at 14:32:07, with the line in auto mode and in the welding phase. On-device vision detected a person inside station 3's guarded zone at the same moment.</p><p>Cycle time rose 12% over the last 10 minutes and alarm A217 (wire feed) fired. The operator most likely entered the zone to deal with the wire feed. The local model's “guarded-zone entry” verdict matches the evidence; the underlying cause is the wire feed.</p><ol><li>Check the wire-feed unit.</li><li>Review the intervention procedure (stop the line first, then enter) with the shift team.</li></ol><p>The clip is stored locally for review.</p></div>
         </div>
-        <div class="con-foot"><span class="tr">Temsili örnek — tasarım aşaması</span><span class="en">Illustrative example — design stage</span></div>
+        <div class="con-foot"><span class="tr">Temsili örnek · canlı sürümü <a href="demo.html">demo sayfasında</a></span><span class="en">Illustrative example · live version on the <a href="demo.html">demo page</a></span></div>
       </div>
     </div>
   </div>
 </section>
 
+<section id="compete" class="arch-wrap">
+  <div class="shell">
+    <div class="sec-head">
+      <p class="kicker">05 <b>/</b> <span class="tr">Rekabet ve konumlanma</span><span class="en">Competition &amp; positioning</span></p>
+      <h2 class="h2"><span class="tr">Güçlü oyuncular var; biz şu boşluğa odaklanıyoruz.</span><span class="en">Strong players exist; this is the gap we focus on.</span></h2>
+      <p class="lede"><span class="tr">Ekim 2026'da yaptığımız araştırmanın özeti. Diğer ürünleri, üreticilerin kendi yayımladığı bilgilere göre aktarıyoruz.</span><span class="en">A summary of our research in October 2026. Other products are described from what their makers publish.</span></p>
+    </div>
+    <div class="cmp">
+      <article class="card">
+        <h3><span class="tr">Büyük otomasyon üreticileri</span><span class="en">Large automation vendors</span></h3>
+        <p class="who">Siemens (Industrial Edge, Insights Hub) · Schneider Electric (EcoStruxure) · Rockwell (Plex)</p>
+        <p><span class="tr">Kapsamlı ve olgun platformlar. Genellikle cihaz başına lisans, üreticinin kendi ekosistemi ve bir entegrasyon projesi gerektirir; fiyatlar teklif usulüyle belirlenir.</span><span class="en">Broad, mature platforms. They usually need per-device licences, the vendor's own ecosystem and an integration project; pricing is by quote.</span></p>
+      </article>
+      <article class="card">
+        <h3><span class="tr">KOBİ odaklı izleme platformları</span><span class="en">SME-focused monitoring platforms</span></h3>
+        <p class="who">MachineMetrics · Evocon · Guidewheel · Amper · Tulip</p>
+        <p><span class="tr">Hızlı kurulum ve OEE takibi. Çoğu bulut tabanlı; bir kısmı makine durumunu PLC yerine akım sensörüyle çıkarır.</span><span class="en">Quick installs and OEE tracking. Most are cloud-based; some infer machine state from current sensors instead of the PLC.</span></p>
+      </article>
+      <article class="card">
+        <h3><span class="tr">Yerli çözümler</span><span class="en">Turkish vendors</span></h3>
+        <p class="who">ProManage · Volsoft · Centra · Sepex (Cormind) · Entes · Reengen</p>
+        <p><span class="tr">Türkçe destek ve yerel saha deneyimi. Odak noktaları üretim takibi ve MES/OEE ya da enerji yönetimi.</span><span class="en">Turkish-language support and local field experience. Their focus is production tracking and MES/OEE, or energy management.</span></p>
+      </article>
+    </div>
+    <div class="edge-box">
+      <h3 class="h3s"><span class="tr">eTekno'nun farkı</span><span class="en">Where eTekno differs</span></h3>
+      <ul class="diff">
+        <li><b><span class="tr">Tek cihazda üç veri</span><span class="en">Three data sources, one device</span></b><span class="tr">PLC durumu, faz bazlı enerji ve kamera ile olay incelemesi. Araştırmamızda bu üçünü KOBİ ölçeğinde birleştiren bir ürün bulmadık. En yakın örnek Fabrico; kamerayla her duruşun olası nedenini öneriyor ve görüntüyü kanıt olarak saklıyor.</span><span class="en">PLC state, per-phase energy and camera-based incident review. We did not find a product that combines all three at SME scale. The closest is Fabrico, which uses cameras to suggest the reason for each stop and keeps the footage as evidence.</span></li>
+        <li><b><span class="tr">Yerinde işleme</span><span class="en">On-site processing</span></b><span class="tr">Ham görüntü ve sinyal tesiste kalır; yerel model internet olmadan çalışır. İncelediğimiz KOBİ çözümlerinin çoğu bulut tabanlı.</span><span class="en">Raw video and signals stay on-site, and the local model works offline. Most SME products we looked at are cloud-based.</span></li>
+        <li><b><span class="tr">İki katmanlı analiz</span><span class="en">Two-layer analysis</span></b><span class="tr">Duruş anında cihazdan anında yerel rapor, ardından Claude ile derin kök neden analizi.</span><span class="en">An instant local report from the device at a stop, then deeper root-cause analysis with Claude.</span></li>
+      </ul>
+      <p class="src-note"><span class="tr">Not: LLM tabanlı asistanlar artık yaygın (örneğin ProManage ChatReport, MachineMetrics Max AI, Tulip, Siemens Production Copilot); bunu tek başına bir fark olarak görmüyoruz. Kaynak: üreticilerin web siteleri ve dokümanları, Ekim 2026; bilgiler değişebilir.</span><span class="en">Note: LLM-based assistants are now common (for example ProManage ChatReport, MachineMetrics Max AI, Tulip, Siemens Production Copilot), so we do not count that as a difference on its own. Source: vendors' websites and documentation, October 2026; details may change.</span></p>
+    </div>
+  </div>
+</section>
+
+<section id="trust">
+  <div class="shell">
+    <div class="sec-head">
+      <p class="kicker">06 <b>/</b> <span class="tr">Güven</span><span class="en">Trust</span></p>
+      <h2 class="h2"><span class="tr">KVKK, iş güvenliği ve sahada dayanıklılık.</span><span class="en">Privacy, workplace safety and durability on the floor.</span></h2>
+      <p class="lede"><span class="tr">Kameralı bir sistemin fabrikaya girmesi çalışan verisi demektir. Bu yüzden gizlilik ve güvenlik tasarımın başından itibaren ele alınıyor. Her maddede prototipte hazır olanlar ve pilot öncesi yapılacaklar ayrı ayrı belirtiliyor.</span><span class="en">A camera system on the floor means employee data, so privacy and safety are part of the design from the start. Each item states what is already in the prototype and what comes before a pilot.</span></p>
+    </div>
+    <div class="trust">
+      <article class="card">
+        <p class="lbl"><span class="tr">KVKK ve gizlilik</span><span class="en">Privacy (KVKK / GDPR)</span></p>
+        <ul class="chk">
+          <li><span class="tag field"><span class="tr">Prototipte</span><span class="en">Prototype</span></span> <b><span class="tr">Kara kutu:</span><span class="en">Black box:</span></b> <span class="tr">görüntü yalnızca bellekte, birkaç saniyelik döngüsel tamponda tutulur; diske yalnızca olay klibi yazılır ve 7 gün sonra otomatik silinir.</span><span class="en">video lives only in a few-second rolling buffer in memory; only an event clip is written to disk, and it is deleted automatically after 7 days.</span></li>
+          <li><span class="tag field"><span class="tr">Prototipte</span><span class="en">Prototype</span></span> <b><span class="tr">Yüz tanıma ve ses yok:</span><span class="en">No face recognition, no audio:</span></b> <span class="tr">kliplerde yüzler bulanıklaştırılır; tespit yalnızca "alanda kişi var mı" sorusunu yanıtlar.</span><span class="en">faces in clips are blurred, and detection only answers "is someone in the zone".</span></li>
+          <li><span class="tag field"><span class="tr">Prototipte</span><span class="en">Prototype</span></span> <b><span class="tr">Veri minimizasyonu:</span><span class="en">Data minimization:</span></b> <span class="tr">Claude'a kişisel veri içermeyen özet ve etiket gider; istem, kişi adı vermeyi yasaklar.</span><span class="en">Claude gets a summary and tags with no personal data, and the prompt forbids naming people.</span></li>
+          <li><span class="tag plain"><span class="tr">İlke</span><span class="en">Principle</span></span> <b><span class="tr">Amaç sınırı:</span><span class="en">Purpose limit:</span></b> <span class="tr">kamera yalnızca iş sağlığı ve güvenliği ile olay incelemesi için kullanılır; performans veya devam takibi için kullanılmaz. KVKK'nın 8 Haziran 2026 tarihli işyerinde kamera duyurusu bu ayrımı açıkça yapıyor.</span><span class="en">the camera is used only for occupational safety and incident review, never for performance or attendance tracking. The Turkish DPA's June 2026 notice on workplace cameras draws exactly this line.</span></li>
+          <li><span class="tag design"><span class="tr">Pilot öncesi</span><span class="en">Before a pilot</span></span> <span class="tr">Aydınlatma metni ve uyarı tabelası şablonu, yazılı erişim yetkisi ve erişim kaydı, risk değerlendirmesi.</span><span class="en">Privacy notice and signage templates, written access rights with an access log, and a risk assessment.</span></li>
+          <li><span class="tag design"><span class="tr">Açık konu</span><span class="en">Open item</span></span> <span class="tr">Özet verinin yurt dışındaki Claude API'ye aktarımı hukuken ayrıca değerlendirilecek.</span><span class="en">Sending summaries to the Claude API abroad needs a separate legal review.</span></li>
+        </ul>
+      </article>
+      <article class="card">
+        <p class="lbl"><span class="tr">İş güvenliği</span><span class="en">Workplace safety</span></p>
+        <ul class="chk">
+          <li><b><span class="tr">Güvenlik fonksiyonu değildir:</span><span class="en">Not a safety function:</span></b> <span class="tr">acil stop ve koruma mantığı güvenlik PLC'sinde kalır; cihaz PLC'ye hiçbir şey yazmaz.</span><span class="en">E-stop and guarding logic stay in the safety PLC; the device never writes to a PLC.</span></li>
+          <li><b><span class="tr">Ramak kala kaydı:</span><span class="en">Near-miss records:</span></b> <span class="tr">6331 sayılı Kanun'un 14. maddesi, iş kazalarının ve ramak kala olaylarının kaydedilip incelenmesini istiyor. Olay kaydı ve klip bu incelemeyi kolaylaştırır.</span><span class="en">Turkish law 6331 (art. 14) requires accidents and near misses to be recorded and investigated; the event record and clip make that easier.</span></li>
+          <li><b><span class="tr">Çalışana danışma:</span><span class="en">Consulting workers:</span></b> <span class="tr">Kanun'un 18. maddesi uyarınca, yeni teknoloji devreye alınmadan önce çalışanlara ve temsilcilerine danışılır.</span><span class="en">Under art. 18, workers and their representatives are consulted before new technology is introduced.</span></li>
+        </ul>
+      </article>
+      <article class="card">
+        <p class="lbl"><span class="tr">Donanım dayanıklılığı</span><span class="en">Hardware durability</span></p>
+        <ul class="chk">
+          <li><b><span class="tr">Sahada endüstriyel cihaz:</span><span class="en">Industrial hardware on site:</span></b> <span class="tr">prototip standart Raspberry Pi üzerinde çalışıyor. Sahada Compute Module tabanlı, DIN raya takılan, 24 V beslemeli, CE ve EN 61131-2 uyumlu kontrol cihazları hedefleniyor (örneğin KUNBUS Revolution Pi Connect 5).</span><span class="en">the prototype runs on a standard Raspberry Pi. On site the target is Compute Module-based controllers on DIN rail, with 24 V supply, CE and EN 61131-2 compliance (for example KUNBUS Revolution Pi Connect 5).</span></li>
+          <li><b><span class="tr">Uzun ömür:</span><span class="en">Long availability:</span></b> <span class="tr">Raspberry Pi, CM4'ü en az Ocak 2034'e, CM5'i en az Ocak 2036'ya kadar üretmeyi taahhüt ediyor.</span><span class="en">Raspberry Pi commits to producing the CM4 until at least January 2034 and the CM5 until at least January 2036.</span></li>
+          <li><b><span class="tr">Kesintiye dayanıklı yazılım:</span><span class="en">Outage-tolerant software:</span></b> <span class="tr">bağlantı kesilince yerel tamponlama, PLC'ye salt okuma erişimi ve servis olarak otomatik yeniden başlama.</span><span class="en">local buffering when the link drops, read-only PLC access and automatic restart as a service.</span></li>
+        </ul>
+      </article>
+    </div>
+    <p class="src-note"><span class="tr">Bu ilkeler hukuki görüş değildir; pilot öncesinde bir uzmanla değerlendirilecek. Kaynaklar: KVKK kamuoyu duyurusu (8 Haziran 2026), 6331 sayılı İş Sağlığı ve Güvenliği Kanunu, EDPB 3/2019 rehberi, Raspberry Pi CM4 ve CM5 ürün belgeleri.</span><span class="en">These principles are not legal advice and will be reviewed with an expert before a pilot. Sources: Turkish DPA public notice (8 June 2026), Occupational Health and Safety Law No. 6331, EDPB Guidelines 3/2019, Raspberry Pi CM4 and CM5 product briefs.</span></p>
+  </div>
+</section>
+
+
 <section id="roadmap" class="arch-wrap">
   <div class="shell">
     <div class="sec-head">
-      <p class="kicker">05 <b>/</b> <span class="tr">Yol haritası</span><span class="en">Roadmap</span></p>
-      <h2 class="h2"><span class="tr">Saha deneyiminden ilk pilota.</span><span class="en">From field experience to a first pilot.</span></h2>
+      <p class="kicker">07 <b>/</b> <span class="tr">Yol haritası</span><span class="en">Roadmap</span></p>
+      <h2 class="h2"><span class="tr">Çalışan prototipten ilk pilota.</span><span class="en">From a working prototype to a first pilot.</span></h2>
       <p class="lede"><span class="tr">Tarihler hedeftir. İlk pilotun zamanlaması, pilot tesis görüşmelerine bağlı.</span><span class="en">Dates are targets. Timing of the first pilot depends on pilot-site discussions.</span></p>
     </div>
     <div class="rm">
@@ -641,15 +707,15 @@ footer a{text-decoration:none}footer a:hover{color:var(--acc-txt)}
       </div>
       <div class="rm-i now">
         <div class="rm-when"><span class="tr">2026 · 4. çeyrek</span><span class="en">Q4 2026</span><span class="tag design"><span class="tr">Şu an</span><span class="en">Now</span></span></div>
-        <div><h3><span class="tr">Ürün tasarımı</span><span class="en">Product design</span></h3><p><span class="tr">Referans mimari, veri modeli, Claude için bağlam formatı ve araç tanımları; KVKK uyumlu görüntü saklama kuralları.</span><span class="en">Reference architecture, data model, context format and tool definitions for Claude; KVKK/GDPR-compliant video retention rules.</span></p></div>
+        <div><h3><span class="tr">Çalışan prototip (simülatörle)</span><span class="en">Working prototype (with a simulator)</span></h3><p><span class="tr">Modbus TCP simülatörü, uç ajanı, yerel arıza modeli, bakım sayaçları, yerel pano ve Claude entegrasyonu çalışıyor; 26 otomatik test geçiyor. Sırada: gerçek Claude API ile uçtan uca deneme, demo videosu ve Kocaeli'de üretici görüşmeleri.</span><span class="en">Modbus TCP simulator, edge agent, local fault model, maintenance counters, local dashboard and Claude integration are working, with 26 automated tests passing. Next: an end-to-end run against the live Claude API, a demo video and conversations with manufacturers in Kocaeli.</span></p></div>
       </div>
       <div class="rm-i">
         <div class="rm-when"><span class="tr">2027 · 1.–2. çeyrek</span><span class="en">Q1–Q2 2027</span><span class="tag plain"><span class="tr">Hedef</span><span class="en">Target</span></span></div>
-        <div><h3><span class="tr">Masa üstü prototip</span><span class="en">Bench prototype</span></h3><p><span class="tr">Raspberry Pi, PLC simülatörü ve enerji analizörüyle uçtan uca akış: veri toplama, çevrimdışı tamponlama, Claude ile vardiya raporu ve olay özeti.</span><span class="en">End-to-end flow with a Raspberry Pi, a PLC simulator and an energy meter: data collection, offline buffering, shift reports and incident summaries with Claude.</span></p></div>
+        <div><h3><span class="tr">Gerçek donanım ve müşteri doğrulaması</span><span class="en">Real hardware and customer validation</span></h3><p><span class="tr">Endüstriyel Raspberry Pi ve gerçek bir PLC ile test düzeneği; üretici görüşmeleri ve pilot için niyet mektupları.</span><span class="en">A test rig with an industrial Raspberry Pi and a real PLC; conversations with manufacturers and letters of intent for a pilot.</span></p></div>
       </div>
       <div class="rm-i">
         <div class="rm-when"><span class="tr">2027 · 3.–4. çeyrek</span><span class="en">Q3–Q4 2027</span><span class="tag plain"><span class="tr">Hedef</span><span class="en">Target</span></span></div>
-        <div><h3><span class="tr">İlk pilot</span><span class="en">First pilot</span></h3><p><span class="tr">Kocaeli'de bir üretici tesiste kurulum. Ölçülecekler: kurulum süresi, veri sürekliliği ve raporların teknisyenlerce doğruluk değerlendirmesi.</span><span class="en">Installation at a manufacturing site in Kocaeli. Measured: install time, data continuity, and technicians' accuracy rating of the reports.</span></p></div>
+        <div><h3><span class="tr">İlk pilot</span><span class="en">First pilot</span></h3><p><span class="tr">Kocaeli'de bir üretici tesiste kurulum. Ölçülecekler: kurulum süresi, veri sürekliliği, yerel modelin sahadaki doğruluğu ve raporların teknisyenlerce değerlendirmesi.</span><span class="en">Installation at a manufacturing site in Kocaeli. Measured: install time, data continuity, the local model's accuracy on a real line and technicians' rating of the reports.</span></p></div>
       </div>
       <div class="rm-i">
         <div class="rm-when">2028<span class="tag plain"><span class="tr">Hedef</span><span class="en">Target</span></span></div>
@@ -662,10 +728,17 @@ footer a{text-decoration:none}footer a:hover{color:var(--acc-txt)}
 <section id="model">
   <div class="shell">
     <div class="sec-head">
-      <p class="kicker">06 <b>/</b> <span class="tr">İş modeli</span><span class="en">Business model</span></p>
+      <p class="kicker">08 <b>/</b> <span class="tr">İş modeli ve pazar</span><span class="en">Business model &amp; market</span></p>
       <h2 class="h2"><span class="tr">Kurulum paketi ve tesis başına abonelik.</span><span class="en">An install kit plus a per-site subscription.</span></h2>
       <p class="lede"><span class="tr">Model ilk pilotta doğrulanacak; fiyatlandırma pilottan sonra netleşecek.</span><span class="en">The model will be validated in the first pilot; pricing will be set after it.</span></p>
     </div>
+    <div class="stats">
+      <div class="st"><div class="v"><span class="tr">478 bin</span><span class="en">478k</span></div><p><span class="tr">Türkiye'de imalat girişimi; %99'u KOBİ (TÜİK, 2024)</span><span class="en">manufacturing enterprises in Türkiye; 99% are SMEs (TÜİK, 2024)</span></p></div>
+      <div class="st"><div class="v"><span class="tr">≈83 bin</span><span class="en">≈83k</span></div><p><span class="tr">bunların küçük ve orta ölçekli olanları, mikro işletmeler hariç (TÜİK, 2024)</span><span class="en">of them small and medium-sized, excluding micro firms (TÜİK, 2024)</span></p></div>
+      <div class="st"><div class="v"><span class="tr">14 OSB</span><span class="en">14 OIZs</span></div><p><span class="tr">Kocaeli'de organize sanayi bölgesi; KSO'ya kayıtlı yaklaşık 3.950 sanayi firması</span><span class="en">organized industrial zones in Kocaeli; about 3,950 firms registered with the Kocaeli Chamber of Industry</span></p></div>
+      <div class="st"><div class="v"><span class="tr">2,16 milyon</span><span class="en">2.16M</span></div><p><span class="tr">AB-27'de imalat KOBİ'si; yaklaşık 311 bini 10–249 çalışanlı (Eurostat, 2024)</span><span class="en">manufacturing SMEs in the EU-27; about 311k have 10–249 employees (Eurostat, 2024)</span></p></div>
+    </div>
+    <p class="src-note"><span class="tr">İlk hedefimiz bu işletmelerin PLC'li hattı olan küçük ve orta ölçekli kısmı. Kaynaklar: <a href="https://webdosya.kosgeb.gov.tr/Content/Upload/Dosya/Kurumsal/2026/Tu%CC%88rkiye'deki_KOBI%CC%87'lere_I%CC%87lis%CC%A7kin_Baz%C4%B1_I%CC%87statistiki_Go%CC%88stergeler.pdf" target="_blank" rel="noopener">KOSGEB, TÜİK 2024 verisi</a> (Türkiye'de KOBİ sınıfları çalışan sayısının yanında mali ölçütleri de kullanır), <a href="https://kosano.org.tr/rakamlarla-kocaeli/" target="_blank" rel="noopener">KSO, Rakamlarla Kocaeli</a>, <a href="https://ec.europa.eu/eurostat/databrowser/view/sbs_sc_ovw/default/table" target="_blank" rel="noopener">Eurostat sbs_sc_ovw</a>.</span><span class="en">Our first target is the small and mid-sized part of these firms that runs PLC-driven lines. Sources: <a href="https://webdosya.kosgeb.gov.tr/Content/Upload/Dosya/Kurumsal/2026/Tu%CC%88rkiye'deki_KOBI%CC%87'lere_I%CC%87lis%CC%A7kin_Baz%C4%B1_I%CC%87statistiki_Go%CC%88stergeler.pdf" target="_blank" rel="noopener">KOSGEB, TÜİK 2024 data</a> (Turkish SME classes also use financial criteria besides headcount), <a href="https://kosano.org.tr/rakamlarla-kocaeli/" target="_blank" rel="noopener">Kocaeli Chamber of Industry</a>, <a href="https://ec.europa.eu/eurostat/databrowser/view/sbs_sc_ovw/default/table" target="_blank" rel="noopener">Eurostat sbs_sc_ovw</a>.</span></p>
     <div class="bm">
       <article class="card"><p class="lbl"><span class="tr">Hedef müşteri</span><span class="en">Target customer</span></p><p><span class="tr">PLC'li hatları olan ama ayrı BT ekibi olmayan üretici KOBİ'ler: kaynak, metal işleme, otomotiv yan sanayi. İlk bölge Kocaeli ve Marmara.</span><span class="en">Manufacturing SMEs with PLC-driven lines but no dedicated IT team — welding, metalworking, automotive suppliers. First region: Kocaeli and the Marmara area.</span></p></article>
       <article class="card"><p class="lbl"><span class="tr">Gelir</span><span class="en">Revenue</span></p><p><span class="tr">Tek seferlik kurulum paketi (uç cihaz ve devreye alma) ve tesis başına abonelik (pano, raporlar, Claude analizleri, güncellemeler).</span><span class="en">A one-time install kit (edge device and commissioning) plus a per-site subscription (dashboard, reports, Claude analyses, updates).</span></p></article>
@@ -678,7 +751,7 @@ footer a{text-decoration:none}footer a:hover{color:var(--acc-txt)}
 <section id="focus" style="padding-top:0">
   <div class="shell">
     <div class="sec-head">
-      <p class="kicker">07 <b>/</b> <span class="tr">Önümüzdeki 12 ay</span><span class="en">Next 12 months</span></p>
+      <p class="kicker">09 <b>/</b> <span class="tr">Önümüzdeki 12 ay</span><span class="en">Next 12 months</span></p>
       <h2 class="h2"><span class="tr">Üç alana odaklanıyoruz.</span><span class="en">Three areas we're focused on.</span></h2>
     </div>
     <div class="focus">
@@ -686,14 +759,14 @@ footer a{text-decoration:none}footer a:hover{color:var(--acc-txt)}
         <div class="f-num">01</div>
         <div>
           <h3><span class="tr">Raspberry Pi uç cihazlarda Claude entegrasyonu</span><span class="en">Claude integration on Raspberry Pi edge devices</span></h3>
-          <p class="tagline"><span class="tr">Prototip</span><span class="en">Prototype</span></p>
+          <p class="tagline"><span class="tr">Prototip çalışıyor</span><span class="en">Prototype running</span></p>
         </div>
         <div>
-          <p><span class="tr">Uç cihazdan Claude'a giden akışı tasarlıyoruz. Prototipte, saha kayıtlarıyla aynı formattaki veriyi kullanarak uçtan uca test edeceğiz.</span><span class="en">We're designing the edge-to-Claude pipeline and will test it end to end on a prototype, using data in the same format as the field logs.</span></p>
+          <p><span class="tr">Uç cihazdan Claude'a giden akış prototipte kodlandı ve otomatik testlerle doğrulandı. Sıradaki adım, gerçek API ile uçtan uca deneme ve gerçek bir PLC'ye bağlı test düzeneği.</span><span class="en">The edge-to-Claude pipeline is implemented in the prototype and covered by automated tests. Next is an end-to-end run against the live API and a test rig wired to a real PLC.</span></p>
           <ul>
-            <li><span class="tr">PLC, enerji ve olay verisinden yapılandırılmış bağlam</span><span class="en">Structured context from PLC, energy and event data</span></li>
+            <li><span class="tr">Yerel modelin tespitini Claude'un teyit ettiği iki katmanlı analiz</span><span class="en">Two-layer analysis where Claude confirms the local model's verdict</span></li>
             <li><span class="tr">Vardiya raporu ve kök neden istemleri; araç kullanımıyla yerel veri sorgusu</span><span class="en">Shift-report and root-cause prompts; local data queries via tool use</span></li>
-            <li><span class="tr">Masa üstü test düzeneğinde uçtan uca doğrulama</span><span class="en">End-to-end validation on a bench test rig</span></li>
+            <li><span class="tr">Gerçek PLC ve endüstriyel Pi ile masa üstü doğrulama</span><span class="en">Bench validation with a real PLC and an industrial Pi</span></li>
           </ul>
         </div>
       </div>
@@ -721,6 +794,7 @@ footer a{text-decoration:none}footer a:hover{color:var(--acc-txt)}
         <div>
           <p><span class="tr">İlk adım, Türkiye'nin sanayi merkezlerinden biri olan Kocaeli'deki üretici ve tedarikçi KOBİ'ler; ardından Avrupa tedarik zinciri.</span><span class="en">We start in Kocaeli, one of Türkiye's major industrial hubs, with manufacturers and supplier SMEs — then move into European supply chains.</span></p>
           <ul>
+            <li><span class="tr">Üretici görüşmeleri ve pilot için niyet mektupları</span><span class="en">Conversations with manufacturers and letters of intent for a pilot</span></li>
             <li><span class="tr">Kocaeli'de ilk pilot tesis</span><span class="en">A first pilot site in Kocaeli</span></li>
             <li><span class="tr">Sistem entegratörleriyle iş birlikleri</span><span class="en">Partnerships with system integrators</span></li>
             <li><span class="tr">Avrupa tedarik zincirine açılım</span><span class="en">Expansion into European supply chains</span></li>
@@ -734,7 +808,7 @@ footer a{text-decoration:none}footer a:hover{color:var(--acc-txt)}
 <section id="founder" style="padding-top:0">
   <div class="shell">
     <div class="sec-head">
-      <p class="kicker">08 <b>/</b> <span class="tr">Kurucu</span><span class="en">Founder</span></p>
+      <p class="kicker">10 <b>/</b> <span class="tr">Kurucu ve ekip</span><span class="en">Founder &amp; team</span></p>
       <h2 class="h2"><span class="tr">Sahadan gelen bir mühendislik geçmişi.</span><span class="en">Built by an engineer from the factory floor.</span></h2>
     </div>
     <div class="fd">
@@ -755,6 +829,15 @@ footer a{text-decoration:none}footer a:hover{color:var(--acc-txt)}
         </div>
       </div>
     </div>
+
+    <h3 class="h3s mt"><span class="tr">Aradığımız ekip</span><span class="en">Who we are looking for</span></h3>
+    <p class="lede" style="margin:0 0 20px"><span class="tr">Şu an tek kurucuyuz. Riski azaltmak ve sahaya daha hızlı çıkmak için şu rolleri arıyoruz:</span><span class="en">Today there is one founder. To lower the risk and get to the field faster, we are looking for:</span></p>
+    <div class="team">
+      <div class="card"><h4><span class="tr">Satış ve saha ortağı</span><span class="en">Sales &amp; field co-founder</span></h4><p><span class="tr">Kocaeli ve Marmara'daki üretici ağını tanıyan, satışı ve pilot yönetimini üstlenecek kurucu ortak.</span><span class="en">A co-founder who knows manufacturers in Kocaeli and the Marmara region and can own sales and pilot management.</span></p></div>
+      <div class="card"><h4><span class="tr">Sistem entegratörü iş ortağı</span><span class="en">System integrator partner</span></h4><p><span class="tr">PLC ve robot hücresi kuran, pilot tesislerde sahada destek verecek entegratör.</span><span class="en">An integrator who builds PLC and robot cells and can support pilot sites on the floor.</span></p></div>
+      <div class="card"><h4><span class="tr">KVKK ve hukuk danışmanı</span><span class="en">Privacy &amp; legal adviser</span></h4><p><span class="tr">Kamera verisi, işveren-çalışan ilişkisi ve verinin yurt dışına aktarımı konularında.</span><span class="en">On camera data, the employer-employee relationship and cross-border data transfer.</span></p></div>
+      <div class="card"><h4><span class="tr">İSG uzmanı danışman</span><span class="en">Safety adviser</span></h4><p><span class="tr">Olay inceleme süreci ve saha prosedürleri için.</span><span class="en">For the incident-review process and floor procedures.</span></p></div>
+    </div>
   </div>
 </section>
 
@@ -763,8 +846,8 @@ footer a{text-decoration:none}footer a:hover{color:var(--acc-txt)}
 <section id="contact">
   <div class="shell ct">
     <div>
-      <p class="kicker">09 <b>/</b> <span class="tr">İletişim</span><span class="en">Contact</span></p>
-      <h2 class="h2"><span class="tr">Pilot tesis, iş birliği ya da yatırım için yazın.</span><span class="en">Write to us about a pilot site, partnerships or investment.</span></h2>
+      <p class="kicker">11 <b>/</b> <span class="tr">İletişim</span><span class="en">Contact</span></p>
+      <h2 class="h2"><span class="tr">Pilot tesis, ekip, iş birliği ya da yatırım için yazın.</span><span class="en">Write to us about a pilot site, joining the team, partnerships or investment.</span></h2>
       <p class="lede"><span class="tr">Kocaeli ve çevresinde ilk pilot tesis olmak isteyen üreticilerle ve sistem entegratörleriyle görüşmek istiyoruz.</span><span class="en">We'd like to talk with manufacturers in and around Kocaeli who want to be our first pilot site, and with system integrators.</span></p>
       <div class="btns" style="margin-top:28px"><a class="btn btn-p" href="mailto:emretasar@etekno.com.tr"><span class="tr">E-posta gönder</span><span class="en">Send an email</span></a></div>
     </div>
@@ -785,35 +868,15 @@ footer a{text-decoration:none}footer a:hover{color:var(--acc-txt)}
   </div>
 </footer>
 
-<div class="tip" role="tooltip" aria-hidden="true"></div>
-
 <script>
 (function(){
   var root=document.documentElement,btns=document.querySelectorAll('.lang button');
   function set(l){root.setAttribute('data-lang',l);root.setAttribute('lang',l);
     btns.forEach(function(b){b.setAttribute('aria-pressed',b.dataset.set===l?'true':'false')});
-    document.querySelectorAll('[data-tip-'+l+']').forEach(function(s){s.setAttribute('aria-label',s.getAttribute('data-tip-'+l))});
     try{localStorage.setItem('etk-lang',l)}catch(e){}}
   set(root.getAttribute('data-lang')||'en');
   btns.forEach(function(b){b.addEventListener('click',function(){set(b.dataset.set)})});
 
-  // chart tooltips: hover or keyboard focus on a bar segment
-  var tip=document.querySelector('.tip');
-  function show(el,x,y){
-    tip.textContent=el.getAttribute('data-tip-'+(root.getAttribute('data-lang')||'en'));
-    tip.classList.add('on');
-    var w=tip.offsetWidth,h=tip.offsetHeight;
-    var left=Math.min(Math.max(8,x-w/2),window.innerWidth-w-8);
-    tip.style.left=left+'px';tip.style.top=Math.max(8,y-h-10)+'px';
-  }
-  function hide(){tip.classList.remove('on')}
-  document.querySelectorAll('.pb > span').forEach(function(s){
-    s.addEventListener('mousemove',function(e){show(s,e.clientX,e.clientY)});
-    s.addEventListener('mouseleave',hide);
-    s.addEventListener('focus',function(){var r=s.getBoundingClientRect();show(s,r.left+r.width/2,r.top)});
-    s.addEventListener('blur',hide);
-  });
-  window.addEventListener('scroll',hide,{passive:true});
 })();
 </script>
 </body>

@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="tr" data-lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="description" content="Interactive demo of eTekno Edge: a robotic tack-welding line you can stop, with an on-device fault model, maintenance counters and a sample Claude incident analysis. Runs in the browser on synthetic data.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://etekno.com.tr/demo">
+<meta property="og:title" content="eTekno — Interactive line demo">
+<meta property="og:description" content="Press the E-stop on a simulated robotic welding line and watch the edge device react: local fault model, maintenance counters, Claude analysis.">
+<title>eTekno Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<script>
+(function(){var l=null;try{l=localStorage.getItem('etk-lang')}catch(e){}
+if(!l){l=(navigator.language||'en').toLowerCase().indexOf('tr')===0?'tr':'en'}
+document.documentElement.setAttribute('data-lang',l);document.documentElement.setAttribute('lang',l);})();
+</script>
+<style>
+:root{
+  --bg:#f3f5f4;--surface:#ffffff;--sunk:#e8ecea;--fg:#101614;--fg2:#4d5955;--fg3:#7b8783;--line:#d6ddda;
+  --accent:#0a9e7a;--accent-ink:#ffffff;--accent-soft:#dff2ec;--acc-txt:#08775c;
+  --amber:#b86e00;--amber-soft:#fbefd9;--amb-txt:#8a5300;--red:#c2410c;--red-soft:#fde8df;
+  --s1:#0a9e7a;--s2:#d97706;--s3:#2a78d6;--s4:#a3aeaa;
+  --scene-bg:#e9eeec;--scene-floor:#d5dcd9;--steel:#8a9692;--steel-d:#5b6663;--frame:#27302d;
+  --sans:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0b100f;--surface:#121a18;--sunk:#0f1614;--fg:#e7eeeb;--fg2:#9aa9a4;--fg3:#6c7b76;--line:#22302c;
+  --accent:#2fd3a3;--accent-ink:#04120d;--accent-soft:#10291f;--acc-txt:#2fd3a3;
+  --amber:#f2b24c;--amber-soft:#2a1f0c;--amb-txt:#f2b24c;--red:#fb7a4a;--red-soft:#2d150c;
+  --s1:#199e70;--s2:#c98500;--s3:#3987e5;--s4:#4a5652;
+  --scene-bg:#121b19;--scene-floor:#0d1412;--steel:#56635f;--steel-d:#3a4542;--frame:#b9c6c1;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0b100f;--surface:#121a18;--sunk:#0f1614;--fg:#e7eeeb;--fg2:#9aa9a4;--fg3:#6c7b76;--line:#22302c;
+  --accent:#2fd3a3;--accent-ink:#04120d;--accent-soft:#10291f;--acc-txt:#2fd3a3;
+  --amber:#f2b24c;--amber-soft:#2a1f0c;--amb-txt:#f2b24c;--red:#fb7a4a;--red-soft:#2d150c;
+  --s1:#199e70;--s2:#c98500;--s3:#3987e5;--s4:#4a5652;
+  --scene-bg:#121b19;--scene-floor:#0d1412;--steel:#56635f;--steel-d:#3a4542;--frame:#b9c6c1;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--fg);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+html[data-lang="tr"] .en,html[data-lang="en"] .tr{display:none!important}
+.shell{max-width:1280px;margin:0 auto;padding-inline:clamp(16px,4vw,40px)}
+
+nav{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.nav-in{display:flex;align-items:center;justify-content:space-between;gap:16px;height:58px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:700;font-size:1.1rem;letter-spacing:-.02em}
+.logo-mark{width:26px;height:26px;border-radius:6px;background:var(--fg);display:grid;place-items:center}
+.logo-mark i{width:10px;height:10px;border-radius:2px;background:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 30%,transparent)}
+.logo small{font:500 .78rem var(--mono);color:var(--fg3)}
+.nav-r{display:flex;align-items:center;gap:18px}
+.nav-r>a{font-size:.86rem;color:var(--fg2);text-decoration:none;font-weight:500}
+.nav-r>a:hover{color:var(--acc-txt)}
+.lang{display:flex;border:1px solid var(--line);border-radius:7px;overflow:hidden;background:var(--surface)}
+.lang button{border:0;background:none;color:var(--fg2);font:600 .72rem/1 var(--mono);letter-spacing:.06em;padding:8px 10px;cursor:pointer}
+.lang button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
+
+header.intro{padding:28px 0 18px}
+.kicker{font-family:var(--mono);font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--acc-txt);font-weight:500;margin-bottom:10px}
+h1{font-size:clamp(1.6rem,3.4vw,2.4rem);font-weight:700;letter-spacing:-.025em;line-height:1.15;text-wrap:balance;max-width:30ch}
+.intro p{color:var(--fg2);max-width:78ch;margin-top:10px}
+.note{margin-top:14px;display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 14px;font-size:.84rem;color:var(--fg2);max-width:900px}
+.note b{color:var(--fg)}
+
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:14px;padding-bottom:16px;align-items:start}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;min-width:0}
+.card h2{font:500 .7rem/1.4 var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--fg3);margin-bottom:10px;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.side{display:flex;flex-direction:column;gap:14px;min-width:0}
+
+/* scene */
+.scene-card{padding:0;overflow:hidden}
+.stage{position:relative}
+.scene-card svg{display:block;width:100%;height:auto;background:var(--scene-bg)}
+.hud{position:absolute;left:12px;top:10px;display:flex;gap:6px;flex-wrap:wrap;pointer-events:none}
+.hud span{font:500 .72rem/1 var(--mono);background:color-mix(in srgb,var(--surface) 88%,transparent);border:1px solid var(--line);border-radius:6px;padding:5px 8px;color:var(--fg2)}
+.hud span b{color:var(--fg);font-weight:600}
+.stop-banner{position:absolute;inset:0;display:none;align-items:center;justify-content:center;pointer-events:none;background:radial-gradient(ellipse at center,transparent 35%,color-mix(in srgb,#e11d1d 30%,transparent) 100%);animation:vig 1s ease-in-out infinite}
+.stop-banner div{background:#b91c1c;color:#fff;font:700 clamp(.9rem,2.4vw,1.4rem)/1.2 var(--sans);letter-spacing:.04em;padding:10px 18px;border-radius:10px;box-shadow:0 10px 30px -10px rgba(0,0,0,.5);text-align:center}
+.stop-banner small{display:block;font:500 .72em var(--mono);letter-spacing:0;opacity:.9;margin-top:4px}
+.scene-card.estop .stop-banner{display:flex}
+@keyframes vig{50%{opacity:.55}}
+
+/* controls */
+.controls{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:center;padding:14px 16px;border-top:1px solid var(--line);background:var(--surface)}
+.estop-wrap{display:flex;flex-direction:column;align-items:center;gap:8px}
+.mushroom{width:92px;height:92px;border-radius:50%;border:0;cursor:pointer;background:radial-gradient(circle at 35% 30%,#ff6b6b,#d40d0d 55%,#8f0606);box-shadow:0 0 0 8px #f5c518,0 0 0 10px #1b1b1b,0 8px 0 10px #6b0404,0 14px 24px 8px rgba(0,0,0,.35);transition:transform .08s,box-shadow .08s;color:#fff;font:700 .72rem/1.1 var(--sans);letter-spacing:.04em;text-shadow:0 1px 2px rgba(0,0,0,.5)}
+.mushroom:hover{filter:brightness(1.06)}
+.mushroom:active,.mushroom.down{transform:translateY(5px);box-shadow:0 0 0 8px #f5c518,0 0 0 10px #1b1b1b,0 3px 0 10px #6b0404,0 6px 12px 8px rgba(0,0,0,.35)}
+.btn{font:600 .82rem/1.2 var(--sans);border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:8px;padding:8px 11px;cursor:pointer;transition:border-color .15s,color .15s,background .15s}
+.btn:hover{border-color:var(--accent);color:var(--acc-txt)}
+.btn:disabled{opacity:.45;cursor:not-allowed;border-color:var(--line);color:var(--fg2)}
+.btn.reset{background:#1d4ed8;border-color:#1d4ed8;color:#fff}
+.btn.reset:hover{filter:brightness(1.08);color:#fff}
+.btn.on{background:var(--amber-soft);border-color:var(--amber);color:var(--amb-txt)}
+.btn.sm{padding:4px 9px;font-size:.74rem}
+.ctl-right{display:flex;flex-direction:column;gap:10px;min-width:0}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.row b{font:500 .68rem var(--mono);text-transform:uppercase;letter-spacing:.07em;color:var(--fg3);margin-right:2px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:7px;overflow:hidden}
+.seg button{border:0;background:none;color:var(--fg2);font:600 .72rem var(--mono);padding:6px 9px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
+
+/* status */
+.state{display:inline-flex;align-items:center;gap:8px;font:700 1.15rem/1 var(--sans);padding:7px 12px;border-radius:9px;background:var(--sunk)}
+.state.running{background:var(--accent-soft);color:var(--acc-txt)}
+.state.fault{background:var(--amber-soft);color:var(--amb-txt)}
+.state.estop{background:var(--red-soft);color:var(--red)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin-top:10px;font-size:.84rem}
+.kv dt{color:var(--fg3)}.kv dd{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right}
+.big{font:600 1.7rem/1.1 var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.sub{color:var(--fg2);font-size:.8rem;margin-top:3px}
+.spark{display:block;width:100%;height:46px;margin-top:8px}
+.pred{display:flex;flex-direction:column;gap:2px}
+.pred b{font:700 1.05rem/1.3 var(--sans)}
+.pred.ok b{color:var(--acc-txt)}.pred.warn b{color:var(--amb-txt)}.pred.stop b{color:var(--red)}
+.probs{display:flex;flex-direction:column;gap:4px;margin-top:10px}
+.probs div{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) 36px;gap:8px;align-items:center;font-size:.74rem;color:var(--fg2)}
+.probs div span:first-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.probs i{display:block;height:6px;border-radius:3px;background:var(--sunk);overflow:hidden}
+.probs i u{display:block;height:100%;background:var(--accent);text-decoration:none}
+.probs span:last-child{font-family:var(--mono);text-align:right}
+.cam{display:block;width:100%;height:auto;border-radius:8px;background:#1a211f}
+
+.lower{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;padding-bottom:14px}
+.mt{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px 10px;align-items:center;padding:9px 0;border-bottom:1px dashed var(--line)}
+.mt:last-child{border-bottom:0}
+.mt .n{font-size:.88rem;font-weight:500}.mt .u{grid-column:1/-1;font:500 .72rem var(--mono);color:var(--fg2)}
+.meter{grid-column:1/-1;height:7px;border-radius:4px;background:var(--sunk);overflow:hidden}
+.meter i{display:block;height:100%;background:var(--accent);border-radius:4px;transition:width .3s}
+.meter.l1 i{background:var(--amber)}.meter.l2 i{background:var(--red)}
+.log{max-height:260px;overflow:auto;font-size:.8rem}
+.log table{width:100%;border-collapse:collapse}
+.log td{padding:6px 6px;border-bottom:1px dashed var(--line);vertical-align:top}
+.log td.m{font-family:var(--mono);white-space:nowrap;color:var(--fg2)}
+.tag{display:inline-block;font:500 .64rem/1.5 var(--mono);text-transform:uppercase;letter-spacing:.04em;border-radius:5px;padding:1px 6px;background:var(--sunk);color:var(--fg2);white-space:nowrap}
+.tag.estop{background:var(--red-soft);color:var(--red)}.tag.fault,.tag.warn,.tag.prediction{background:var(--amber-soft);color:var(--amb-txt)}
+.tag.ok,.tag.local{background:var(--accent-soft);color:var(--acc-txt)}
+
+.claude{margin-bottom:40px}
+.an{border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-top:10px}
+.an-h{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:.8rem;color:var(--fg2);margin-bottom:8px}
+.an-t{white-space:pre-wrap;font-size:.9rem;line-height:1.6}
+.an details{margin-top:10px}.an summary{cursor:pointer;color:var(--fg3);font-size:.78rem}
+.an pre{font:400 .72rem/1.5 var(--mono);background:var(--sunk);padding:10px;border-radius:8px;overflow:auto;max-height:280px;margin-top:6px}
+.caret{display:inline-block;width:7px;height:1em;background:var(--accent);vertical-align:-2px;animation:bl 1s steps(2) infinite;margin-left:2px}
+@keyframes bl{50%{opacity:0}}
+.empty{color:var(--fg3);font-size:.85rem}
+.flow{display:flex;gap:6px;flex-wrap:wrap;align-items:center;font:500 .72rem var(--mono);color:var(--fg2);margin-top:6px}
+.flow span{border:1px solid var(--line);border-radius:6px;padding:3px 7px;background:var(--bg)}
+.flow span.on{border-color:var(--accent);color:var(--acc-txt);background:var(--accent-soft)}
+footer{border-top:1px solid var(--line);padding-block:24px;color:var(--fg3);font-size:.82rem}
+footer .shell{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+footer a{text-decoration:none}footer a:hover{color:var(--acc-txt)}
+
+@media(min-width:1021px){.scene-card{position:sticky;top:70px;z-index:2}}
+@media(max-width:1020px){.grid{grid-template-columns:1fr}.side{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){
+  .side,.lower{grid-template-columns:1fr}
+  .controls{grid-template-columns:1fr;justify-items:start}
+  .estop-wrap{flex-direction:row;gap:14px}
+  .mushroom{width:76px;height:76px;font-size:.64rem}
+  .nav-r>a{display:none}
+  .hud span:nth-child(n+3){display:none}
+}
+@media(prefers-reduced-motion:reduce){.stop-banner,.caret{animation:none}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="shell nav-in">
+    <a class="logo" href="/"><span class="logo-mark"><i></i></span>eTekno <small>/ demo</small></a>
+    <div class="nav-r">
+      <a href="/"><span class="tr">Ana sayfa</span><span class="en">Home</span></a>
+      <a href="/#architecture"><span class="tr">Mimari</span><span class="en">Architecture</span></a>
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" data-set="tr">TR</button>
+        <button type="button" data-set="en">EN</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main class="shell">
+  <header class="intro">
+    <p class="kicker"><span class="tr">Etkileşimli demo</span><span class="en">Interactive demo</span></p>
+    <h1><span class="tr">Robotlu puntalama hattı: acil stopa basın, cihazın tepkisini izleyin.</span><span class="en">A robotic tack-welding line: hit the E-stop and watch the edge device respond.</span></h1>
+    <p><span class="tr">Hat çalışırken acil stopa basın, operatörü koruma alanına sokun ya da bir aşınma başlatın. Uç cihaz olayı kaydeder, yerel arıza modeli internetsiz sınıflandırır, bakım sayaçları ilerler ve Claude'a gidecek özet bağlam hazırlanır.</span><span class="en">While the line runs, press the E-stop, send the operator into a guarded zone or start a wear scenario. The edge device records the event, the on-device fault model classifies it offline, maintenance counters advance and the summarized context for Claude is prepared.</span></p>
+    <div class="note"><span>ⓘ</span><span><span class="tr"><b>Tarayıcıda çalışan simülasyon, sentetik veri.</b> Yerel arıza modeli, eTekno Edge prototipinde kullanılan karar ağacının aynısıdır. Claude bölümündeki metin örnek yanıttır; bu sayfa Claude API'yi çağırmaz. Gerçek sistemde cihaz aynı özet bağlamı Claude API'ye gönderir.</span><span class="en"><b>A simulation running in your browser, on synthetic data.</b> The local fault model is the same decision tree used in the eTekno Edge prototype. The text in the Claude panel is a sample response; this page does not call the Claude API. In the real system the device sends the same summarized context to the Claude API.</span></span></div>
+  </header>
+
+  <div class="grid">
+    <div class="card scene-card" id="scene-card">
+      <div class="stage">
+      <svg id="scene" viewBox="0 0 1000 420" role="img" aria-label="Simulated robotic welding line">
+        <defs>
+          <linearGradient id="g-wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--scene-bg)"/><stop offset="1" stop-color="var(--scene-floor)"/></linearGradient>
+          <linearGradient id="g-steel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b7c1bd"/><stop offset="1" stop-color="#6e7a76"/></linearGradient>
+          <linearGradient id="g-profile" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9aa5a1"/><stop offset=".25" stop-color="#d3dad7"/><stop offset="1" stop-color="#77837f"/></linearGradient>
+          <linearGradient id="g-beam" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f2b134"/><stop offset="1" stop-color="#c98500"/></linearGradient>
+          <radialGradient id="g-arc"><stop offset="0" stop-color="#fff" stop-opacity="1"/><stop offset=".25" stop-color="#bfe3ff" stop-opacity=".9"/><stop offset=".6" stop-color="#7fb8ff" stop-opacity=".25"/><stop offset="1" stop-color="#7fb8ff" stop-opacity="0"/></radialGradient>
+          <radialGradient id="g-hot"><stop offset="0" stop-color="#fff6c9"/><stop offset=".5" stop-color="#ff9a1f"/><stop offset="1" stop-color="#ff5a00" stop-opacity="0"/></radialGradient>
+          <radialGradient id="g-lamp"><stop offset="0" stop-color="#fff" stop-opacity=".9"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+          <pattern id="p-hatch" width="16" height="16" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="16" fill="#f5c518"/><rect x="8" width="8" height="16" fill="#1b1b1b"/></pattern>
+          <filter id="f-blur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3"/></filter>
+        </defs>
+        <rect width="1000" height="420" fill="url(#g-wall)"/>
+        <!-- back wall details -->
+        <g opacity=".35" stroke="var(--fg3)" stroke-width="1">
+          <line x1="0" y1="96" x2="1000" y2="96"/><line x1="0" y1="200" x2="1000" y2="200"/>
+          <line x1="250" y1="0" x2="250" y2="330"/><line x1="500" y1="0" x2="500" y2="330"/><line x1="750" y1="0" x2="750" y2="330"/>
+        </g>
+        <text x="930" y="34" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="12" fill="var(--fg3)" opacity=".8">LINE 1 · TACK WELDING · 11 POS</text>
+        <!-- floor -->
+        <rect x="0" y="330" width="1000" height="90" fill="var(--scene-floor)"/>
+        <g stroke="var(--fg3)" stroke-opacity=".25"><line x1="0" y1="352" x2="1000" y2="352"/><line x1="0" y1="380" x2="1000" y2="380"/></g>
+        <!-- guarded zone around station 3 -->
+        <g id="zone">
+          <path id="zone-field" d="M 196 336 L 300 336 L 330 412 L 166 412 Z" fill="#f5c518" fill-opacity=".14" stroke="#f5c518" stroke-opacity=".5" stroke-dasharray="5 4"/>
+          <rect x="166" y="406" width="164" height="6" fill="url(#p-hatch)" opacity=".8"/>
+          <g transform="translate(240 322)"><rect x="-13" y="-9" width="26" height="14" rx="3" fill="#f5c518" stroke="#1b1b1b" stroke-width="1.5"/><circle cx="0" cy="-2" r="3.2" id="scanner-eye" fill="#1b1b1b"/></g>
+          <text x="248" y="402" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--fg2)" id="zone-label">ZONE · STN 3</text>
+        </g>
+        <!-- rails -->
+        <rect x="40" y="326" width="900" height="6" fill="var(--steel-d)"/>
+        <rect x="40" y="320" width="900" height="4" fill="var(--steel)"/>
+        <!-- table + plate -->
+        <g>
+          <rect x="105" y="276" width="790" height="12" rx="2" fill="url(#g-steel)"/>
+          <g fill="var(--steel-d)"><rect x="120" y="288" width="10" height="34"/><rect x="330" y="288" width="10" height="34"/><rect x="560" y="288" width="10" height="34"/><rect x="790" y="288" width="10" height="34"/><rect x="870" y="288" width="10" height="34"/></g>
+        </g>
+        <!-- weld position ticks -->
+        <g id="ticks" font-family="IBM Plex Mono, monospace" font-size="9" fill="var(--fg3)" text-anchor="middle"></g>
+        <!-- back robot (behind profile) -->
+        <g id="gantry-back" opacity=".38"></g>
+        <!-- steel profile -->
+        <g id="profile">
+          <rect x="105" y="250" width="790" height="26" rx="2" fill="url(#g-profile)" stroke="#5e6a66" stroke-width="1"/>
+          <rect x="105" y="250" width="790" height="7" rx="3" fill="#c7cfcc" opacity=".85"/>
+          <g id="marks"></g>
+        </g>
+        <!-- operator -->
+        <g id="operator">
+          <ellipse cx="0" cy="0" rx="13" ry="3.5" fill="#000" opacity=".18"/>
+          <g id="op-legs" stroke="#2b3a52" stroke-width="7" stroke-linecap="round"><line id="leg-a" x1="-3" y1="-34" x2="-5" y2="-2"/><line id="leg-b" x1="3" y1="-34" x2="5" y2="-2"/></g>
+          <rect x="-11" y="-70" width="22" height="40" rx="7" fill="#ff8a1f"/>
+          <rect x="-11" y="-58" width="22" height="4" fill="#e8f0ec" opacity=".9"/><rect x="-11" y="-46" width="22" height="4" fill="#e8f0ec" opacity=".9"/>
+          <circle cx="0" cy="-80" r="9" fill="#e9c3a0"/>
+          <path d="M -10 -83 Q 0 -96 10 -83 Z" fill="#f5c518"/>
+        </g>
+        <!-- front robot and gantry -->
+        <g id="gantry"></g>
+        <!-- sparks -->
+        <g id="sparks"></g>
+        <!-- stack light -->
+        <g transform="translate(958 120)">
+          <rect x="-3" y="60" width="6" height="150" fill="var(--steel-d)"/>
+          <rect x="-11" y="-6" width="22" height="70" rx="4" fill="#1b1b1b"/>
+          <circle id="lamp-r" cx="0" cy="8" r="8" fill="#5a1414"/>
+          <circle id="lamp-a" cx="0" cy="29" r="8" fill="#5a4214"/>
+          <circle id="lamp-g" cx="0" cy="50" r="8" fill="#14402f"/>
+          <circle id="lamp-glow" cx="0" cy="50" r="24" fill="url(#g-lamp)" opacity="0"/>
+        </g>
+      </svg>
+      <div class="hud" id="hud"></div>
+      <div class="stop-banner"><div><span class="tr">ACİL STOP</span><span class="en">EMERGENCY STOP</span><small id="stop-src"></small></div></div>
+      </div>
+      <div class="controls">
+        <div class="estop-wrap">
+          <button class="mushroom" id="estop-btn" type="button" aria-label="E-stop"><span class="tr">ACİL<br>STOP</span><span class="en">E-STOP</span></button>
+          <button class="btn reset" id="reset-btn" type="button" disabled><span class="tr">Sıfırla · alan temiz</span><span class="en">Reset · zone clear</span></button>
+        </div>
+        <div class="ctl-right">
+          <div class="row"><b><span class="tr">Senaryo</span><span class="en">Scenario</span></b>
+            <button class="btn" data-sc="intrusion"><span class="tr">Operatör koruma alanına girer</span><span class="en">Operator enters guarded zone</span></button>
+            <button class="btn" data-sc="hydraulic"><span class="tr">Hidrolik basınç düşüşü</span><span class="en">Hydraulic pressure drop</span></button>
+          </div>
+          <div class="row"><b><span class="tr">Aşınma</span><span class="en">Wear</span></b>
+            <button class="btn" data-tg="wire"><span class="tr">Tel besleme bozulması</span><span class="en">Wire feed degradation</span></button>
+            <button class="btn" data-tg="tip"><span class="tr">Kontak meme aşınması</span><span class="en">Contact tip wear</span></button>
+            <button class="btn" data-tg="drive"><span class="tr">Kızak sürtünmesi</span><span class="en">Slider friction</span></button>
+          </div>
+          <div class="row"><b><span class="tr">Hız</span><span class="en">Speed</span></b>
+            <div class="seg" id="speed"><button data-v="1">1×</button><button data-v="2">2×</button><button data-v="4">4×</button></div>
+            <span class="sub" id="clock"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <aside class="side">
+      <section class="card">
+        <h2><span class="tr">Hat durumu · PLC</span><span class="en">Line state · PLC</span><span id="age"></span></h2>
+        <div id="state" class="state">—</div>
+        <dl class="kv" id="kv"></dl>
+      </section>
+      <section class="card">
+        <h2><span class="tr">Anlık güç · enerji analizörü</span><span class="en">Power · energy meter</span></h2>
+        <div class="big" id="power">—</div>
+        <p class="sub" id="energy"></p>
+        <svg class="spark" id="spark" viewBox="0 0 300 46" preserveAspectRatio="none"></svg>
+      </section>
+      <section class="card">
+        <h2><span class="tr">Yerel arıza modeli · cihazda</span><span class="en">Local fault model · on device</span></h2>
+        <div class="pred ok" id="pred"><b>—</b><span class="sub"></span></div>
+        <div class="probs" id="probs"></div>
+        <p class="sub" id="ref" style="margin-top:10px"></p>
+      </section>
+      <section class="card">
+        <h2><span class="tr">Kamera 02 · istasyon 3</span><span class="en">Camera 02 · station 3</span><span id="cam-rec"></span></h2>
+        <svg class="cam" id="cam" viewBox="0 0 320 180"></svg>
+        <p class="sub"><span class="tr">Kişi tespiti cihazda yapılır; yüzler bulanıklaştırılır, kimlik belirlenmez.</span><span class="en">Person detection runs on the device; faces are blurred, nobody is identified.</span></p>
+      </section>
+    </aside>
+  </div>
+
+  <div class="lower">
+    <section class="card">
+      <h2><span class="tr">Kestirimci bakım sayaçları</span><span class="en">Predictive maintenance counters</span><span class="tag"><span class="tr">demo aralıkları</span><span class="en">demo intervals</span></span></h2>
+      <div id="maint"></div>
+    </section>
+    <section class="card">
+      <h2><span class="tr">Olay günlüğü · cihazda</span><span class="en">Event log · on device</span></h2>
+      <div class="log"><table><tbody id="log"></tbody></table></div>
+    </section>
+  </div>
+
+  <section class="card claude">
+    <h2><span><span class="tr">Claude analizi</span><span class="en">Claude analysis</span></span><button class="btn sm" id="shift-btn"><span class="tr">Vardiya raporu oluştur</span><span class="en">Create shift report</span></button></h2>
+    <div class="flow" id="flow"><span data-s="1"><span class="tr">1 · Olay</span><span class="en">1 · Event</span></span>→<span data-s="2"><span class="tr">2 · Yerel model (anında)</span><span class="en">2 · Local model (instant)</span></span>→<span data-s="3"><span class="tr">3 · Özet bağlam</span><span class="en">3 · Summarized context</span></span>→<span data-s="4"><span class="tr">4 · Claude kök neden</span><span class="en">4 · Claude root cause</span></span></div>
+    <div id="analyses"><p class="empty" style="margin-top:12px"><span class="tr">Henüz analiz yok. Acil stopa basın veya bir senaryo başlatın.</span><span class="en">No analysis yet. Press the E-stop or start a scenario.</span></p></div>
+  </section>
+</main>
+
+<footer>
+  <div class="shell">
+    <span>© 2026 eTekno · Kocaeli, Türkiye</span>
+    <span><a href="/">etekno.com.tr</a> · <a href="emre.html">Emre Taşar</a></span>
+  </div>
+</footer>
+
+<script>
+(function(){
+"use strict";
+// ---------------------------------------------------------------------------
+// The on-device fault model, exported from the eTekno Edge prototype
+// (decision tree, trained on simulator ground truth; no Claude output).
+// ---------------------------------------------------------------------------
+const TREE = {"v":"20261010-021808","acc":0.9727,"f":["cycle_ratio","weld_ratio","idle_ratio","energy_ratio","weld_power_ratio","idle_power_ratio","a217_per_cycle","a305_per_cycle","estop","estop_scanner","estop_panel","fault","person"],"l":["normal","wire_feed","hydraulic","power_anomaly","intrusion","manual_stop"],"n":[[10,0.5,1,22],[12,0.5,2,19],[7,0.1,3,16],[6,0.9,4,11],[5,1.0295,5,8],[4,1.0065,6,7],[-1,[0.949,0.013,0,0.038,0,0]],[-1,[0.521,0.122,0,0.358,0,0]],[2,0.937,9,10],[-1,[0.205,0,0,0.795,0,0]],[-1,[0.007,0,0,0.993,0,0]],[0,1.0035,12,13],[-1,[1,0,0,0,0,0]],[5,1.0495,14,15],[-1,[0.003,0.997,0,0,0,0]],[-1,[0,0.773,0,0.227,0,0]],[0,0.9795,17,18],[-1,[0,0,1,0,0,0]],[-1,[0,0,1,0,0,0]],[6,0.1,20,21],[-1,[0,0,0,0,1,0]],[-1,[0,0,0,0,1,0]],[-1,[0,0,0,0,0,1]]]};
+
+function predict(feats){
+  const x = TREE.f.map(f => +feats[f] || 0);
+  let n = TREE.n[0];
+  while (n[0] >= 0) n = TREE.n[x[n[0]] <= n[1] ? n[2] : n[3]];
+  const probs = {}; TREE.l.forEach((l, i) => probs[l] = n[1][i]);
+  const label = TREE.l.reduce((a, b) => probs[b] > probs[a] ? b : a);
+  return {label, confidence: probs[label], probs};
+}
+
+// ---------------------------------------------------------------------------
+// Line simulator: a port of etekno_edge/sim/line.py (demo speed x3)
+// ---------------------------------------------------------------------------
+function mulberry(seed){ return function(){ seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const MODE = {MANUAL:0, AUTO:1}, ST = {IDLE:0, RUNNING:1, FAULT:2, ESTOP:3}, PH = {NONE:0, HANDLING:1, IDLE_MOVE:2, WELDING:3};
+const SRC = ["none", "panel", "area_scanner_1", "area_scanner_2"];
+
+class Line {
+  constructor(seed){
+    this.rng = mulberry(seed);
+    const f = 3;
+    this.p = {positions:11, handling:12/f, travel:1.8/f, weld:3.2/f, home:4/f, pIdle:600, pHand:1100, pTravel:2400, pWeld:6800, pEstop:400, noise:.03};
+    Object.assign(this, {t:0, mode:MODE.MANUAL, state:ST.IDLE, phase:PH.NONE, pos:0, cycles:0, lastCycle:0, alarm:0, estop:false, src:0,
+      vision:0, power:600, energy:0, stepLeft:0, stepTotal:1, cycStart:0, alarmLeft:0, faultLeft:0, visionLeft:0, intrSeen:null,
+      started:false, weldMult:1, driveMult:1, welded:[]});
+    this.sc = {wire:false, wireProb:.35, spur:.02, intrAt:null, intrSt:3, hydAt:null, tip:false, drive:false};
+  }
+  u(a, b){ return a + (b - a) * this.rng(); }
+  jitter(s){ return s * (1 + this.u(-.05, .05)); }
+  start(){ this.started = true; if (this.state === ST.IDLE) this.beginCycle(); }
+  pressEstop(){ if (!this.estop && this.state !== ST.ESTOP) this.trip(1); }
+  scheduleIntrusion(){ this.sc.intrAt = this.t; this.intrSeen = null; }
+  scheduleHydraulic(){ this.sc.hydAt = this.t; }
+  reset(){
+    if (this.state !== ST.ESTOP) return;
+    Object.assign(this, {estop:false, src:0, alarm:0, vision:0, state:ST.IDLE, phase:PH.NONE, mode:MODE.MANUAL, pos:0});
+    if (this.started) this.beginCycle();
+  }
+  step(dt){
+    this.t += dt;
+    if (this.alarmLeft > 0){ this.alarmLeft -= dt; if (this.alarmLeft <= 0 && this.state === ST.RUNNING) this.alarm = 0; }
+    if (this.faultLeft > 0){ this.faultLeft -= dt; if (this.faultLeft <= 0 && this.state === ST.FAULT){ this.alarm = 0; this.state = ST.RUNNING; } }
+    if (this.visionLeft > 0){ this.visionLeft -= dt; if (this.visionLeft <= 0 && !this.estop) this.vision = 0; }
+    const sc = this.sc;
+    if (sc.intrAt !== null && this.t >= sc.intrAt){
+      if (this.mode !== MODE.AUTO || (this.state !== ST.RUNNING && this.state !== ST.FAULT)) this.intrSeen = null;
+      else if (this.intrSeen === null){ this.intrSeen = this.t; this.vision = sc.intrSt; this.visionLeft = 30; }
+      else if (this.t >= this.intrSeen + 1.5){ sc.intrAt = null; this.intrSeen = null; this.trip(3); }
+    }
+    if (sc.hydAt !== null && this.t >= sc.hydAt && this.state === ST.RUNNING && (this.phase === PH.IDLE_MOVE || this.phase === PH.WELDING)){
+      sc.hydAt = null; this.state = ST.FAULT; this.alarm = 305; this.faultLeft = 6;
+    }
+    if (this.state === ST.RUNNING){
+      this.stepLeft -= dt;
+      while (this.stepLeft <= 0 && this.state === ST.RUNNING) this.advance();
+    }
+    const p = this.p;
+    let base = p.pIdle;
+    if (this.state === ST.ESTOP) base = p.pEstop;
+    else if (this.state === ST.RUNNING) base = {[PH.HANDLING]:p.pHand, [PH.IDLE_MOVE]:p.pTravel * this.driveMult, [PH.WELDING]:p.pWeld * this.weldMult}[this.phase] || p.pIdle;
+    this.power = Math.max(0, base * (1 + this.u(-p.noise, p.noise)));
+    this.energy += this.power * dt / 3600;
+  }
+  trip(src){
+    this.state = ST.ESTOP; this.estop = true; this.src = src;
+    this.alarm = src >= 2 ? 410 : 0; this.stepLeft = 0;
+  }
+  setStep(s){ this.stepLeft += s; this.stepTotal = Math.max(.001, this.stepLeft); }
+  beginCycle(){
+    Object.assign(this, {cycStart:this.t, mode:MODE.MANUAL, state:ST.RUNNING, phase:PH.HANDLING, pos:0, welded:[]});
+    this.stepLeft = 0; this.setStep(this.jitter(this.p.handling));
+  }
+  advance(){
+    const p = this.p;
+    if (this.phase === PH.HANDLING){
+      this.mode = MODE.AUTO; this.phase = PH.IDLE_MOVE; this.pos = 1; this.setStep(this.jitter(p.travel));
+    } else if (this.phase === PH.IDLE_MOVE && this.pos >= 1 && this.pos <= p.positions){
+      this.phase = PH.WELDING;
+      if (this.sc.tip) this.weldMult = Math.min(1.45, this.weldMult + .006);
+      let w = this.jitter(p.weld);
+      const prob = this.sc.wire ? this.sc.wireProb : this.sc.spur;
+      if (this.rng() < prob){ w += this.jitter(1.6 / 3); this.alarm = 217; this.alarmLeft = 2 / 3; }
+      this.setStep(w);
+    } else if (this.phase === PH.WELDING){
+      this.welded.push(this.pos);
+      if (this.pos < p.positions){ this.phase = PH.IDLE_MOVE; this.pos += 1; this.setStep(this.jitter(p.travel)); }
+      else { this.phase = PH.IDLE_MOVE; this.pos = p.positions + 1; this.setStep(this.jitter(p.home)); }
+    } else this.complete();
+  }
+  complete(){
+    if (this.sc.drive) this.driveMult = Math.min(1.6, this.driveMult + .05);
+    this.lastCycle = this.t - this.cycStart; this.cycles += 1; this.pos = 0;
+    if (this.started) this.beginCycle(); else Object.assign(this, {state:ST.IDLE, phase:PH.NONE, mode:MODE.MANUAL});
+  }
+  progress(){ return Math.min(1, Math.max(0, 1 - this.stepLeft / this.stepTotal)); }
+}
+
+// ---------------------------------------------------------------------------
+// Edge agent: a port of processor.py, fault_model.py (features) and maintenance.py
+// ---------------------------------------------------------------------------
+const PHK = {[PH.HANDLING]:"handling", [PH.IDLE_MOVE]:"idle_move", [PH.WELDING]:"welding"};
+const BUCKETS = ["handling", "idle_move", "welding", "stopped"];
+const REF_CYCLES = 5, RECENT = 3, WINDOW = 30, POLL = .25;
+const METRICS = {duration_s:"cycle_ratio", welding_s:"weld_ratio", idle_s:"idle_ratio", energy_wh:"energy_ratio", weld_w:"weld_power_ratio", idle_w:"idle_power_ratio"};
+const median = a => { const s = [...a].sort((x, y) => x - y), m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
+const meanW = (c, ph) => c.phases[ph].s > 0 ? c.phases[ph].wh * 3600 / c.phases[ph].s : 0;
+const metricsOf = c => ({duration_s:c.duration, welding_s:c.phases.welding.s, idle_s:c.phases.idle_move.s, energy_wh:c.energy, weld_w:meanW(c, "welding"), idle_w:meanW(c, "idle_move")});
+const PLAN = [
+  {key:"contact_tip", tr:"Kontak meme değişimi", en:"Replace contact tip", unit:"welds", interval:600, start:470},
+  {key:"nozzle_clean", tr:"Gaz memesi temizliği", en:"Clean gas nozzle", unit:"welds", interval:240, start:150},
+  {key:"liner", tr:"Tel kılavuzu (liner) değişimi", en:"Replace wire liner", unit:"arc_min", interval:30, start:9},
+  {key:"rail_lube", tr:"Kızak rayı yağlama", en:"Lubricate slider rails", unit:"cycles", interval:30, start:22},
+];
+
+class Agent {
+  constructor(line){
+    this.line = line; this.prev = null; this.acc = this.newAcc(null); this.cycles = []; this.events = [];
+    this.ref = null; this.refFrom = 0; this.streak = {}; this.warned = "normal"; this.lastPred = null; this.analyses = [];
+    this.maint = Object.fromEntries(PLAN.map(m => [m.key, {used:0, level:0}]));
+    this.powerHist = []; this.nextPoll = 0; this.firstEnergy = null; this.seq = 0;
+  }
+  newAcc(start){ return {start, partial:start === null, s:Object.fromEntries(BUCKETS.map(b => [b, 0])), wh:Object.fromEntries(BUCKETS.map(b => [b, 0])), alarms:[]}; }
+  sample(){
+    const l = this.line;
+    return {ts:l.t, mode:l.mode, state:l.state, phase:l.phase, cycles:l.cycles, pos:l.pos, lastCycle:l.lastCycle, alarm:l.alarm,
+      estop:l.estop, src:l.src, power:Math.round(l.power), energy:Math.floor(l.energy * 10) / 10, vision:l.vision};
+  }
+  tick(){
+    while (this.line.t >= this.nextPoll){ this.nextPoll += POLL; this.ingest(this.sample()); }
+  }
+  bucket(s){ return s.state === ST.RUNNING ? (PHK[s.phase] || "stopped") : "stopped"; }
+  ingest(s){
+    if (this.firstEnergy === null) this.firstEnergy = s.energy;
+    this.powerHist.push(s.power); if (this.powerHist.length > 240) this.powerHist.shift();
+    const p = this.prev; let cycle = null;
+    if (p){
+      const dt = s.ts - p.ts, de = s.energy - p.energy;
+      if (dt > 0 && dt <= 10 && de >= 0){ const b = this.bucket(p); this.acc.s[b] += dt; this.acc.wh[b] += de; }
+      if (s.alarm && s.alarm !== p.alarm){ if (!this.acc.alarms.includes(s.alarm)) this.acc.alarms.push(s.alarm); this.event(s, "alarm"); }
+      if (s.estop && !p.estop) this.onStop(this.event(s, "estop"), s);
+      if (s.state === ST.FAULT && p.state !== ST.FAULT) this.onStop(this.event(s, "fault"), s);
+      if (s.cycles !== p.cycles){ cycle = this.closeCycle(s); this.acc = this.newAcc(s.ts); }
+      else if (p.state === ST.ESTOP && s.state !== ST.ESTOP) this.acc = this.newAcc(s.ts);
+      this.maintTick(p, s, !!cycle || s.cycles !== p.cycles);
+    }
+    this.prev = s;
+    if (cycle){ this.cycles.push(cycle); if (this.cycles.length > 200) this.cycles.shift(); this.afterCycle(s); }
+  }
+  closeCycle(s){
+    const a = this.acc; if (a.partial) return null;
+    const measured = BUCKETS.reduce((t, b) => t + a.s[b], 0);
+    return {start:a.start, end:s.ts, duration:s.lastCycle > 0 ? s.lastCycle : measured, energy:BUCKETS.reduce((t, b) => t + a.wh[b], 0),
+      phases:Object.fromEntries(BUCKETS.map(b => [b, {s:a.s[b], wh:a.wh[b]}])), alarms:[...a.alarms]};
+  }
+  event(s, kind, name){
+    const e = {id:++this.seq, ts:s.ts, kind, code:kind === "alarm" || kind === "estop" || kind === "fault" ? s.alarm : 0, name:name || "",
+      source:kind === "estop" ? SRC[s.src] : kind === "prediction" ? "local_model" : kind === "maintenance" ? "maintenance" : "plc",
+      mode:s.mode === MODE.AUTO ? "auto" : "manual", phase:PHK[s.phase] || "none", pos:s.pos, vision:s.vision ? `person_in_zone:station_${s.vision}` : null};
+    this.events.unshift(e); if (this.events.length > 120) this.events.pop();
+    return e;
+  }
+  live(s){ return {estop:s.estop, src:SRC[s.src], fault:s.state === ST.FAULT, vision:s.vision}; }
+  features(s){
+    const cyc = this.cycles.filter(c => c && c.end <= s.ts).slice(-WINDOW);
+    const recent = cyc.slice(-RECENT).map(metricsOf), older = cyc.slice(0, -RECENT).map(metricsOf), f = {};
+    for (const [m, feat] of Object.entries(METRICS)){
+      if (!recent.length){ f[feat] = 1; continue; }
+      const now = median(recent.map(r => r[m]));
+      let ref = null;
+      if (this.ref && this.ref[m]) ref = this.ref[m]; else if (older.length >= 3) ref = median(older.map(r => r[m]));
+      f[feat] = ref ? Math.round(now / ref * 1000) / 1000 : 1;
+    }
+    const win = cyc.slice(-5);
+    if (win.length){
+      const al = this.events.filter(e => e.kind === "alarm" && e.ts >= win[0].start && e.ts <= s.ts);
+      f.a217_per_cycle = al.filter(e => e.code === 217).length / win.length;
+      f.a305_per_cycle = al.filter(e => e.code === 305).length / win.length;
+    } else f.a217_per_cycle = f.a305_per_cycle = 0;
+    const L = this.live(s);
+    f.estop = +L.estop; f.estop_scanner = +(L.estop && L.src.startsWith("area_scanner")); f.estop_panel = +(L.estop && L.src === "panel");
+    f.fault = +L.fault; f.person = +!!L.vision;
+    return f;
+  }
+  learnRef(now){
+    if (this.ref) return;
+    const clean = this.cycles.filter(c => c && c.start >= this.refFrom && !c.alarms.length);
+    if (clean.length >= REF_CYCLES){
+      const rows = clean.slice(-REF_CYCLES).map(metricsOf);
+      this.ref = Object.fromEntries(Object.keys(METRICS).map(m => [m, median(rows.map(r => r[m]))]));
+      this.refAt = now; log("info", "ev_ref");
+    }
+  }
+  relearn(){ this.ref = null; this.refFrom = this.line.t; }
+  afterCycle(s){
+    this.learnRef(s.ts);
+    const feats = this.features(s), pred = predict(feats);
+    this.lastPred = {...pred, ts:s.ts};
+    const label = pred.confidence >= .6 ? pred.label : "normal";
+    this.streak = {[label]: (this.streak[label] || 0) + 1};
+    if (label === "normal"){ if (this.streak.normal >= 2) this.warned = "normal"; return; }
+    if (this.streak[label] >= 2 && label !== this.warned){
+      this.warned = label;
+      const e = this.event(s, "prediction", label);
+      this.addLocal(e, feats, pred, null);
+    }
+  }
+  onStop(e, s){
+    const feats = this.features(s), pred = predict(feats);
+    this.lastPred = {...pred, ts:s.ts};
+    this.addLocal(e, feats, pred, e.phase);
+    queueClaude(e, feats, pred);
+  }
+  addLocal(e, feats, pred, phase){
+    this.analyses.unshift({kind:"local", ts:e.ts, ev:e, feats, pred, phase});
+    renderAnalyses(true);
+  }
+  maintTick(p, s, cycleDone){
+    let welds = 0, arc = 0;
+    if (s.state === ST.RUNNING){
+      if (s.phase === PH.WELDING && (p.phase !== PH.WELDING || p.pos !== s.pos)) welds = 2;
+      if (p.phase === PH.WELDING && p.state === ST.RUNNING) arc = Math.min(s.ts - p.ts, 10) / 60;
+    }
+    const d = {welds, arc_min:arc, cycles:cycleDone ? 1 : 0};
+    for (const m of PLAN){
+      const v = d[m.unit]; if (!v) continue;
+      const st = this.maint[m.key]; st.used += v;
+      const frac = st.used / m.interval, lvl = frac >= 1 ? 2 : frac >= .9 ? 1 : 0;
+      if (lvl > st.level) this.event(s, "maintenance", `${m.key}:${lvl === 2 ? "overdue" : "due_soon"}`);
+      st.level = lvl;
+    }
+  }
+  maintDone(key){
+    this.maint[key] = {used:0, level:0};
+    if (key === "contact_tip"){ this.line.sc.tip = false; this.line.weldMult = 1; }
+    if (key === "rail_lube"){ this.line.sc.drive = false; this.line.driveMult = 1; }
+    if (key === "contact_tip" || key === "rail_lube") this.relearn();
+    if (this.prev) this.event(this.prev, "maintenance", `${key}:done`);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// i18n + text helpers
+// ---------------------------------------------------------------------------
+const T = {
+  tr:{running:"ÇALIŞIYOR", idle:"BEKLEMEDE", fault:"ARIZA", estop:"ACİL STOP", auto:"otomatik", manual:"manuel",
+    welding:"kaynak", idle_move:"boşta hareket", handling:"taşıma ve hazırlık", stopped:"duruş", none:"—",
+    mode:"Mod", phase:"Faz", position:"Pozisyon", profiles:"Biten profil", alarm:"Alarm", vision:"Görüntü", cycle:"Son çevrim",
+    since:"başlangıçtan beri", per_profile:"profil başına",
+    l_normal:"Normal", l_wire_feed:"Tel besleme bozulması", l_hydraulic:"Hidrolik basınç düşüşü", l_power_anomaly:"Olağandışı güç tüketimi", l_intrusion:"Koruma alanına giriş", l_manual_stop:"Panelden acil stop",
+    conf:"güven", ref_ready:"Referans profil hazır", ref_learning:"Referans öğreniliyor", clean:"temiz çevrim", model_note:"Prototiptekiyle aynı karar ağacı",
+    welds:"kaynak", arc_min:"dk ark", cycles:"çevrim", left:"kaldı", overdue:"gecikti", done:"Bakım yapıldı",
+    k_alarm:"alarm", k_estop:"acil stop", k_fault:"arıza", k_prediction:"erken uyarı", k_maintenance:"bakım", k_info:"bilgi",
+    a217:"217 tel besleme", a305:"305 hidrolik basınç", a410:"410 koruma alanı",
+    m_due_soon:"yaklaşıyor", m_overdue:"aralık aşıldı", m_done:"yapıldı",
+    src_panel:"operatör paneli", src_area_scanner_2:"alan tarayıcısı 2", src_area_scanner_1:"alan tarayıcısı 1",
+    ev_ref:"Referans profil öğrenildi (5 temiz çevrim)", ev_start:"Hat başlatıldı", person:"kişi · ist.",
+    local_an:"Yerel model raporu", claude_an:"Claude olay analizi", shift_an:"Claude vardiya raporu", sample:"örnek yanıt · bu demo API çağırmaz",
+    sending:"Claude'a özet bağlam gönderiliyor…", ctx:"Claude'a giden özet bağlam", rec:"klip −10/+5 s kaydedildi", live:"canlı", clock:"Vardiya saati",
+    evidence:"Kanıt", checks:"Kontrol sırası", lm:"Yerel model", stop_src:"kaynak"},
+  en:{running:"RUNNING", idle:"IDLE", fault:"FAULT", estop:"E-STOP", auto:"auto", manual:"manual",
+    welding:"welding", idle_move:"idle movement", handling:"handling & prep", stopped:"stopped", none:"—",
+    mode:"Mode", phase:"Phase", position:"Position", profiles:"Profiles done", alarm:"Alarm", vision:"Vision", cycle:"Last cycle",
+    since:"since start", per_profile:"per profile",
+    l_normal:"Normal", l_wire_feed:"Wire feed degradation", l_hydraulic:"Hydraulic pressure drop", l_power_anomaly:"Unusual power draw", l_intrusion:"Guarded-zone entry", l_manual_stop:"Panel E-stop",
+    conf:"confidence", ref_ready:"Reference profile ready", ref_learning:"Learning reference", clean:"clean cycles", model_note:"Same decision tree as the prototype",
+    welds:"welds", arc_min:"arc min", cycles:"cycles", left:"left", overdue:"overdue", done:"Done",
+    k_alarm:"alarm", k_estop:"e-stop", k_fault:"fault", k_prediction:"early warning", k_maintenance:"maintenance", k_info:"info",
+    a217:"217 wire feed", a305:"305 hydraulic pressure", a410:"410 guarded zone",
+    m_due_soon:"due soon", m_overdue:"overdue", m_done:"done",
+    src_panel:"operator panel", src_area_scanner_2:"area scanner 2", src_area_scanner_1:"area scanner 1",
+    ev_ref:"Reference profile learned (5 clean cycles)", ev_start:"Line started", person:"person · stn",
+    local_an:"Local model report", claude_an:"Claude incident analysis", shift_an:"Claude shift report", sample:"sample response · this demo does not call the API",
+    sending:"Sending summarized context to Claude…", ctx:"Summarized context sent to Claude", rec:"clip −10/+5 s saved", live:"live", clock:"Shift clock",
+    evidence:"Evidence", checks:"Checks, in order", lm:"Local model", stop_src:"source"}
+};
+let lang = document.documentElement.getAttribute("data-lang") || "tr";
+const t = k => (T[lang] && T[lang][k]) || k;
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const SHIFT0 = 8 * 3600; // simulated shift starts at 08:00
+const clock = ts => { const s = Math.floor(SHIFT0 + ts); return [s / 3600 | 0, (s / 60 | 0) % 60, s % 60].map(v => String(v).padStart(2, "0")).join(":"); };
+const fmt = (v, d = 1) => (v ?? 0).toLocaleString(lang === "tr" ? "tr-TR" : "en-GB", {minimumFractionDigits:d, maximumFractionDigits:d});
+const pct = r => Math.round((r - 1) * 100);
+const infoLog = [];
+function log(kind, text){ infoLog.unshift({ts:line.t, kind, text}); }
+
+const CATALOG = {
+  wire_feed:{tr:["Tel sürme makaralarını ve baskı ayarını kontrol edin.","Makarada dolaşma ve kılavuz tıkanması olup olmadığına bakın.","Tel ilerletme testi yapın; sürerse kaynak bakım ekibine bildirin."],
+             en:["Check the drive rolls and their tension.","Look for a tangled spool or a blocked liner.","Run a wire-feed test; escalate to welding maintenance if it persists."]},
+  hydraulic:{tr:["Yağ seviyesini ve bağlantılarda kaçak olup olmadığını kontrol edin.","Pompa basıncını okuyun, HMI'daki ayar değeriyle karşılaştırın.","Tekrarlıyorsa pompa ve valf bakımı planlayın."],
+             en:["Check oil level and look for leaking fittings.","Read pump pressure and compare it with the HMI setpoint.","If it repeats, schedule pump and valve maintenance."]},
+  power_anomaly:{tr:["Kaynak fazındaysa: kontak memeyi ve gaz memesini kontrol edin, akım ve voltaj ayarlarını doğrulayın.","Hareket fazındaysa: kızak rulmanlarını, yağlamayı ve rayı kontrol edin.","Artış sürerse ilgili akımı ölçüp bakım planlayın."],
+                 en:["If it is in welding: check the contact tip and gas nozzle, verify current and voltage settings.","If it is in movement: check slider bearings, lubrication and the rails.","If the rise continues, measure the current and schedule maintenance."]},
+  intrusion:{tr:["Alanın boş olduğunu doğrulamadan hattı sıfırlamayın.","Kamera klibini yetkili kişiyle inceleyin; girişin nedenini kayda alın.","Prosedürü hatırlatın: önce hattı durdur, sonra alana gir."],
+             en:["Do not reset until the zone is confirmed clear.","Review the clip with an authorised person and record why the zone was entered.","Remind the crew: stop the line first, then enter."]},
+  manual_stop:{tr:["Butona basan kişiden nedeni öğrenin ve kayda alın.","Hattı ve fikstürü görsel olarak kontrol edin.","Neden giderildikten sonra sıfırlayın."],
+               en:["Ask who pressed it and record why.","Visually check the line and the fixture.","Reset once the cause is cleared."]},
+};
+
+function localReport(a){
+  const {pred, feats, phase} = a, tr = lang === "tr";
+  if (pred.label === "normal") return tr ? "Hat normal çalışıyor." : "The line is running normally.";
+  const ev = [];
+  if (feats.estop_scanner) ev.push(tr ? "Durdurma kaynağı: alan tarayıcısı." : "Stop source: area scanner.");
+  if (feats.estop_panel) ev.push(tr ? "Durdurma kaynağı: operatör paneli." : "Stop source: operator panel.");
+  if (feats.person) ev.push(tr ? "Cihaz üzerindeki görüntü analizi koruma alanında bir kişi algıladı." : "On-device vision detected a person in a guarded zone.");
+  if (phase && phase !== "none") ev.push(tr ? `Hat o anda ${t(phase)} fazındaydı.` : `The line was in the ${t(phase)} phase.`);
+  if (feats.a217_per_cycle >= .5) ev.push(tr ? `Son çevrimlerde çevrim başına ${fmt(feats.a217_per_cycle)} tel besleme alarmı.` : `${fmt(feats.a217_per_cycle)} wire-feed alarms per cycle recently.`);
+  if (feats.a305_per_cycle > 0) ev.push(tr ? "Son çevrimlerde hidrolik basınç alarmı var." : "Hydraulic pressure alarms in recent cycles.");
+  const wp = feats.weld_power_ratio, ip = feats.idle_power_ratio;
+  if (wp > 1.08 && wp >= ip) ev.push(tr ? `Kaynak fazında ortalama güç normalden %${pct(wp)} yüksek.` : `Mean power while welding is ${pct(wp)}% above normal.`);
+  if (ip > 1.08 && ip > wp) ev.push(tr ? `Hareket fazında ortalama güç normalden %${pct(ip)} yüksek.` : `Mean power while traversing is ${pct(ip)}% above normal.`);
+  if (feats.cycle_ratio > 1.1) ev.push(tr ? `Çevrim süresi normalden %${pct(feats.cycle_ratio)} uzun.` : `Cycles take ${pct(feats.cycle_ratio)}% longer than normal.`);
+  if (pred.label === "intrusion" && feats.a217_per_cycle >= .5) ev.push(tr ? "Girişten önce tel besleme alarmları vardı; müdahale amacıyla girilmiş olabilir." : "Wire-feed alarms preceded the entry; someone may have gone in to deal with it.");
+  const head = `${t("lm")}: ${t("l_" + pred.label)} (${t("conf")} ${tr ? "%" + Math.round(pred.confidence * 100) : Math.round(pred.confidence * 100) + "%"}).`;
+  return [head, "", t("evidence") + ":", ...ev.map(e => "- " + e), "", t("checks") + ":", ...CATALOG[pred.label][lang].map((c, i) => `${i + 1}. ${c}`)].join("\n");
+}
+
+// ---------------------------------------------------------------------------
+// Claude: summarized context (what the device would send) + a sample response
+// ---------------------------------------------------------------------------
+function buildContext(e, feats, pred){
+  const before = agent.cycles.filter(c => c && c.end <= e.ts);
+  const recent = before.slice(-6);
+  const win = agent.events.filter(x => x.kind === "alarm" && x.ts >= e.ts - 600 && x.ts <= e.ts);
+  const counts = {}; win.forEach(x => counts[x.code] = (counts[x.code] || 0) + 1);
+  return {
+    event:{id:e.id, time:clock(e.ts), kind:e.kind, source:e.source, alarm:e.code ? {code:e.code} : null},
+    line_at_event:{mode:e.mode, phase:e.phase, weld_position:e.pos},
+    vision:{tag:e.vision, note:"on-device person detection; no identity"},
+    clip:{stored_on_device:e.kind === "estop"},
+    last_10_min:{alarm_counts:Object.entries(counts).map(([c, n]) => ({code:+c, count:n}))},
+    recent_cycles:recent.map(c => ({ended_s_ago:Math.round(e.ts - c.end), duration_s:+c.duration.toFixed(1), energy_wh:+c.energy.toFixed(1), alarms:c.alarms})),
+    reference_profile:agent.ref ? "ready" : "learning",
+    features:Object.fromEntries(Object.entries(feats).map(([k, v]) => [k, +(+v).toFixed(3)])),
+    local_model:{label:pred.label, confidence:+pred.confidence.toFixed(3), version:TREE.v},
+    maintenance:PLAN.map(m => ({item:m.key, used_fraction:+(agent.maint[m.key].used / m.interval).toFixed(2)})),
+  };
+}
+
+function claudeText(ctx, tr){
+  const e = ctx.event, a217 = (ctx.last_10_min.alarm_counts.find(x => x.code === 217) || {}).count || 0;
+  const lm = ctx.local_model, ph = t(ctx.line_at_event.phase), pos = ctx.line_at_event.weld_position;
+  const ratio = ctx.features.cycle_ratio, due = ctx.maintenance.filter(m => m.used_fraction >= .9);
+  const mName = k => (PLAN.find(p => p.key === k) || {})[lang];
+  const L = [];
+  if (e.kind === "estop" && e.source.startsWith("area_scanner")){
+    L.push(tr ? `Acil stop ${e.time}'de alan tarayıcısı 2'den geldi; hat otomatik moddaydı, ${ph} fazındaydı (pozisyon ${Math.min(pos, 11)}/11). Cihaz üzerindeki görüntü analizi aynı anda istasyon 3'ün koruma alanında bir kişi algıladı.`
+              : `The E-stop came from area scanner 2 at ${e.time}, with the line in auto mode and in the ${ph} phase (position ${Math.min(pos, 11)}/11). On-device vision detected a person in station 3's guarded zone at the same moment.`);
+    if (a217 >= 3) L.push(tr ? `Son 10 dakikada ${a217} tel besleme alarmı (217) var ve çevrim süresi referansın %${Math.max(0, pct(ratio))} üzerinde. Operatör büyük olasılıkla tel beslemeye müdahale etmek için hat çalışırken alana girdi. Yerel modelin "koruma alanına giriş" tespiti kanıtla uyumlu; asıl kök neden tel besleme sorunu.`
+                         : `There were ${a217} wire-feed alarms (217) in the last 10 minutes and cycles run ${Math.max(0, pct(ratio))}% above the reference. The operator most likely entered while the line was running to deal with the wire feed. The local model's "guarded-zone entry" verdict matches the evidence; the underlying cause is the wire feed.`);
+    else L.push(tr ? `Öncesinde ilgili bir alarm yok; girişin nedeni klipten doğrulanmalı. Yerel modelin "koruma alanına giriş" tespiti kanıtla uyumlu.`
+                   : `No related alarm preceded it, so the reason for the entry should be confirmed from the clip. The local model's "guarded-zone entry" verdict matches the evidence.`);
+    L.push("");
+    L.push(tr ? "1. Alanın boş olduğunu doğrulamadan hattı sıfırlamayın." : "1. Do not reset until the zone is confirmed clear.");
+    L.push(a217 >= 3 ? (tr ? "2. Tel besleme ünitesini kontrol edin: makaralar, baskı ayarı, kılavuz." : "2. Check the wire-feed unit: drive rolls, tension, liner.")
+                     : (tr ? "2. Klibi yetkili kişiyle inceleyip giriş nedenini kayda alın." : "2. Review the clip with an authorised person and record the reason."));
+    L.push(tr ? "3. Müdahale prosedürünü vardiya ekibiyle gözden geçirin: önce hattı durdur, sonra alana gir." : "3. Review the intervention procedure with the shift: stop the line first, then enter.");
+    L.push(tr ? "4. Olayı 6331 sayılı Kanun kapsamında ramak kala olarak kayda alın." : "4. Record the event as a near miss in the occupational-safety log.");
+  } else if (e.kind === "estop"){
+    L.push(tr ? `Acil stop ${e.time}'de operatör panelinden basıldı; hat ${t(ctx.line_at_event.mode)} moddaydı, ${ph} fazındaydı. Koruma alanlarında kişi algılanmadı${a217 ? `; son 10 dakikada ${a217} tel besleme alarmı var` : " ve öncesinde alarm yok"}.`
+              : `The E-stop was pressed on the operator panel at ${e.time}, with the line in ${t(ctx.line_at_event.mode)} mode and in the ${ph} phase. No person was detected in the guarded zones${a217 ? `; there were ${a217} wire-feed alarms in the last 10 minutes` : " and no alarm preceded it"}.`);
+    L.push(tr ? "Duruş bilinçli bir müdahaleye benziyor; yerel modelin \"panelden acil stop\" tespiti kanıtla uyumlu." : "The stop looks like a deliberate intervention; the local model's \"panel E-stop\" verdict matches the evidence.");
+    L.push("");
+    L.push(tr ? "1. Butona basan kişiden nedeni öğrenin ve kayda alın." : "1. Ask who pressed it and record why.");
+    L.push(tr ? "2. Profilin ve fikstürün konumunu görsel olarak kontrol edin." : "2. Visually check the profile and the fixture.");
+    L.push(tr ? "3. Neden giderildikten sonra sıfırlayın." : "3. Reset once the cause is cleared.");
+  } else {
+    L.push(tr ? `Hidrolik basınç düşüşü (305) ${e.time}'de, ${ph} fazında oluştu; hat arıza durumunda bekledi ve basınç geri geldiğinde devam etti.`
+              : `A hydraulic pressure drop (305) occurred at ${e.time} in the ${ph} phase; the line held in fault and continued once pressure recovered.`);
+    L.push(tr ? "Tek seferlik bir düşüş, pompa veya bağlantı kaynaklı olabilir; tekrar ederse eğilim izlenmeli." : "A single drop can come from the pump or a fitting; if it repeats, watch the trend.");
+    L.push("");
+    L.push(tr ? "1. Yağ seviyesini ve bağlantılarda kaçak olup olmadığını kontrol edin." : "1. Check oil level and look for leaking fittings.");
+    L.push(tr ? "2. Pompa basıncını HMI'daki ayar değeriyle karşılaştırın." : "2. Compare pump pressure with the HMI setpoint.");
+    L.push(tr ? "3. Vardiya içinde tekrar ederse pompa ve valf bakımı planlayın." : "3. If it repeats this shift, schedule pump and valve maintenance.");
+  }
+  if (due.length){
+    L.push("");
+    L.push(tr ? `Bakım: ${due.map(m => mName(m.item)).join(", ")} aralığına yaklaşıldı veya aşıldı; bu duruşta yapılması uygun olur.`
+              : `Maintenance: ${due.map(m => mName(m.item)).join(", ")} is due or overdue; this stop is a good moment to do it.`);
+  }
+  return L.join("\n");
+}
+
+const claudeQueue = [];
+function queueClaude(e, feats, pred){
+  const ctx = buildContext(e, feats, pred);
+  agent.analyses.unshift({kind:"claude", ts:e.ts, ev:e, ctx, state:"sending", text:"", shown:0, at:performance.now()});
+  renderAnalyses(true);
+}
+
+function shiftReport(){
+  const cyc = agent.cycles.filter(Boolean), tr = lang === "tr";
+  if (!cyc.length){ return; }
+  const durs = cyc.map(c => c.duration), en = cyc.map(c => c.energy);
+  const ph = {}; BUCKETS.forEach(b => { ph[b] = cyc.reduce((t, c) => t + c.phases[b].wh, 0); });
+  const tot = Object.values(ph).reduce((a, b) => a + b, 0) || 1;
+  const stops = agent.events.filter(e => e.kind === "estop" || e.kind === "fault");
+  const warns = agent.events.filter(e => e.kind === "prediction");
+  const a217 = agent.events.filter(e => e.kind === "alarm" && e.code === 217).length;
+  const due = PLAN.filter(m => agent.maint[m.key].level >= 1);
+  const L = [];
+  L.push(tr ? `Vardiya özeti (${clock(0)}–${clock(line.t)}): ${cyc.length} profil tamamlandı. Çevrim süresi medyanı ${fmt(median(durs))} s (en kısa ${fmt(Math.min(...durs))}, en uzun ${fmt(Math.max(...durs))}). Profil başına enerji medyanı ${fmt(median(en))} Wh; enerjinin %${Math.round(ph.welding / tot * 100)}'ü kaynakta, %${Math.round(ph.idle_move / tot * 100)}'ı boşta harekette.`
+            : `Shift summary (${clock(0)}–${clock(line.t)}): ${cyc.length} profiles completed. Median cycle ${fmt(median(durs))} s (shortest ${fmt(Math.min(...durs))}, longest ${fmt(Math.max(...durs))}). Median energy per profile ${fmt(median(en))} Wh; ${Math.round(ph.welding / tot * 100)}% of it in welding, ${Math.round(ph.idle_move / tot * 100)}% in idle movement.`);
+  L.push(tr ? `Duruşlar: ${stops.length ? stops.map(s => `${clock(s.ts)} ${t("k_" + s.kind)}${s.source !== "plc" ? " (" + t("src_" + s.source) + ")" : ""}`).join(", ") : "yok"}. Erken uyarılar: ${warns.length ? warns.map(w => t("l_" + w.name)).join(", ") : "yok"}. Tel besleme alarmı: ${a217}.`
+            : `Stops: ${stops.length ? stops.map(s => `${clock(s.ts)} ${t("k_" + s.kind)}${s.source !== "plc" ? " (" + t("src_" + s.source) + ")" : ""}`).join(", ") : "none"}. Early warnings: ${warns.length ? warns.map(w => t("l_" + w.name)).join(", ") : "none"}. Wire-feed alarms: ${a217}.`);
+  L.push("");
+  const acts = [];
+  if (a217 >= 3) acts.push(tr ? "Tel besleme ünitesinin bakımını sonraki vardiyanın başında yapın." : "Service the wire-feed unit at the start of the next shift.");
+  if (warns.some(w => w.name === "power_anomaly")) acts.push(tr ? "Güç artışı görülen fazda (kontak meme / kızak) kontrol ve ölçüm yapın." : "Inspect and measure the phase that showed the power rise (contact tip / slider).");
+  if (stops.some(s => s.source && s.source.startsWith("area_scanner"))) acts.push(tr ? "Koruma alanı girişini ekip toplantısında konuşun; müdahale prosedürünü tekrar edin." : "Discuss the guarded-zone entry with the crew and repeat the intervention procedure.");
+  due.forEach(m => acts.push(tr ? `${m.tr}: aralık doldu, planlayın.` : `${m.en}: interval reached, schedule it.`));
+  if (!acts.length) acts.push(tr ? "Belirgin bir sorun yok; mevcut ayarlarla devam edin." : "No notable issue; continue with the current settings.");
+  acts.slice(0, 3).forEach((a, i) => L.push(`${i + 1}. ${a}`));
+  const ctx = {window:{start:clock(0), end:clock(line.t)}, production:{profiles_completed:cyc.length, cycle_time_s_median:+median(durs).toFixed(1), energy_per_profile_wh_median:+median(en).toFixed(1)},
+    energy_share_by_phase:Object.fromEntries(BUCKETS.map(b => [b, +(ph[b] / tot).toFixed(3)])), stops:stops.map(s => ({time:clock(s.ts), kind:s.kind, source:s.source})),
+    local_model_warnings:warns.map(w => w.name), maintenance:PLAN.map(m => ({item:m.key, used_fraction:+(agent.maint[m.key].used / m.interval).toFixed(2)}))};
+  agent.analyses.unshift({kind:"shift", ts:line.t, ctx, state:"sending", text:L.join("\n"), shown:0, at:performance.now(), fixed:true});
+  renderAnalyses(true);
+}
+
+// ---------------------------------------------------------------------------
+// Scene rendering
+// ---------------------------------------------------------------------------
+const X0 = 105, LEN = 790, posX = i => X0 + i * LEN / 12;
+const NS = "http://www.w3.org/2000/svg";
+const el = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+(function ticks(){ const g = $("ticks"); for (let i = 1; i <= 11; i++){ el("line", {x1:posX(i), y1:290, x2:posX(i), y2:296, stroke:"var(--fg3)"}, g); const tx = el("text", {x:posX(i), y:306}, g); tx.textContent = i; } })();
+
+function drawGantry(g, flip){
+  g.innerHTML = "";
+  const s = flip ? -1 : 1;
+  el("rect", {x:-26, y:62, width:12, height:262, rx:3, fill:"var(--frame)"}, g);
+  el("rect", {x:14, y:62, width:12, height:262, rx:3, fill:"var(--frame)"}, g);
+  el("rect", {x:-34, y:48, width:68, height:20, rx:4, fill:"url(#g-beam)", stroke:"#8a5a00"}, g);
+  el("rect", {x:-30, y:318, width:60, height:10, rx:3, fill:"var(--steel-d)"}, g);
+  el("circle", {cx:-20, cy:328, r:5, fill:"#1b1b1b"}, g); el("circle", {cx:20, cy:328, r:5, fill:"#1b1b1b"}, g);
+  const arm = el("g", {class:"arm", transform:`scale(${s},1)`}, g);
+  el("rect", {x:-12, y:66, width:24, height:16, rx:4, fill:"#e3e8e6", stroke:"#8a9692"}, arm);
+  el("line", {class:"l1", stroke:"#f2b134", "stroke-width":15, "stroke-linecap":"round"}, arm);
+  el("line", {class:"l2", stroke:"#f2b134", "stroke-width":11, "stroke-linecap":"round"}, arm);
+  el("circle", {class:"j1", r:9, fill:"#2b2f2e", stroke:"#f2b134", "stroke-width":3}, arm);
+  el("circle", {class:"j2", r:7, fill:"#2b2f2e", stroke:"#f2b134", "stroke-width":3}, arm);
+  el("line", {class:"torch", stroke:"#3c4442", "stroke-width":6, "stroke-linecap":"round"}, arm);
+  el("circle", {class:"arc", r:26, fill:"url(#g-arc)", opacity:0}, arm);
+  return arm;
+}
+const armFront = drawGantry($("gantry"), false), armBack = drawGantry($("gantry-back"), true);
+const lerp = (a, b, k) => a + (b - a) * k;
+function poseArm(arm, down){
+  const sh = [0, 74], el1 = [lerp(46, 40, down), lerp(118, 168, down)], tip = [lerp(18, 6, down), lerp(170, 236, down)], tt = [tip[0] - 2, tip[1] + 14 + 22 * down];
+  const q = (c, a) => arm.querySelector("." + c) && Object.entries(a).forEach(([k, v]) => arm.querySelector("." + c).setAttribute(k, v));
+  q("l1", {x1:sh[0], y1:sh[1], x2:el1[0], y2:el1[1]}); q("l2", {x1:el1[0], y1:el1[1], x2:tip[0], y2:tip[1]});
+  q("j1", {cx:sh[0], cy:sh[1]}); q("j2", {cx:el1[0], cy:el1[1]}); q("torch", {x1:tip[0], y1:tip[1], x2:tt[0], y2:tt[1]});
+  q("arc", {cx:tt[0], cy:tt[1] + 2});
+  return tt;
+}
+const sparks = [];
+function emitSparks(x, y, n){
+  for (let i = 0; i < n; i++){
+    const a = -Math.PI * (.1 + .8 * Math.random()), v = 60 + 160 * Math.random();
+    sparks.push({x, y, vx:Math.cos(a) * v * (Math.random() < .5 ? -1 : 1), vy:Math.sin(a) * v, life:.25 + .45 * Math.random(), age:0});
+  }
+}
+const sparkG = $("sparks");
+function drawSparks(dt){
+  let html = "";
+  for (let i = sparks.length - 1; i >= 0; i--){
+    const s = sparks[i]; s.age += dt; s.vy += 420 * dt; s.x += s.vx * dt; s.y += s.vy * dt;
+    if (s.age > s.life || s.y > 330){ sparks.splice(i, 1); continue; }
+    const k = 1 - s.age / s.life;
+    html += `<line x1="${s.x.toFixed(1)}" y1="${s.y.toFixed(1)}" x2="${(s.x - s.vx * .025).toFixed(1)}" y2="${(s.y - s.vy * .025).toFixed(1)}" stroke="${k > .5 ? "#ffe9a8" : "#ff8a1f"}" stroke-width="1.6" stroke-opacity="${k.toFixed(2)}" stroke-linecap="round"/>`;
+  }
+  sparkG.innerHTML = html;
+}
+const markG = $("marks");
+let markedCycle = -1, marked = new Set(), hotUntil = {};
+function updateMarks(){
+  if (line.cycles !== markedCycle && line.phase === PH.HANDLING){ markedCycle = line.cycles; marked = new Set(); markG.innerHTML = ""; }
+  for (const p of line.welded){
+    if (marked.has(p)) continue; marked.add(p); hotUntil[p] = performance.now() + 1600;
+    const x = posX(p) + 4;
+    el("rect", {x:x - 7, y:271, width:14, height:5, rx:2, fill:"#3d3a36", "data-p":p}, markG);
+    el("circle", {cx:x, cy:273, r:8, fill:"url(#g-hot)", "data-h":p, opacity:1}, markG);
+  }
+  const now = performance.now();
+  markG.querySelectorAll("[data-h]").forEach(c => { const left = (hotUntil[c.dataset.h] - now) / 1600; c.setAttribute("opacity", Math.max(0, left).toFixed(2)); });
+}
+
+// operator figure
+const op = $("operator"), legA = $("leg-a"), legB = $("leg-b");
+let opX = 70, opTarget = 70, walkPhase = 0;
+function updateOperator(dt){
+  // handling: operator at the loading end, pushing the profile in; intrusion: walks into station 3
+  if (line.vision) opTarget = 238;
+  else if (line.sc.intrAt !== null && line.mode === MODE.AUTO) opTarget = 225;
+  else if (line.phase === PH.HANDLING && line.state === ST.RUNNING) opTarget = 70 + 40 * line.progress();
+  else if (!line.estop) opTarget = 52;
+  const d = opTarget - opX, step = Math.sign(d) * Math.min(Math.abs(d), 120 * dt);
+  opX += step; const moving = Math.abs(step) > .05;
+  walkPhase += moving ? dt * 10 : 0;
+  const sw = moving ? Math.sin(walkPhase) * 6 : 0;
+  legA.setAttribute("x2", (-5 + sw).toFixed(1)); legB.setAttribute("x2", (5 - sw).toFixed(1));
+  op.setAttribute("transform", `translate(${opX.toFixed(1)} 378)`);
+}
+
+// gantry position along the line
+function gantryX(){
+  const p = line.progress(), n = line.p.positions;
+  if (line.state !== ST.RUNNING && line.state !== ST.FAULT) return line._gx ?? posX(0);
+  if (line.phase === PH.HANDLING) return posX(0);
+  if (line.phase === PH.IDLE_MOVE){
+    if (line.pos > n) return lerp(posX(n), posX(0), easeIO(p));
+    return lerp(posX(line.pos - 1), posX(line.pos), easeIO(p));
+  }
+  return posX(line.pos);
+}
+const easeIO = k => k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+
+function updateScene(dt){
+  const gx = line.state === ST.FAULT ? line._gx : gantryX();
+  line._gx = gx;
+  $("gantry").setAttribute("transform", `translate(${gx.toFixed(1)} 0)`);
+  $("gantry-back").setAttribute("transform", `translate(${(gx + 14).toFixed(1)} -6)`);
+  // arm pose: down while welding, eased in/out of each weld
+  let down = 0;
+  if (line.state === ST.RUNNING && line.phase === PH.WELDING){ const p = line.progress(); down = p < .15 ? p / .15 : p > .85 ? (1 - p) / .15 : 1; }
+  else if (line.state !== ST.RUNNING) down = line._down || 0;
+  line._down = down;
+  const tip = poseArm(armFront, down); poseArm(armBack, down);
+  const arcOn = line.state === ST.RUNNING && line.phase === PH.WELDING && down > .9 && !(line.alarm === 217 && Math.random() < .5);
+  const flick = arcOn ? .6 + .4 * Math.random() : 0;
+  armFront.querySelector(".arc").setAttribute("opacity", flick.toFixed(2));
+  armBack.querySelector(".arc").setAttribute("opacity", (flick * .8).toFixed(2));
+  if (arcOn) emitSparks(gx + tip[0], tip[1] + 4, 3 + (Math.random() * 3 | 0));
+  drawSparks(dt);
+  updateMarks();
+  updateOperator(dt);
+  // scanner field + lamp
+  const field = $("zone-field"), armed = line.mode === MODE.AUTO && line.state === ST.RUNNING;
+  const breach = line.vision && (armed || line.estop);
+  field.setAttribute("fill", breach ? "#e11d1d" : "#f5c518");
+  field.setAttribute("fill-opacity", breach ? (.25 + .15 * Math.sin(performance.now() / 120)).toFixed(2) : armed ? ".16" : ".06");
+  field.setAttribute("stroke", breach ? "#e11d1d" : "#f5c518");
+  $("scanner-eye").setAttribute("fill", breach ? "#e11d1d" : armed ? "#16a34a" : "#1b1b1b");
+  const blink = Math.floor(performance.now() / 400) % 2 === 0;
+  const lampR = line.estop ? (blink ? "#ff3b30" : "#5a1414") : "#5a1414";
+  const lampA = (line.state === ST.FAULT || line.alarm === 217 || agent.warned !== "normal") ? "#ffb020" : "#5a4214";
+  const lampG = line.state === ST.RUNNING ? "#22c55e" : "#14402f";
+  $("lamp-r").setAttribute("fill", lampR); $("lamp-a").setAttribute("fill", lampA); $("lamp-g").setAttribute("fill", lampG);
+  const glow = $("lamp-glow");
+  if (line.estop && blink){ glow.setAttribute("cy", 8); glow.setAttribute("opacity", ".9"); }
+  else if (lampA !== "#5a4214"){ glow.setAttribute("cy", 29); glow.setAttribute("opacity", ".6"); }
+  else if (line.state === ST.RUNNING){ glow.setAttribute("cy", 50); glow.setAttribute("opacity", ".45"); }
+  else glow.setAttribute("opacity", "0");
+  $("scene-card").classList.toggle("estop", line.estop);
+}
+
+// camera thumbnail (top-down view of station 3)
+function drawCam(){
+  const person = line.vision > 0, rec = line.estop && person, tr = lang === "tr";
+  const now = performance.now();
+  let s = `<rect width="320" height="180" fill="#1a211f"/>
+    <g stroke="#2e3936"><line x1="0" y1="60" x2="320" y2="60"/><line x1="0" y1="120" x2="320" y2="120"/></g>
+    <rect x="20" y="70" width="280" height="40" fill="#46504d"/><rect x="20" y="78" width="280" height="10" fill="#6f7a76"/>
+    <rect x="70" y="112" width="180" height="58" fill="${person ? "rgba(225,29,29,.18)" : "rgba(245,197,24,.12)"}" stroke="${person ? "#e11d1d" : "#f5c518"}" stroke-dasharray="5 4"/>
+    <text x="76" y="166" font-family="IBM Plex Mono, monospace" font-size="9" fill="#cfd8d4">ZONE 3</text>
+    <rect x="${(140 + (line._gx - posX(3)) * .9).toFixed(1)}" y="40" width="30" height="100" fill="none" stroke="#f2b134" stroke-width="2" opacity=".75"/>`;
+  if (person){
+    const px = 168 + Math.sin(now / 500) * 3, py = 140;
+    s += `<g><circle cx="${px}" cy="${py}" r="9" fill="#ff8a1f"/><circle cx="${px}" cy="${py - 2}" r="6" fill="#e9c3a0" filter="url(#f-blur)"/>
+      <rect x="${px - 22}" y="${py - 22}" width="44" height="44" fill="none" stroke="#22c55e" stroke-width="1.5"/>
+      <text x="${px - 22}" y="${py - 26}" font-family="IBM Plex Mono, monospace" font-size="9" fill="#22c55e">${tr ? "kişi" : "person"} 0.9${(Math.random() * 9 | 0)}</text></g>`;
+  }
+  s += `<text x="8" y="14" font-family="IBM Plex Mono, monospace" font-size="9" fill="#9fb0aa">CAM02 · ${clock(line.t)}</text>`;
+  if (rec) s += `<circle cx="296" cy="11" r="4" fill="${Math.floor(now / 500) % 2 ? "#ff3b30" : "#7a1d1d"}"/><text x="258" y="14" font-family="IBM Plex Mono, monospace" font-size="9" fill="#ff8a80">REC</text>`;
+  $("cam").innerHTML = `<defs><filter id="cf" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.4"/></filter></defs>` + s.replace('filter="url(#f-blur)"', 'filter="url(#cf)"');
+  $("cam-rec").innerHTML = rec ? `<span class="tag estop">${t("rec")}</span>` : `<span class="tag">${t("live")}</span>`;
+}
+
+// ---------------------------------------------------------------------------
+// Panels
+// ---------------------------------------------------------------------------
+function stateName(){ return ["idle", "running", "fault", "estop"][line.state]; }
+function renderPanels(){
+  const st = stateName();
+  $("state").className = "state " + st; $("state").textContent = t(st);
+  const last = agent.cycles.filter(Boolean).slice(-1)[0];
+  const alarmTxt = line.alarm ? t("a" + line.alarm) : "—";
+  $("kv").innerHTML = `<dt>${t("mode")}</dt><dd>${t(line.mode === MODE.AUTO ? "auto" : "manual")}</dd>`+
+    `<dt>${t("phase")}</dt><dd>${line.state === ST.RUNNING ? t(PHK[line.phase] || "none") : "—"}</dd>`+
+    `<dt>${t("position")}</dt><dd>${Math.min(line.pos, 11)} / 11</dd>`+
+    `<dt>${t("profiles")}</dt><dd>${line.cycles}</dd>`+
+    `<dt>${t("cycle")}</dt><dd>${last ? fmt(last.duration) + " s" : "—"}</dd>`+
+    `<dt>${t("alarm")}</dt><dd>${esc(alarmTxt)}</dd>`+
+    `<dt>${t("vision")}</dt><dd>${line.vision ? t("person") + " " + line.vision : "—"}</dd>`;
+  $("power").textContent = `${fmt(line.power / 1000, 2)} kW`;
+  const since = agent.firstEnergy === null ? 0 : line.energy - agent.firstEnergy;
+  $("energy").textContent = `${fmt(since)} Wh ${t("since")}${last ? " · " + fmt(last.energy) + " Wh " + t("per_profile") : ""}`;
+  const h = agent.powerHist, max = 10000;
+  if (h.length > 1){
+    const pts = h.map((v, i) => `${(i / (240 - 1) * 300).toFixed(1)},${(44 - v / max * 42).toFixed(1)}`).join(" ");
+    $("spark").innerHTML = `<polyline points="${pts}" fill="none" stroke="var(--accent)" stroke-width="1.5" vector-effect="non-scaling-stroke"/>`;
+  }
+  const lp = agent.lastPred;
+  if (lp){
+    const cls = lp.label === "normal" ? "ok" : (lp.label === "intrusion" || lp.label === "manual_stop") ? "stop" : "warn";
+    $("pred").className = "pred " + cls;
+    $("pred").innerHTML = `<b>${t("l_" + lp.label)}</b><span class="sub">${t("conf")} ${lang === "tr" ? "%" : ""}${Math.round(lp.confidence * 100)}${lang === "tr" ? "" : "%"} · ${clock(lp.ts)} · ${t("model_note")}</span>`;
+    $("probs").innerHTML = TREE.l.map(l => `<div><span>${t("l_" + l)}</span><i><u style="width:${Math.round(lp.probs[l] * 100)}%"></u></i><span>${Math.round(lp.probs[l] * 100)}%</span></div>`).join("");
+  } else {
+    $("pred").innerHTML = `<b>—</b><span class="sub">${t("model_note")}</span>`;
+  }
+  const clean = agent.cycles.filter(c => c && c.start >= agent.refFrom && !c.alarms.length).length;
+  $("ref").textContent = agent.ref ? `${t("ref_ready")} · ${clock(agent.refAt)}` : `${t("ref_learning")}: ${Math.min(clean, REF_CYCLES)} / ${REF_CYCLES} ${t("clean")}`;
+  $("maint").innerHTML = PLAN.map(m => {
+    const s = agent.maint[m.key], frac = s.used / m.interval, rem = m.interval - s.used;
+    return `<div class="mt"><span class="n">${esc(m[lang])}</span><button class="btn sm" data-mt="${m.key}">${t("done")}</button><div class="meter l${s.level}"><i style="width:${Math.min(100, frac * 100).toFixed(1)}%"></i></div><span class="u">${fmt(s.used, 0)} / ${m.interval} ${t(m.unit)} · ${rem > 0 ? fmt(rem, 0) + " " + t("left") : t("overdue")}</span></div>`;
+  }).join("");
+  const rows = [...agent.events.map(e => ({ts:e.ts, kind:e.kind, e})), ...infoLog.map(i => ({ts:i.ts, kind:"info", text:i.text}))].sort((a, b) => b.ts - a.ts).slice(0, 40);
+  $("log").innerHTML = rows.map(r => {
+    let d = "";
+    if (r.kind === "info") d = esc(t(r.text));
+    else if (r.kind === "alarm") d = esc(t("a" + r.e.code));
+    else if (r.kind === "estop") d = `${t("stop_src")}: ${t("src_" + r.e.source)}${r.e.vision ? " · " + t("person") + " 3" : ""}`;
+    else if (r.kind === "fault") d = esc(t("a" + r.e.code));
+    else if (r.kind === "prediction") d = esc(t("l_" + r.e.name));
+    else if (r.kind === "maintenance"){ const [k, lv] = r.e.name.split(":"); d = `${esc((PLAN.find(p => p.key === k) || {})[lang])} · ${t("m_" + lv)}`; }
+    const tag = {estop:"estop", fault:"fault", prediction:"prediction", info:"ok", alarm:"", maintenance:""}[r.kind] || "";
+    return `<tr><td class="m">${clock(r.ts)}</td><td><span class="tag ${tag}">${t("k_" + r.kind)}</span></td><td>${d}</td></tr>`;
+  }).join("");
+  $("reset-btn").disabled = !line.estop;
+  document.querySelectorAll("[data-tg]").forEach(b => b.classList.toggle("on", !!line.sc[b.dataset.tg]));
+  $("clock").textContent = `${t("clock")} ${clock(line.t)}`;
+  const hud = [`<span><b>${t(stateName())}</b></span>`, `<span>${t("mode")}: <b>${t(line.mode === MODE.AUTO ? "auto" : "manual")}</b></span>`,
+    `<span>${t("phase")}: <b>${line.state === ST.RUNNING ? t(PHK[line.phase] || "none") : "—"}</b></span>`, `<span>${t("position")}: <b>${Math.min(line.pos, 11)}/11</b></span>`];
+  $("hud").innerHTML = hud.join("");
+  $("stop-src").textContent = line.estop ? `${t("stop_src")}: ${t("src_" + SRC[line.src])}` : "";
+}
+
+let renderedAnalyses = "";
+function renderAnalyses(force){
+  const box = $("analyses");
+  if (!agent.analyses.length) return;
+  const open = new Set([...box.querySelectorAll("details[open]")].map(d => d.dataset.k));
+  const html = agent.analyses.slice(0, 6).map((a, i) => {
+    const key = `${a.kind}-${a.ts}`;
+    if (a.kind === "local"){
+      return `<div class="an"><div class="an-h"><span class="tag local">${t("local_an")}</span><span>${clock(a.ts)} · ${t("model_note")} · v${TREE.v}</span></div><div class="an-t">${esc(localReport(a))}</div></div>`;
+    }
+    const head = `<div class="an-h"><span class="tag ${a.state === "done" ? "ok" : "warn"}">${a.kind === "shift" ? t("shift_an") : t("claude_an")}</span><span>${clock(a.ts)} · claude-opus-5-5 · ${t("sample")}</span></div>`;
+    const body = a.state === "sending" ? `<div class="an-t" style="color:var(--fg2)">${t("sending")}<span class="caret"></span></div>`
+      : `<div class="an-t">${esc(a.text.slice(0, a.shown))}${a.shown < a.text.length ? '<span class="caret"></span>' : ""}</div>`;
+    const ctx = `<details data-k="${key}" ${open.has(key) ? "open" : ""}><summary>${t("ctx")}</summary><pre>${esc(JSON.stringify(a.ctx, null, 1))}</pre></details>`;
+    return `<div class="an">${head}${body}${ctx}</div>`;
+  }).join("");
+  if (force || html !== renderedAnalyses){ box.innerHTML = html; renderedAnalyses = html; }
+  // the flow strip highlights the newest stage
+  const top = agent.analyses[0], stage = !top ? 0 : top.kind === "local" ? 2 : top.state === "sending" ? 3 : 4;
+  document.querySelectorAll("#flow [data-s]").forEach(s => s.classList.toggle("on", +s.dataset.s <= stage && stage > 0));
+}
+
+function tickClaude(){
+  let changed = false;
+  for (const a of agent.analyses){
+    if (a.kind === "local") continue;
+    if (a.state === "sending" && performance.now() - a.at > 2200){
+      a.state = "done"; if (!a.fixed) a.text = claudeText(a.ctx, lang === "tr"); changed = true;
+    }
+    if (a.state === "done" && a.shown < a.text.length){ a.shown = Math.min(a.text.length, a.shown + 18); changed = true; }
+  }
+  if (changed) renderAnalyses(true);
+}
+
+// ---------------------------------------------------------------------------
+// Controls + main loop
+// ---------------------------------------------------------------------------
+const line = new Line(20261010), agent = new Agent(line);
+line.start(); log("info", "ev_start");
+// Fast-forward the first minutes of the shift (silently) until the device has learned
+// the line's reference profile, so every scenario works from the first click.
+for (let i = 0; i < 40000 && !agent.ref; i++){ line.step(.05); agent.tick(); }
+agent.events = agent.events.filter(e => e.kind !== "maintenance" && e.kind !== "prediction");
+agent.analyses = []; agent.warned = "normal"; agent.streak = {};
+PLAN.forEach(m => agent.maint[m.key] = {used:m.start, level:m.start / m.interval >= .9 ? 1 : 0});
+markedCycle = -1;
+let speed = 1;
+document.querySelectorAll("#speed button").forEach(b => {
+  b.setAttribute("aria-pressed", b.dataset.v === "1");
+  b.onclick = () => { speed = +b.dataset.v; document.querySelectorAll("#speed button").forEach(x => x.setAttribute("aria-pressed", x === b)); };
+});
+const eb = $("estop-btn");
+eb.onclick = () => { eb.classList.add("down"); setTimeout(() => eb.classList.remove("down"), 160); line.pressEstop(); };
+$("reset-btn").onclick = () => { line.reset(); };
+document.querySelectorAll("[data-sc]").forEach(b => b.onclick = () => {
+  if (b.dataset.sc === "intrusion") line.scheduleIntrusion();
+  if (b.dataset.sc === "hydraulic") line.scheduleHydraulic();
+});
+document.querySelectorAll("[data-tg]").forEach(b => b.onclick = () => { const k = b.dataset.tg; line.sc[k] = !line.sc[k]; });
+document.addEventListener("click", ev => { const m = ev.target.closest("[data-mt]"); if (m) agent.maintDone(m.dataset.mt); });
+$("shift-btn").onclick = shiftReport;
+
+let lastT = performance.now(), acc = 0, lastPanel = 0;
+function frame(now){
+  const realDt = Math.min(.1, (now - lastT) / 1000); lastT = now;
+  acc += realDt * speed;
+  while (acc >= .05){ line.step(.05); agent.tick(); acc -= .05; }
+  updateScene(realDt);
+  if (now - lastPanel > 220){ renderPanels(); drawCam(); tickClaude(); lastPanel = now; }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+// language toggle (shared with the rest of the site)
+const root = document.documentElement, langBtns = document.querySelectorAll(".lang button");
+function setLang(l){
+  lang = l; root.setAttribute("data-lang", l); root.setAttribute("lang", l);
+  langBtns.forEach(b => b.setAttribute("aria-pressed", b.dataset.set === l ? "true" : "false"));
+  try{ localStorage.setItem("etk-lang", l) }catch(e){}
+  for (const a of agent.analyses) if (a.kind === "claude" && a.state === "done"){ a.text = claudeText(a.ctx, l === "tr"); a.shown = a.text.length; }
+  renderPanels(); renderAnalyses(true);
+}
+langBtns.forEach(b => b.addEventListener("click", () => setLang(b.dataset.set)));
+setLang(lang);
+})();
+</script>
+</body>
+</html>

@@ -3,494 +3,455 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="description" content="Emre Taşar — Software & Robotics Engineer / Yazılım ve Robotik Mühendisi. ROS, Python, PLC, autonomous systems.">
-<title>Emre Taşar</title>
+<meta name="description" content="Emre Taşar — founder of eTekno; software and robotics engineer with 6+ years in industrial automation, robotics and computer vision.">
+<meta property="og:type" content="profile">
+<meta property="og:url" content="https://etekno.com.tr/emre">
+<meta property="og:title" content="Emre Taşar — Founder, eTekno">
+<meta property="og:description" content="Software and robotics engineer: PLC-driven production lines, robot arms, autonomous mobile robots and computer vision. Founder of eTekno.">
+<meta property="og:locale" content="tr_TR">
+<meta property="og:locale:alternate" content="en_US">
+<title>Emre Taşar · eTekno</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<script>
+(function(){var l=null;try{l=localStorage.getItem('etk-lang')}catch(e){}
+if(!l){l=(navigator.language||'en').toLowerCase().indexOf('tr')===0?'tr':'en'}
+document.documentElement.setAttribute('data-lang',l);document.documentElement.setAttribute('lang',l);})();
+</script>
 <style>
+/* Same system as the eTekno homepage: graphite + signal teal + alarm amber, IBM Plex. */
 :root{
-  --bg:#f4f7fb;--surface:#ffffff;--fg:#0b1622;--fg2:#4a5a70;
-  --accent:#0abf8a;--accent-ink:#071310;--border:#dde4ef;
-  --tag-bg:#e4f4ef;--tag-fg:#0a7a5a;--gold-bg:#fdf1d8;--gold-fg:#a5620a;
-  --f-dis:'Syne','Segoe UI',system-ui,sans-serif;--f-body:'DM Sans','Segoe UI',system-ui,sans-serif;
+  --bg:#f3f5f4;--surface:#ffffff;--sunk:#e8ecea;--fg:#101614;--fg2:#4d5955;--fg3:#7b8783;
+  --line:#d6ddda;--accent:#0a9e7a;--accent-ink:#ffffff;--accent-soft:#dff2ec;--acc-txt:#08775c;
+  --amber:#b86e00;--amber-soft:#fbefd9;--amb-txt:#8a5300;
+  --sans:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   color-scheme:light;
 }
 @media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#0b1622;--surface:#121f30;--fg:#e8edf5;--fg2:#8396ad;
-  --accent:#0fd7a8;--accent-ink:#04120e;--border:#1c2e44;
-  --tag-bg:#0d2a2a;--tag-fg:#3fe3b9;--gold-bg:#3a2a0c;--gold-fg:#f5b84a;color-scheme:dark;
+  --bg:#0b100f;--surface:#121a18;--sunk:#0f1614;--fg:#e7eeeb;--fg2:#9aa9a4;--fg3:#6c7b76;
+  --line:#22302c;--accent:#2fd3a3;--accent-ink:#04120d;--accent-soft:#10291f;--acc-txt:#2fd3a3;
+  --amber:#f2b24c;--amber-soft:#2a1f0c;--amb-txt:#f2b24c;
+  color-scheme:dark;
 }}
 :root[data-theme="dark"]{
-  --bg:#0b1622;--surface:#121f30;--fg:#e8edf5;--fg2:#8396ad;
-  --accent:#0fd7a8;--accent-ink:#04120e;--border:#1c2e44;
-  --tag-bg:#0d2a2a;--tag-fg:#3fe3b9;--gold-bg:#3a2a0c;--gold-fg:#f5b84a;color-scheme:dark;
+  --bg:#0b100f;--surface:#121a18;--sunk:#0f1614;--fg:#e7eeeb;--fg2:#9aa9a4;--fg3:#6c7b76;
+  --line:#22302c;--accent:#2fd3a3;--accent-ink:#04120d;--accent-soft:#10291f;--acc-txt:#2fd3a3;
+  --amber:#f2b24c;--amber-soft:#2a1f0c;--amb-txt:#f2b24c;
+  color-scheme:dark;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{font-family:var(--f-body);background:var(--bg);color:var(--fg);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+body{font-family:var(--sans);background:var(--bg);color:var(--fg);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
 a{color:inherit}
+html[data-lang="tr"] .en,html[data-lang="en"] .tr{display:none!important}
 
-/* language switching */
-html[data-lang="tr"] .en, html[data-lang="en"] .tr{display:none!important}
+.shell{max-width:1160px;margin:0 auto;padding-inline:clamp(16px,5vw,48px)}
+section{padding-block:clamp(64px,9vw,104px);scroll-margin-top:60px}
+.band{background:var(--sunk);border-block:1px solid var(--line)}
+.kicker{font-family:var(--mono);font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--acc-txt);font-weight:500;display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.kicker b{color:var(--fg3);font-weight:500}
+.h2{font-size:clamp(1.75rem,3.6vw,2.6rem);font-weight:700;letter-spacing:-.025em;line-height:1.12;text-wrap:balance;max-width:24ch}
+.h3s{font-size:1.15rem;font-weight:600;letter-spacing:-.01em;margin-bottom:16px}
+.lede{color:var(--fg2);font-size:1.05rem;max-width:66ch;margin-top:16px}
+.sec-head{margin-bottom:44px}
+.mt{margin-top:56px}
+.tag{display:inline-block;font:500 .66rem/1.5 var(--mono);letter-spacing:.05em;text-transform:uppercase;border-radius:5px;padding:2px 7px;white-space:nowrap}
+.tag.field{background:var(--accent-soft);color:var(--acc-txt)}
+.tag.gold{background:var(--amber-soft);color:var(--amb-txt)}
+.tag.plain{background:var(--sunk);color:var(--fg2)}
+.band .tag.plain{background:var(--bg)}
 
-nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:100;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);padding-inline:clamp(16px,5vw,48px)}
-.nav-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px;height:56px}
-.nav-logo{font-family:var(--f-dis);font-weight:800;font-size:1.05rem;text-decoration:none;letter-spacing:-.03em}
-.nav-logo span{color:var(--accent)}
-.nav-right{display:flex;align-items:center;gap:26px}
-.nav-links{display:flex;gap:24px;list-style:none}
-.nav-links a{color:var(--fg2);text-decoration:none;font-size:.78rem;font-weight:500;letter-spacing:.05em;text-transform:uppercase;transition:color .2s}
-.nav-links a:hover{color:var(--accent)}
-.lang{display:flex;border:1px solid var(--border);border-radius:7px;overflow:hidden;background:var(--surface)}
-.lang button{border:0;background:none;color:var(--fg2);font:600 .72rem/1 var(--f-body);letter-spacing:.08em;padding:7px 10px;cursor:pointer}
-.lang button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+/* nav */
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.nav-in{display:flex;align-items:center;justify-content:space-between;gap:16px;height:60px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:700;font-size:1.12rem;letter-spacing:-.02em}
+.logo-mark{width:26px;height:26px;border-radius:6px;background:var(--fg);display:grid;place-items:center}
+.logo-mark i{width:10px;height:10px;border-radius:2px;background:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 30%,transparent)}
+.logo small{font:500 .78rem/1 var(--mono);color:var(--fg3);letter-spacing:0}
+.nav-r{display:flex;align-items:center;gap:24px}
+.links{display:flex;gap:20px;list-style:none}
+.links a{text-decoration:none;color:var(--fg2);font-size:.86rem;font-weight:500;white-space:nowrap}
+.links a:hover{color:var(--acc-txt)}
+.lang{display:flex;border:1px solid var(--line);border-radius:7px;overflow:hidden;background:var(--surface)}
+.lang button{border:0;background:none;color:var(--fg2);font:600 .72rem/1 var(--mono);letter-spacing:.06em;padding:8px 10px;cursor:pointer}
+.lang button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
 
-.wrap{max-width:1100px;margin:0 auto;padding-block:80px;padding-inline:clamp(16px,5vw,48px)}
-.label{font-family:var(--f-dis);font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:8px}
-.h2{font-family:var(--f-dis);font-size:clamp(1.8rem,4vw,2.6rem);font-weight:800;letter-spacing:-.035em;text-wrap:balance;line-height:1.1;margin-bottom:48px}
-hr.div{border:none;border-top:1px solid var(--border);max-width:1100px;margin:0 auto}
-
-#hero{min-height:88vh;display:flex;align-items:center;padding-block:72px;padding-inline:clamp(16px,5vw,48px);max-width:1100px;margin:0 auto}
-.hero-eyebrow{font-size:.78rem;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:22px;display:flex;align-items:center;gap:12px}
-.hero-eyebrow::before{content:'';display:block;width:30px;height:2px;background:var(--accent)}
-.hero-name{font-family:var(--f-dis);font-size:clamp(3.2rem,9vw,6.5rem);font-weight:800;line-height:.92;letter-spacing:-.045em;margin-bottom:22px}
-.hero-name .dot{color:var(--accent)}
-.hero-sub{font-family:var(--f-dis);font-size:clamp(.95rem,2.2vw,1.25rem);font-weight:600;color:var(--fg2);margin-bottom:22px;line-height:1.45}
-.hero-bio{color:var(--fg2);font-size:.97rem;line-height:1.8;max-width:600px;margin-bottom:38px}
-.hero-actions{display:flex;gap:12px;flex-wrap:wrap}
-.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:8px;font-family:var(--f-body);font-weight:500;font-size:.875rem;cursor:pointer;transition:all .2s;text-decoration:none;border:none}
+/* buttons */
+.btns{display:flex;gap:12px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:8px;font:600 .9rem/1 var(--sans);text-decoration:none;border:1px solid transparent;transition:filter .15s,border-color .15s,color .15s}
 .btn-p{background:var(--accent);color:var(--accent-ink)}
-.btn-p:hover{filter:brightness(1.08)}
-.btn-s{background:var(--surface);color:var(--fg);border:1px solid var(--border)}
-.btn-s:hover{border-color:var(--accent);color:var(--accent)}
-.stats{display:flex;gap:40px;margin-top:54px;padding-top:38px;border-top:1px solid var(--border);flex-wrap:wrap}
-.stat-n{font-family:var(--f-dis);font-size:2rem;font-weight:800;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
-.stat-n em{color:var(--accent);font-style:normal}
-.stat-l{font-size:.72rem;color:var(--fg2);text-transform:uppercase;letter-spacing:.08em;margin-top:3px}
+.btn-p:hover{filter:brightness(1.07)}
+.btn-s{background:var(--surface);border-color:var(--line);color:var(--fg)}
+.btn-s:hover{border-color:var(--accent);color:var(--acc-txt)}
 
-.tl{display:flex;flex-direction:column}
-.tl-row{display:grid;grid-template-columns:160px 1fr;gap:0 32px;padding-bottom:44px}
-.tl-row:last-child{padding-bottom:0}
-.tl-date{font-size:.76rem;color:var(--fg2);font-weight:500;padding-top:5px;text-align:right;font-variant-numeric:tabular-nums}
-.tl-body{position:relative;padding-left:26px;min-width:0}
-.tl-body::before{content:'';position:absolute;left:0;top:8px;width:10px;height:10px;border-radius:50%;background:var(--accent);border:2px solid var(--bg);outline:2px solid var(--accent)}
-.tl-body::after{content:'';position:absolute;left:4px;top:22px;bottom:-44px;width:2px;background:var(--border)}
-.tl-row:last-child .tl-body::after{display:none}
-.tl-role{font-family:var(--f-dis);font-weight:700;font-size:.98rem;margin-bottom:3px}
-.tl-co{font-size:.82rem;color:var(--accent);font-weight:500;margin-bottom:8px}
-.tl-desc{font-size:.875rem;color:var(--fg2);line-height:1.7;max-width:68ch}
+/* hero */
+.hero{padding-block:clamp(56px,8vw,96px) clamp(48px,7vw,80px)}
+.hero-g{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:clamp(28px,5vw,64px);align-items:start}
+.badge{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:.74rem;color:var(--fg2);border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;margin-bottom:24px;text-decoration:none}
+.badge i{width:7px;height:7px;border-radius:50%;background:var(--accent)}
+.badge:hover{border-color:var(--accent)}
+h1{font-size:clamp(2.6rem,6.4vw,4.6rem);font-weight:700;letter-spacing:-.04em;line-height:1}
+.role{font-family:var(--mono);font-size:.86rem;color:var(--acc-txt);margin-top:16px}
+.hero p.sub{color:var(--fg2);font-size:1.08rem;max-width:62ch;margin:22px 0 32px}
+.photo{width:160px;height:160px;border-radius:16px;object-fit:cover;border:1px solid var(--line);background:var(--surface)}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--line);margin-top:48px}
+.stats div{padding:22px 22px 0 0}
+.stats div+div{padding-left:22px;border-left:1px solid var(--line)}
+.stats .v{font:600 clamp(1.5rem,2.6vw,2rem)/1.1 var(--mono);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.stats .l{color:var(--fg2);font-size:.86rem;margin-top:8px;line-height:1.45}
 
-.edu{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:56px}
-.edu-c{border-left:3px solid var(--accent);padding:4px 0 4px 18px}
-.edu-y{font-size:.72rem;color:var(--fg2);letter-spacing:.06em;font-variant-numeric:tabular-nums}
-.edu-t{font-family:var(--f-dis);font-weight:700;font-size:.95rem;margin:3px 0 2px}
-.edu-s{font-size:.84rem;color:var(--fg2)}
+/* experience timeline */
+.xp{border-left:2px solid var(--line);margin-left:6px}
+.xp-i{position:relative;display:grid;grid-template-columns:200px minmax(0,1fr);gap:8px 32px;padding:0 0 40px 28px}
+.xp-i:last-child{padding-bottom:4px}
+.xp-i::before{content:'';position:absolute;left:-8px;top:5px;width:14px;height:14px;border-radius:50%;background:var(--bg);border:2px solid var(--fg3)}
+.xp-i.now::before{background:var(--accent);border-color:var(--accent)}
+.xp-when{font-family:var(--mono);font-size:.8rem;color:var(--fg2);line-height:1.5}
+.xp-when small{display:block;color:var(--fg3);font-size:.76rem;margin-top:4px}
+.xp-i h3{font-size:1.1rem;font-weight:600;letter-spacing:-.01em}
+.xp-co{color:var(--acc-txt);font-weight:500;font-size:.92rem;margin:2px 0 10px}
+.xp-i ul{padding-left:18px;color:var(--fg2);font-size:.94rem;display:flex;flex-direction:column;gap:5px;max-width:72ch}
+.hl{margin-top:16px;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:10px;padding:16px 18px;max-width:72ch}
+.hl-t{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-weight:600;font-size:.95rem;margin-bottom:6px}
+.hl p{color:var(--fg2);font-size:.9rem}
+.hl a{display:inline-block;margin-top:10px;font-weight:600;font-size:.88rem;color:var(--acc-txt);text-decoration:none}
+.hl a:hover{text-decoration:underline}
+.edu{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.edu .card .y{font-family:var(--mono);font-size:.78rem;color:var(--fg3)}
+.edu .card h3{font-size:1.02rem;font-weight:600;margin:6px 0 2px}
+.edu .card p{color:var(--fg2);font-size:.92rem}
 
-.pg{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:18px}
-.pc{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;transition:border-color .2s,transform .2s;min-width:0}
-.pc:hover{border-color:var(--accent);transform:translateY(-2px)}
-.pc-yr{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.gold{background:var(--gold-bg);color:var(--gold-fg);border-radius:4px;padding:1px 7px;font-size:.67rem;letter-spacing:.03em}
-.pc-title{font-family:var(--f-dis);font-weight:700;font-size:.97rem;margin-bottom:10px;line-height:1.35}
-.pc-desc{font-size:.855rem;color:var(--fg2);line-height:1.7}
+/* cards */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:24px;min-width:0}
+.pg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.pg .card{display:flex;flex-direction:column}
+.meta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.pg h3{font-size:1.02rem;font-weight:600;letter-spacing:-.01em;line-height:1.35;margin-bottom:8px}
+.pg p{color:var(--fg2);font-size:.9rem}
 
-/* GitHub */
-.gh{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.6fr);gap:18px;align-items:start}
-.gh-list{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
-.repo-h{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
-.vis{font-size:.66rem;letter-spacing:.06em;text-transform:uppercase;color:var(--fg2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;white-space:nowrap}
-.repo-m{font-family:ui-monospace,Menlo,Consolas,monospace}
-.gh-main{background:var(--fg);color:var(--bg);border-radius:14px;padding:30px;display:flex;flex-direction:column;justify-content:space-between;gap:24px;min-width:0}
-.gh-main .handle{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.85rem;opacity:.7}
-.gh-main h3{font-family:var(--f-dis);font-size:1.5rem;font-weight:800;letter-spacing:-.03em;line-height:1.2;margin-top:8px;text-wrap:balance}
-.gh-main p{font-size:.88rem;opacity:.75;line-height:1.7;margin-top:10px}
-.gh-main .btn{background:var(--accent);color:var(--accent-ink);align-self:flex-start}
-.gh-list{display:flex;flex-direction:column;gap:12px}
-.repo{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;text-decoration:none;display:block;transition:border-color .2s;min-width:0}
-.repo:hover{border-color:var(--accent)}
-.repo-n{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.88rem;font-weight:600;color:var(--accent);overflow-wrap:anywhere}
-.repo-d{font-size:.83rem;color:var(--fg2);margin-top:6px;line-height:1.6}
-.repo-m{display:flex;gap:14px;margin-top:10px;font-size:.73rem;color:var(--fg2)}
-.repo-m i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:0;font-style:normal}
+/* repos */
+.repos{border-top:1px solid var(--line)}
+.repo{display:grid;grid-template-columns:minmax(0,230px) minmax(0,1fr) auto;gap:8px 24px;padding:18px 0;border-bottom:1px solid var(--line);text-decoration:none;align-items:baseline}
+.repo code{font:600 .88rem/1.4 var(--mono);color:var(--acc-txt);overflow-wrap:anywhere}
+.repo .d{color:var(--fg2);font-size:.92rem}
+.repo .d small{display:block;font:400 .76rem/1.5 var(--mono);color:var(--fg3);margin-top:4px}
+a.repo:hover code{text-decoration:underline}
 
-.sg{margin-bottom:28px}
-.sg-title{font-family:var(--f-dis);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--fg2);font-weight:700;margin-bottom:12px}
-.tags{display:flex;flex-wrap:wrap;gap:8px}
-.tag{background:var(--tag-bg);color:var(--tag-fg);border-radius:6px;padding:5px 12px;font-size:.815rem;font-weight:500}
-.cg{display:grid;grid-template-columns:repeat(auto-fill,minmax(258px,1fr));gap:12px}
-.ci{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:15px 18px;display:flex;align-items:center;gap:14px}
-.ci-ic{width:36px;height:36px;border-radius:8px;background:var(--tag-bg);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0}
-.ci-n{font-weight:600;font-size:.84rem;line-height:1.3}
-.ci-i{font-size:.73rem;color:var(--fg2);margin-top:2px}
+/* skills & certs */
+.sk{border-top:1px solid var(--line)}
+.sk-r{display:grid;grid-template-columns:220px minmax(0,1fr);gap:8px 24px;padding:16px 0;border-bottom:1px solid var(--line);align-items:baseline}
+.sk-r b{font:500 .74rem/1.5 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--fg3)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips span{font-size:.86rem;border:1px solid var(--line);border-radius:6px;padding:3px 10px;color:var(--fg);background:var(--surface)}
+.ce{border-top:1px solid var(--line)}
+.ce-r{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 24px;padding:14px 0;border-bottom:1px dashed var(--line);align-items:baseline}
+.ce-r span:first-child{font-weight:500}
+.ce-r span:last-child{font-family:var(--mono);font-size:.8rem;color:var(--fg2);white-space:nowrap}
 
-.cg2{display:grid;grid-template-columns:1fr 1fr;gap:52px;align-items:start}
-.c-head{font-family:var(--f-dis);font-size:clamp(1.5rem,4vw,2.2rem);font-weight:800;letter-spacing:-.035em;margin-bottom:14px;line-height:1.2;text-wrap:balance}
-.c-sub{color:var(--fg2);font-size:.92rem;line-height:1.75;margin-bottom:28px;max-width:46ch}
-.citems{display:flex;flex-direction:column;gap:14px}
-.citem{display:flex;align-items:center;gap:14px;min-width:0}
-.citem-ic{width:40px;height:40px;border-radius:10px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
-.citem-t{min-width:0}
-.citem-t strong{display:block;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--fg2);margin-bottom:2px;font-weight:600}
-.citem-t span,.citem-t a{font-size:.9rem;overflow-wrap:anywhere;user-select:all;text-decoration:none}
-.citem-t a:hover{color:var(--accent)}
-footer{border-top:1px solid var(--border);padding:28px clamp(16px,5vw,48px);text-align:center;color:var(--fg2);font-size:.78rem}
+/* contact */
+.ct{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:48px;align-items:start}
+.ct-list{display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.ct-row{display:grid;grid-template-columns:120px minmax(0,1fr);gap:16px;padding:16px 0;border-bottom:1px solid var(--line);align-items:baseline}
+.ct-row b{font-family:var(--mono);font-size:.74rem;text-transform:uppercase;letter-spacing:.06em;color:var(--fg3);font-weight:500}
+.ct-row span,.ct-row a{overflow-wrap:anywhere;text-decoration:none;font-weight:500}
+.ct-row span.sel{user-select:all}
+.ct-row a:hover{color:var(--acc-txt)}
+footer{border-top:1px solid var(--line);padding-block:28px;color:var(--fg3);font-size:.82rem}
+footer .shell{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+footer a{text-decoration:none}footer a:hover{color:var(--acc-txt)}
 
-@media(max-width:760px){
-  .nav-links{display:none}
-  .tl-row{grid-template-columns:1fr}
-  .tl-date{text-align:left;padding-top:0;margin-bottom:6px}
-  .cg2,.gh{grid-template-columns:1fr;gap:28px}
-  .stats{gap:24px}
+@media(max-width:980px){
+  .links{display:none}
+  .pg{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .stats div:nth-child(3){padding-left:0;border-left:0}
+  .stats div:nth-child(n+3){border-top:1px solid var(--line);margin-top:22px}
 }
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.pc,.repo{transition:none}.pc:hover{transform:none}}
-
-.hero-in{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:56px;align-items:start;width:100%}
-.hero-photo{order:2;width:168px;height:168px;border-radius:50%;object-fit:cover;border:4px solid var(--surface);outline:2px solid var(--accent);outline-offset:4px;margin-top:40px}
-@media(max-width:760px){.hero-in{grid-template-columns:1fr;gap:28px}.hero-photo{order:-1;width:104px;height:104px;margin-top:0}}
+@media(max-width:760px){
+  .hero-g{grid-template-columns:1fr}
+  .photo{order:-1;width:112px;height:112px;border-radius:12px}
+  .xp-i{grid-template-columns:1fr;padding-left:22px}
+  .edu,.pg{grid-template-columns:1fr}
+  .repo{grid-template-columns:minmax(0,1fr) auto}
+  .repo .d{grid-column:1/-1}
+  .repo .tag{grid-row:1;grid-column:2}
+  .sk-r{grid-template-columns:1fr}
+  .ce-r{grid-template-columns:1fr}
+  .ct{grid-template-columns:1fr;gap:32px}
+  .ct-row{grid-template-columns:1fr;gap:2px}
+}
+@media(max-width:420px){
+  .stats{grid-template-columns:1fr}
+  .stats div,.stats div+div{padding:18px 0 0;border-left:0}
+  .stats div+div{border-top:1px solid var(--line);margin-top:18px}
+}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 </style>
 </head>
 <body>
 
 <nav>
-  <div class="nav-inner">
-    <a class="nav-logo" href="/">eTekno<span>.</span></a>
-    <div class="nav-right">
-      <ul class="nav-links">
-        <li><a href="#exp"><span class="tr">Deneyim</span><span class="en">Experience</span></a></li>
-        <li><a href="#proj"><span class="tr">Projeler</span><span class="en">Projects</span></a></li>
-        <li><a href="#github">GitHub</a></li>
-        <li><a href="#skills"><span class="tr">Yetenekler</span><span class="en">Skills</span></a></li>
+  <div class="shell nav-in">
+    <a class="logo" href="/"><span class="logo-mark"><i></i></span>eTekno <small>/ <span class="tr">kurucu</span><span class="en">founder</span></small></a>
+    <div class="nav-r">
+      <ul class="links">
+        <li><a href="#experience"><span class="tr">Deneyim</span><span class="en">Experience</span></a></li>
+        <li><a href="#projects"><span class="tr">Projeler</span><span class="en">Projects</span></a></li>
+        <li><a href="#code"><span class="tr">Kod</span><span class="en">Code</span></a></li>
+        <li><a href="#skills"><span class="tr">Yetkinlikler</span><span class="en">Skills</span></a></li>
         <li><a href="#contact"><span class="tr">İletişim</span><span class="en">Contact</span></a></li>
       </ul>
       <div class="lang" role="group" aria-label="Language">
-        <button type="button" data-set="tr" aria-pressed="true">TR</button>
-        <button type="button" data-set="en" aria-pressed="false">EN</button>
+        <button type="button" data-set="tr">TR</button>
+        <button type="button" data-set="en">EN</button>
       </div>
     </div>
   </div>
 </nav>
 
-<section id="hero">
-  <div class="hero-in">
-  <img class="hero-photo" src="data:image/jpeg;base64,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" alt="Emre Taşar" width="168" height="168">
-  <div>
-    <p class="hero-eyebrow"><span class="tr">Yazılım &amp; Robotik Mühendisi</span><span class="en">Software &amp; Robotics Engineer</span></p>
-    <h1 class="hero-name">Emre<br>Taşar<span class="dot">.</span></h1>
-    <p class="hero-sub">
-      <span class="tr">Elektrik-Elektronik Mühendisi &nbsp;·&nbsp; Mekatronik Yüksek Lisans Öğrencisi</span>
-      <span class="en">Electrical &amp; Electronics Engineer &nbsp;·&nbsp; M.Sc. Student in Mechatronics</span>
-    </p>
-    <p class="hero-bio">
-      <span class="tr">Otonom sistemler, robotik ve endüstriyel yazılım geliştirmede 6+ yıl deneyim. AMR, insansız hava araçları, dijital ikiz ve yapay zekâ tabanlı görüntü işleme projelerinde aktif rol. Şu an Sefine Denizcilik'te yazılım mühendisi, Kocaeli Üniversitesi'nde mekatronik yüksek lisans öğrencisi.</span>
-      <span class="en">6+ years of experience in autonomous systems, robotics and industrial software. Hands-on work on AMRs, UAVs, digital twins and AI-based computer vision. Currently a software engineer at Sefine Shipyard and an M.Sc. student in Mechatronics at Kocaeli University.</span>
-    </p>
-    <div class="hero-actions">
-      <a class="btn btn-p" href="#contact"><span class="tr">İletişime Geç</span><span class="en">Get in Touch</span></a>
-      <a class="btn btn-s" href="#proj"><span class="tr">Projeleri Gör</span><span class="en">View Projects</span></a>
-      <a class="btn btn-s" href="https://github.com/emretasar02" target="_blank" rel="noopener">GitHub ↗</a>
+<header class="hero" id="top">
+  <div class="shell">
+    <div class="hero-g">
+      <div>
+        <a class="badge" href="/"><i></i><span class="tr">eTekno kurucusu · Kocaeli, Türkiye</span><span class="en">Founder of eTekno · Kocaeli, Türkiye</span></a>
+        <h1>Emre Taşar</h1>
+        <p class="role"><span class="tr">Yazılım ve Robotik Mühendisi</span><span class="en">Software &amp; Robotics Engineer</span></p>
+        <p class="sub">
+          <span class="tr">Endüstriyel otomasyon, robotik ve görüntü işleme alanında 6+ yıl deneyim. PLC'li üretim hatlarında, robot kollarında ve otonom mobil robotlarda sahada çalıştı; şu an bir tersanede otomasyon ve Ar-Ge projelerinde görev alıyor. Bu saha deneyimini, endüstriyel KOBİ'ler için uç noktada yapay zekâ platformu eTekno'ya dönüştürüyor. Kocaeli Üniversitesi'nde Mekatronik Mühendisliği yüksek lisansı yapıyor.</span>
+          <span class="en">6+ years in industrial automation, robotics and computer vision. Hands-on field work with PLC-driven production lines, robot arms and autonomous mobile robots; currently works on automation and R&amp;D projects at a shipyard. Now turning that field experience into eTekno, an edge-AI platform for industrial SMEs. M.Sc. student in Mechatronics Engineering at Kocaeli University.</span>
+        </p>
+        <div class="btns">
+          <a class="btn btn-p" href="/"><span class="tr">eTekno'yu inceleyin</span><span class="en">See eTekno</span></a>
+          <a class="btn btn-s" href="#contact"><span class="tr">İletişim</span><span class="en">Contact</span></a>
+          <a class="btn btn-s" href="https://github.com/emretasar02" target="_blank" rel="noopener">GitHub ↗</a>
+        </div>
+      </div>
+      <img class="photo" src="data:image/jpeg;base64,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" alt="Emre Taşar" width="176" height="176">
     </div>
     <div class="stats">
-      <div><div class="stat-n">6<em>+</em></div><div class="stat-l"><span class="tr">Yıl Deneyim</span><span class="en">Years Experience</span></div></div>
-      <div><div class="stat-n">4</div><div class="stat-l"><span class="tr">TEKNOFEST Projesi</span><span class="en">TEKNOFEST Projects</span></div></div>
-      <div><div class="stat-n">5</div><div class="stat-l"><span class="tr">UR Sertifikası</span><span class="en">UR Certificates</span></div></div>
-      <div><div class="stat-n">🥇</div><div class="stat-l">Robotik Fetih 1453</div></div>
+      <div><div class="v">6+</div><p class="l"><span class="tr">Yıl otomasyon, robotik ve görüntü işleme</span><span class="en">Years in automation, robotics and computer vision</span></p></div>
+      <div><div class="v">5×</div><p class="l"><span class="tr">Universal Robots sertifikası</span><span class="en">Universal Robots certifications</span></p></div>
+      <div><div class="v">4</div><p class="l"><span class="tr">TEKNOFEST projesi</span><span class="en">TEKNOFEST projects</span></p></div>
+      <div><div class="v"><span class="tr">1.lik</span><span class="en">1st</span></div><p class="l"><span class="tr">TEKNOFEST Robotik Fetih 1453 (2019)</span><span class="en">TEKNOFEST Robotik Fetih 1453 (2019)</span></p></div>
     </div>
   </div>
-  </div>
-</section>
+</header>
 
-<hr class="div">
-
-<section id="exp">
-  <div class="wrap">
-    <p class="label"><span class="tr">Kariyer</span><span class="en">Career</span></p>
-    <h2 class="h2"><span class="tr">İş Deneyimleri</span><span class="en">Work Experience</span></h2>
-    <div class="tl">
-      <div class="tl-row">
-        <div class="tl-date"><span class="tr">Nis 2025 — Halen</span><span class="en">Apr 2025 — Present</span></div>
-        <div class="tl-body">
-          <div class="tl-role"><span class="tr">Yazılım Mühendisi</span><span class="en">Software Engineer</span></div>
-          <div class="tl-co">Sefine Denizcilik Tersanecilik · Yalova</div>
-          <p class="tl-desc">
-            <span class="tr">Siemens ve Delta PLC altyapıları, Fanuc ve Yaskawa robot kollarıyla karmaşık otomasyon projeleri. AR-GE yönetimi, test ve kalite güvence süreçleri.</span>
-            <span class="en">Complex automation projects with Siemens &amp; Delta PLC infrastructure and Fanuc / Yaskawa robot arms. R&amp;D management, testing and quality assurance.</span>
-          </p>
-        </div>
-      </div>
-      <div class="tl-row">
-        <div class="tl-date"><span class="tr">Eyl 2023 — Nis 2025</span><span class="en">Sep 2023 — Apr 2025</span></div>
-        <div class="tl-body">
-          <div class="tl-role"><span class="tr">Yazılım Geliştirme Mühendisi</span><span class="en">Software Development Engineer</span></div>
-          <div class="tl-co">Metarob · Bursa</div>
-          <p class="tl-desc">
-            <span class="tr">Dijital ikiz, YZ tabanlı görüntü işleme, otonom mobil robot ve metal 3D yazıcı çözümleri. Endüstri 4.0 odaklı fabrika otomasyon sistemleri.</span>
-            <span class="en">Digital twin, AI-based computer vision, autonomous mobile robot and metal 3D printer solutions. Industry 4.0 factory automation systems.</span>
-          </p>
-        </div>
-      </div>
-      <div class="tl-row">
-        <div class="tl-date"><span class="tr">Eyl 2022 — Eyl 2023</span><span class="en">Sep 2022 — Sep 2023</span></div>
-        <div class="tl-body">
-          <div class="tl-role"><span class="tr">Araştırma Geliştirme Mühendisi</span><span class="en">R&amp;D Engineer</span></div>
-          <div class="tl-co">Epik Robotik</div>
-          <p class="tl-desc">
-            <span class="tr">AMR, servis robotu ve otonom transpalet üretimi. ROS, Python ve görüntü işleme; derinlik sensörleriyle alan tarama, konumlandırma ve görevlendirme.</span>
-            <span class="en">Built AMRs, service robots and autonomous pallet trucks. ROS, Python and computer vision; area mapping, localization and task assignment with depth sensors.</span>
-          </p>
-        </div>
-      </div>
-      <div class="tl-row">
-        <div class="tl-date"><span class="tr">Eyl 2021 — Eyl 2023</span><span class="en">Sep 2021 — Sep 2023</span></div>
-        <div class="tl-body">
-          <div class="tl-role"><span class="tr">Yazılım Geliştirme Eğitmeni</span><span class="en">Software Development Instructor</span></div>
-          <div class="tl-co"><span class="tr">Deneyap · Gaziantep (Yarı Zamanlı)</span><span class="en">Deneyap · Gaziantep (Part-time)</span></div>
-          <p class="tl-desc">
-            <span class="tr">Türkiye Teknoloji Takımları bünyesinde lise ve ortaöğretim öğrencilerine robotik kodlama ve elektronik tasarım eğitimi.</span>
-            <span class="en">Taught robotics programming and electronic design to secondary and high-school students within the Turkey Technology Teams program.</span>
-          </p>
-        </div>
-      </div>
-      <div class="tl-row">
-        <div class="tl-date"><span class="tr">Eki 2018 — Haz 2022</span><span class="en">Oct 2018 — Jun 2022</span></div>
-        <div class="tl-body">
-          <div class="tl-role"><span class="tr">Elektrik-Elektronik Mühendisi</span><span class="en">Electrical &amp; Electronics Engineer</span></div>
-          <div class="tl-co"><span class="tr">ORET · Gaziantep (Gönüllü)</span><span class="en">ORET · Gaziantep (Volunteer)</span></div>
-          <p class="tl-desc">
-            <span class="tr">Elektrikli araç, İHA, Robotaksi ve robot ekipleri. Arduino otonom araç, Pixy kamera görüntü işleme, Pixhawk uçuş kontrol, Xbee telemetri sistemleri.</span>
-            <span class="en">Electric vehicle, UAV, Robotaxi and robotics teams. Arduino autonomous vehicle, Pixy camera vision, Pixhawk flight control, Xbee telemetry.</span>
-          </p>
-        </div>
-      </div>
+<section id="experience" class="band">
+  <div class="shell">
+    <div class="sec-head">
+      <p class="kicker">01 <b>/</b> <span class="tr">Deneyim</span><span class="en">Experience</span></p>
+      <h2 class="h2"><span class="tr">Üretim hattından robotiğe, sahada geçen yıllar.</span><span class="en">Years on the floor, from production lines to robotics.</span></h2>
     </div>
-
-    <div class="edu">
-      <div class="edu-c">
-        <div class="edu-y">2025 — <span class="tr">Halen</span><span class="en">Present</span></div>
-        <div class="edu-t"><span class="tr">Mekatronik Mühendisliği, Yüksek Lisans</span><span class="en">M.Sc. Mechatronics Engineering</span></div>
-        <div class="edu-s"><span class="tr">Kocaeli Üniversitesi</span><span class="en">Kocaeli University</span></div>
-      </div>
-      <div class="edu-c">
-        <div class="edu-y">2017 — 2022</div>
-        <div class="edu-t"><span class="tr">Elektrik-Elektronik Mühendisliği, Lisans</span><span class="en">B.Sc. Electrical &amp; Electronics Engineering</span></div>
-        <div class="edu-s"><span class="tr">Gaziantep Üniversitesi</span><span class="en">Gaziantep University</span></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<hr class="div">
-
-<section id="proj">
-  <div class="wrap">
-    <p class="label"><span class="tr">Çalışmalar</span><span class="en">Work</span></p>
-    <h2 class="h2"><span class="tr">Öne Çıkan Projeler</span><span class="en">Featured Projects</span></h2>
-    <div class="pg">
-      <div class="pc">
-        <div class="pc-yr">2019 · TEKNOFEST <span class="gold">🥇 <span class="tr">Birincilik</span><span class="en">1st Place</span></span></div>
-        <div class="pc-title">Robotik Fetih 1453</div>
-        <p class="pc-desc">
-          <span class="tr">Arduino ve Pixy kamera ile görüntü işleme tabanlı otonom araç tasarımı ve yazılımı. Ulusal yarışmada birinci.</span>
-          <span class="en">Vision-based autonomous vehicle built with Arduino and a Pixy camera. Won first place nationally.</span>
-        </p>
-      </div>
-      <div class="pc">
-        <div class="pc-yr">2021 · TEKNOFEST</div>
-        <div class="pc-title"><span class="tr">İnsansız Hava Araçları — Serbest Kategori</span><span class="en">Unmanned Aerial Vehicles — Open Category</span></div>
-        <p class="pc-desc">
-          <span class="tr">Sürü otonom İHA sistemi; Raspberry Pi ile hedef tespiti ve takibi, Pixhawk UART haberleşme, Xbee telemetri ağı.</span>
-          <span class="en">Autonomous UAV swarm; target detection and tracking on Raspberry Pi, Pixhawk UART communication, Xbee telemetry network.</span>
-        </p>
-      </div>
-      <div class="pc">
-        <div class="pc-yr">2021 · TEKNOFEST</div>
-        <div class="pc-title"><span class="tr">Robotaksi — Binek Otonom Araç</span><span class="en">Robotaxi — Autonomous Passenger Car</span></div>
-        <p class="pc-desc">
-          <span class="tr">Xbee telemetri, otomasyon ve görüntü işleme teknolojileriyle binek otonom araç geliştirme.</span>
-          <span class="en">Autonomous passenger vehicle development using Xbee telemetry, automation and computer vision.</span>
-        </p>
-      </div>
-      <div class="pc">
-        <div class="pc-yr">2021 · <span class="tr">Lisans Bitirme</span><span class="en">B.Sc. Thesis</span></div>
-        <div class="pc-title">Fire Detection &amp; Extinguishing by UAV</div>
-        <p class="pc-desc">
-          <span class="tr">Döner kanat İHA ile OpenCV tabanlı yangın tespiti ve söndürme sistemi. Gaziantep Üniversitesi bitirme projesi.</span>
-          <span class="en">OpenCV-based fire detection and extinguishing with a rotary-wing UAV. Graduation project at Gaziantep University.</span>
-        </p>
-      </div>
-      <div class="pc">
-        <div class="pc-yr">2023 · <span class="tr">ODTÜ</span><span class="en">METU</span></div>
-        <div class="pc-title">VTOL 2023</div>
-        <p class="pc-desc">
-          <span class="tr">Dikey iniş-kalkış aracı (VTOL) projesi — ODTÜ tarafından düzenlenen ulusal yarışmaya katılım.</span>
-          <span class="en">Vertical take-off and landing (VTOL) aircraft project for the national competition organized by METU.</span>
-        </p>
-      </div>
-      <div class="pc">
-        <div class="pc-yr"><span class="tr">Devam Ediyor · YL Tezi</span><span class="en">Ongoing · M.Sc. Thesis</span></div>
-        <div class="pc-title"><span class="tr">Robotik Sistemlerde Rota Bulma</span><span class="en">Path Planning for Robotic Systems</span></div>
-        <p class="pc-desc">
-          <span class="tr">Kocaeli Üniversitesi Mekatronik YL kapsamında rota planlama algoritmaları üzerine akademik çalışma.</span>
-          <span class="en">Academic research on path-planning algorithms within the Mechatronics M.Sc. at Kocaeli University.</span>
-        </p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<hr class="div">
-
-<section id="github">
-  <div class="wrap">
-    <p class="label"><span class="tr">Açık Kaynak</span><span class="en">Open Source</span></p>
-    <h2 class="h2"><span class="tr">GitHub Projeleri</span><span class="en">GitHub Projects</span></h2>
-    <div class="gh">
-      <div class="gh-main">
+    <div class="xp">
+      <div class="xp-i now">
+        <div class="xp-when"><span class="tr">Nis 2025 — Halen</span><span class="en">Apr 2025 — Present</span><small>Yalova</small></div>
         <div>
-          <div class="handle">github.com/emretasar02</div>
-          <h3><span class="tr">Kod, robotik ve otomasyon denemeleri</span><span class="en">Code, robotics and automation experiments</span></h3>
-          <p>
-            <span class="tr">Robotik, ROS 2, MAVLink ve görüntü işleme projelerim. Çoğu iş ve araştırma projesi olduğu için özel (private); bu sitenin kodu ve bazı paketler herkese açık.</span>
-            <span class="en">My robotics, ROS 2, MAVLink and computer-vision projects. Most are work or research projects and therefore private; this site's code and some packages are public.</span>
-          </p>
+          <h3><span class="tr">Yazılım Mühendisi</span><span class="en">Software Engineer</span></h3>
+          <p class="xp-co">Sefine Denizcilik Tersanecilik</p>
+          <ul>
+            <li><span class="tr">Siemens ve Delta PLC altyapıları ile Fanuc ve Yaskawa robot kollarını içeren otomasyon projeleri.</span><span class="en">Automation projects spanning Siemens and Delta PLC infrastructure and Fanuc and Yaskawa robot arms.</span></li>
+            <li><span class="tr">Ar-Ge yönetimi, test ve kalite güvence süreçleri.</span><span class="en">R&amp;D management, testing and quality assurance.</span></li>
+          </ul>
+          <div class="hl">
+            <p class="hl-t"><span class="tag field"><span class="tr">Saha çalışması</span><span class="en">Field work</span></span><span class="tr">Robotik kaynak hattının saha testleri</span><span class="en">Field tests of a robotic welding line</span></p>
+            <p><span class="tr">Yarı otonom robotik profil puntalama hattının saha testlerini yürüttü: PLC'ye bağlı Raspberry Pi ile gerçek zamanlı üretim kaydı, enerji analizörüyle faz bazlı enerji ölçümü ve kamera kaydıyla güvenlik ve olay incelemesi.</span><span class="en">Led the field tests of a semi-autonomous robotic tack-welding line for steel profiles: real-time production logging with a Raspberry Pi connected to the PLC, per-phase energy measurement with an energy analyzer, and camera footage for safety and incident review.</span></p>
+            <a href="/#field"><span class="tr">Saha çalışması ve eTekno'ya etkisi →</span><span class="en">Field work and how it shaped eTekno →</span></a>
+          </div>
         </div>
-        <a class="btn" href="https://github.com/emretasar02" target="_blank" rel="noopener"><span class="tr">Profili Aç ↗</span><span class="en">Open Profile ↗</span></a>
       </div>
-      <div class="gh-list">
-        <div class="repo">
-          <div class="repo-h"><span class="repo-n">mavlink-yer-istasyonu</span><span class="vis"><span class="tr">Özel repo</span><span class="en">Private repo</span></span></div>
-          <div class="repo-d"><span class="tr">QGroundControl benzeri MAVLink yer istasyonu ve ArduPilot Rover için eğime duyarlı görev planlayıcı. GeoTIFF/RTK arazi haritası, toolbox gerektirmeyen MAVLink v2, SITL ile görev yükleme. MATLAB çekirdeğinde 126, ROS 2 paketinde 49 test var.</span><span class="en">QGroundControl-style MAVLink ground station and slope-aware mission planner for ArduPilot Rover. GeoTIFF/RTK terrain maps, toolbox-free MAVLink v2, mission upload to SITL. 126 tests in the MATLAB core, 49 in the ROS 2 package.</span></div>
-          <div class="repo-m">MATLAB · Python · ROS 2</div>
+      <div class="xp-i">
+        <div class="xp-when"><span class="tr">Eyl 2023 — Nis 2025</span><span class="en">Sep 2023 — Apr 2025</span><small>Bursa</small></div>
+        <div>
+          <h3><span class="tr">Yazılım Geliştirme Mühendisi</span><span class="en">Software Development Engineer</span></h3>
+          <p class="xp-co">Metarob</p>
+          <ul>
+            <li><span class="tr">Endüstri 4.0 odaklı fabrika otomasyon sistemleri ve dijital ikiz çözümleri.</span><span class="en">Industry 4.0 factory automation systems and digital-twin solutions.</span></li>
+            <li><span class="tr">Yapay zekâ tabanlı görüntü işleme ve otonom mobil robot projeleri.</span><span class="en">AI-based computer vision and autonomous mobile robot projects.</span></li>
+            <li><span class="tr">Metal 3D yazıcı çözümleri.</span><span class="en">Metal 3D printer solutions.</span></li>
+          </ul>
         </div>
-        <div class="repo">
-          <div class="repo-h"><span class="repo-n">yaskawa_moveit2</span><span class="vis"><span class="tr">Özel repo</span><span class="en">Private repo</span></span></div>
-          <div class="repo-d"><span class="tr">Yaskawa robot kolu için MoveIt 2 hareket planlama entegrasyonu.</span><span class="en">MoveIt 2 motion-planning integration for a Yaskawa robot arm.</span></div>
-          <div class="repo-m">Python · ROS 2</div>
-        </div>
-        <a class="repo" href="https://github.com/emretasar02/Ar_Tag_Docking" target="_blank" rel="noopener">
-          <div class="repo-h"><span class="repo-n">Ar_Tag_Docking</span><span class="vis">Public ↗</span></div>
-          <div class="repo-d"><span class="tr">AR etiketleriyle mobil robotun şarj/istasyona otonom yanaşması (docking).</span><span class="en">Autonomous docking of a mobile robot using AR tags.</span></div>
-          <div class="repo-m">ROS</div>
-        </a>
-        <div class="repo">
-          <div class="repo-h"><span class="repo-n">Realsense_DepthCloud</span><span class="vis"><span class="tr">Özel repo</span><span class="en">Private repo</span></span></div>
-          <div class="repo-d"><span class="tr">Intel RealSense derinlik kamerasından nokta bulutu üretimi.</span><span class="en">Point-cloud generation from an Intel RealSense depth camera.</span></div>
-          <div class="repo-m">RealSense</div>
-        </div>
-        <a class="repo" href="https://github.com/emretasar02/Kartvizit" target="_blank" rel="noopener">
-          <div class="repo-h"><span class="repo-n">Kartvizit</span><span class="vis">Public ↗</span></div>
-          <div class="repo-d"><span class="tr">Bu sitenin kaynak kodu; GitHub ve Cloudflare ile otomatik yayın.</span><span class="en">Source of this website; auto-deployed via GitHub and Cloudflare.</span></div>
-          <div class="repo-m">HTML · Cloudflare</div>
-        </a>
       </div>
+      <div class="xp-i">
+        <div class="xp-when"><span class="tr">Eyl 2022 — Eyl 2023</span><span class="en">Sep 2022 — Sep 2023</span></div>
+        <div>
+          <h3><span class="tr">Ar-Ge Mühendisi</span><span class="en">R&amp;D Engineer</span></h3>
+          <p class="xp-co">Epik Robotik</p>
+          <ul>
+            <li><span class="tr">Otonom mobil robot (AMR), servis robotu ve otonom transpalet geliştirme.</span><span class="en">Built autonomous mobile robots (AMRs), service robots and autonomous pallet trucks.</span></li>
+            <li><span class="tr">ROS, Python ve görüntü işleme ile derinlik sensörü tabanlı alan tarama, konumlandırma ve görev atama.</span><span class="en">Depth-sensor mapping, localization and task assignment with ROS, Python and computer vision.</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="xp-i">
+        <div class="xp-when"><span class="tr">Eyl 2021 — Eyl 2023</span><span class="en">Sep 2021 — Sep 2023</span><small><span class="tr">Gaziantep · yarı zamanlı</span><span class="en">Gaziantep · part-time</span></small></div>
+        <div>
+          <h3><span class="tr">Yazılım Geliştirme Eğitmeni</span><span class="en">Software Development Instructor</span></h3>
+          <p class="xp-co">Deneyap</p>
+          <ul>
+            <li><span class="tr">Türkiye Teknoloji Takımları programında ortaöğretim ve lise öğrencilerine robotik kodlama ve elektronik tasarım eğitimi.</span><span class="en">Taught robotics programming and electronic design to secondary and high-school students in the Türkiye Technology Teams program.</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="xp-i">
+        <div class="xp-when"><span class="tr">Eki 2018 — Haz 2022</span><span class="en">Oct 2018 — Jun 2022</span><small><span class="tr">Gaziantep · gönüllü</span><span class="en">Gaziantep · volunteer</span></small></div>
+        <div>
+          <h3><span class="tr">Elektrik-Elektronik Mühendisi</span><span class="en">Electrical &amp; Electronics Engineer</span></h3>
+          <p class="xp-co">ORET</p>
+          <ul>
+            <li><span class="tr">Elektrikli araç, İHA, robotaksi ve robot takımlarında elektronik ve yazılım.</span><span class="en">Electronics and software for electric-vehicle, UAV, robotaxi and robotics teams.</span></li>
+            <li><span class="tr">Arduino ile otonom araç, Pixy kamera ile görüntü işleme, Pixhawk uçuş kontrolü, Xbee telemetri.</span><span class="en">Arduino autonomous vehicle, Pixy camera vision, Pixhawk flight control, Xbee telemetry.</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="h3s mt"><span class="tr">Eğitim</span><span class="en">Education</span></h3>
+    <div class="edu">
+      <div class="card"><p class="y">2025 — <span class="tr">Halen</span><span class="en">Present</span></p><h3><span class="tr">Mekatronik Mühendisliği, Yüksek Lisans</span><span class="en">M.Sc. Mechatronics Engineering</span></h3><p><span class="tr">Kocaeli Üniversitesi · tez: robotik sistemlerde rota planlama</span><span class="en">Kocaeli University · thesis: path planning for robotic systems</span></p></div>
+      <div class="card"><p class="y">2017 — 2022</p><h3><span class="tr">Elektrik-Elektronik Mühendisliği, Lisans</span><span class="en">B.Sc. Electrical &amp; Electronics Engineering</span></h3><p><span class="tr">Gaziantep Üniversitesi</span><span class="en">Gaziantep University</span></p></div>
     </div>
   </div>
 </section>
 
-<hr class="div">
+<section id="projects">
+  <div class="shell">
+    <div class="sec-head">
+      <p class="kicker">02 <b>/</b> <span class="tr">Projeler</span><span class="en">Projects</span></p>
+      <h2 class="h2"><span class="tr">Yarışmalar ve akademik çalışmalar.</span><span class="en">Competitions and academic work.</span></h2>
+    </div>
+    <div class="pg">
+      <article class="card">
+        <div class="meta"><span class="tag plain">2019 · TEKNOFEST</span><span class="tag gold"><span class="tr">Birincilik</span><span class="en">1st place</span></span></div>
+        <h3>Robotik Fetih 1453</h3>
+        <p><span class="tr">Arduino ve Pixy kamera ile görüntü işleme tabanlı otonom araç; tasarım ve yazılım. Ulusal yarışmada birincilik.</span><span class="en">Vision-based autonomous vehicle built with Arduino and a Pixy camera, covering both design and software. First place nationally.</span></p>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="tag plain">2021 · TEKNOFEST</span></div>
+        <h3><span class="tr">İnsansız Hava Araçları — Serbest Kategori</span><span class="en">Unmanned Aerial Vehicles — Open Category</span></h3>
+        <p><span class="tr">Sürü halinde otonom İHA sistemi: Raspberry Pi üzerinde hedef tespiti ve takibi, Pixhawk ile UART haberleşmesi, Xbee telemetri ağı.</span><span class="en">Autonomous UAV swarm: target detection and tracking on a Raspberry Pi, UART communication with Pixhawk, and an Xbee telemetry network.</span></p>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="tag plain">2021 · TEKNOFEST</span></div>
+        <h3><span class="tr">Robotaksi — Binek Otonom Araç</span><span class="en">Robotaxi — Autonomous Passenger Car</span></h3>
+        <p><span class="tr">Xbee telemetri, otomasyon ve görüntü işleme ile binek otonom araç geliştirme.</span><span class="en">Autonomous passenger vehicle development using Xbee telemetry, automation and computer vision.</span></p>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="tag plain">2021 · <span class="tr">Lisans bitirme</span><span class="en">B.Sc. thesis</span></span></div>
+        <h3><span class="tr">İHA ile Yangın Tespiti ve Söndürme</span><span class="en">Fire Detection &amp; Extinguishing by UAV</span></h3>
+        <p><span class="tr">Döner kanatlı İHA ile OpenCV tabanlı yangın tespiti ve söndürme sistemi. Gaziantep Üniversitesi bitirme projesi.</span><span class="en">OpenCV-based fire detection and extinguishing with a rotary-wing UAV. Graduation project at Gaziantep University.</span></p>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="tag plain">2023 · <span class="tr">ODTÜ</span><span class="en">METU</span></span></div>
+        <h3>VTOL 2023</h3>
+        <p><span class="tr">Dikey iniş-kalkış yapabilen araç (VTOL) projesi; ODTÜ'nün düzenlediği ulusal yarışmaya katılım.</span><span class="en">Vertical take-off and landing (VTOL) aircraft for the national competition organized by METU.</span></p>
+      </article>
+      <article class="card">
+        <div class="meta"><span class="tag field"><span class="tr">Devam ediyor · YL tezi</span><span class="en">Ongoing · M.Sc. thesis</span></span></div>
+        <h3><span class="tr">Robotik Sistemlerde Rota Planlama</span><span class="en">Path Planning for Robotic Systems</span></h3>
+        <p><span class="tr">Kocaeli Üniversitesi Mekatronik Mühendisliği yüksek lisansı kapsamında rota planlama algoritmaları üzerine akademik çalışma.</span><span class="en">Academic research on path-planning algorithms within the Mechatronics Engineering M.Sc. at Kocaeli University.</span></p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section id="code" class="band">
+  <div class="shell">
+    <div class="sec-head">
+      <p class="kicker">03 <b>/</b> <span class="tr">Kod</span><span class="en">Code</span></p>
+      <h2 class="h2"><span class="tr">GitHub'daki çalışmalar.</span><span class="en">Work on GitHub.</span></h2>
+      <p class="lede"><span class="tr">Robotik, ROS 2, MAVLink ve görüntü işleme çalışmaları. İş ve araştırma projelerinin çoğu özel repoda; herkese açık olanlara bağlantı verildi.</span><span class="en">Robotics, ROS 2, MAVLink and computer-vision work. Most work and research projects live in private repositories; public ones are linked.</span></p>
+    </div>
+    <div class="repos">
+      <div class="repo">
+        <code>mavlink-yer-istasyonu</code>
+        <p class="d"><span class="tr">QGroundControl benzeri MAVLink yer istasyonu ve ArduPilot Rover için eğime duyarlı görev planlayıcı. GeoTIFF/RTK arazi haritası, araç kutusu gerektirmeyen MAVLink v2, SITL ile görev yükleme. MATLAB çekirdeğinde 126, ROS 2 paketinde 49 test.</span><span class="en">QGroundControl-style MAVLink ground station and slope-aware mission planner for ArduPilot Rover. GeoTIFF/RTK terrain maps, toolbox-free MAVLink v2, mission upload to SITL. 126 tests in the MATLAB core, 49 in the ROS 2 package.</span><small>MATLAB · Python · ROS 2</small></p>
+        <span class="tag plain"><span class="tr">Özel repo</span><span class="en">Private</span></span>
+      </div>
+      <div class="repo">
+        <code>yaskawa_moveit2</code>
+        <p class="d"><span class="tr">Yaskawa robot kolu için MoveIt 2 hareket planlama entegrasyonu.</span><span class="en">MoveIt 2 motion-planning integration for a Yaskawa robot arm.</span><small>Python · ROS 2</small></p>
+        <span class="tag plain"><span class="tr">Özel repo</span><span class="en">Private</span></span>
+      </div>
+      <a class="repo" href="https://github.com/emretasar02/Ar_Tag_Docking" target="_blank" rel="noopener">
+        <code>Ar_Tag_Docking</code>
+        <p class="d"><span class="tr">AR etiketleriyle mobil robotun şarj istasyonuna otonom yanaşması.</span><span class="en">Autonomous docking of a mobile robot to its charging station using AR tags.</span><small>ROS</small></p>
+        <span class="tag field"><span class="tr">Açık ↗</span><span class="en">Public ↗</span></span>
+      </a>
+      <div class="repo">
+        <code>Realsense_DepthCloud</code>
+        <p class="d"><span class="tr">Intel RealSense derinlik kamerasından nokta bulutu üretimi.</span><span class="en">Point-cloud generation from an Intel RealSense depth camera.</span><small>RealSense</small></p>
+        <span class="tag plain"><span class="tr">Özel repo</span><span class="en">Private</span></span>
+      </div>
+      <a class="repo" href="https://github.com/emretasar02/Kartvizit" target="_blank" rel="noopener">
+        <code>Kartvizit</code>
+        <p class="d"><span class="tr">eTekno sitesinin kaynak kodu; GitHub ve Cloudflare ile otomatik yayın.</span><span class="en">Source of the eTekno website; auto-deployed via GitHub and Cloudflare.</span><small>HTML · Cloudflare Workers</small></p>
+        <span class="tag field"><span class="tr">Açık ↗</span><span class="en">Public ↗</span></span>
+      </a>
+    </div>
+  </div>
+</section>
 
 <section id="skills">
-  <div class="wrap">
-    <p class="label"><span class="tr">Yetkinlikler</span><span class="en">Expertise</span></p>
-    <h2 class="h2"><span class="tr">Yetenekler &amp; Teknolojiler</span><span class="en">Skills &amp; Technologies</span></h2>
-    <div class="sg">
-      <div class="sg-title"><span class="tr">Programlama &amp; Yazılım</span><span class="en">Programming &amp; Software</span></div>
-      <div class="tags">
-        <span class="tag">Python</span><span class="tag">C++</span><span class="tag">ROS / ROS2</span><span class="tag">Linux</span><span class="tag">OpenCV</span>
-        <span class="tag"><span class="tr">Algoritma Tasarımı</span><span class="en">Algorithm Design</span></span>
-      </div>
+  <div class="shell">
+    <div class="sec-head">
+      <p class="kicker">04 <b>/</b> <span class="tr">Yetkinlikler</span><span class="en">Skills</span></p>
+      <h2 class="h2"><span class="tr">Teknik yetkinlikler ve sertifikalar.</span><span class="en">Technical skills and certifications.</span></h2>
     </div>
-    <div class="sg">
-      <div class="sg-title"><span class="tr">Robotik &amp; Otomasyon</span><span class="en">Robotics &amp; Automation</span></div>
-      <div class="tags">
-        <span class="tag">AMR</span><span class="tag">PLC Siemens S7</span><span class="tag">Delta PLC</span><span class="tag">Fanuc</span><span class="tag">Yaskawa</span>
-        <span class="tag">Universal Robots</span><span class="tag">Pixhawk</span><span class="tag">Raspberry Pi</span><span class="tag">Arduino</span>
-      </div>
-    </div>
-    <div class="sg">
-      <div class="sg-title"><span class="tr">Yapay Zekâ &amp; Görüntü İşleme</span><span class="en">AI &amp; Computer Vision</span></div>
-      <div class="tags">
-        <span class="tag"><span class="tr">Görüntü İşleme</span><span class="en">Computer Vision</span></span>
-        <span class="tag"><span class="tr">Yapay Zekâ</span><span class="en">Artificial Intelligence</span></span>
-        <span class="tag"><span class="tr">Dijital İkiz</span><span class="en">Digital Twin</span></span>
-        <span class="tag"><span class="tr">Hedef Tespiti</span><span class="en">Object Detection</span></span>
-        <span class="tag"><span class="tr">Derinlik Sensörleri</span><span class="en">Depth Sensors</span></span>
-      </div>
-    </div>
-    <div class="sg">
-      <div class="sg-title"><span class="tr">Haberleşme &amp; Liderlik</span><span class="en">Communication &amp; Leadership</span></div>
-      <div class="tags">
-        <span class="tag">Xbee</span><span class="tag">UART</span>
-        <span class="tag"><span class="tr">Otonom Sürü Sistemleri</span><span class="en">Autonomous Swarms</span></span>
-        <span class="tag"><span class="tr">Kalite Kontrol</span><span class="en">Quality Control</span></span>
-        <span class="tag"><span class="tr">Takım Liderliği</span><span class="en">Team Leadership</span></span>
-      </div>
+    <div class="sk">
+      <div class="sk-r"><b><span class="tr">Endüstriyel otomasyon</span><span class="en">Industrial automation</span></b><div class="chips"><span>Siemens S7 PLC</span><span>Delta PLC</span><span>Raspberry Pi</span><span>Arduino</span></div></div>
+      <div class="sk-r"><b><span class="tr">Robotik</span><span class="en">Robotics</span></b><div class="chips"><span>Fanuc</span><span>Yaskawa</span><span>Universal Robots</span><span>AMR</span><span>ROS / ROS 2</span><span>MoveIt 2</span><span>Pixhawk</span></div></div>
+      <div class="sk-r"><b><span class="tr">Yazılım</span><span class="en">Software</span></b><div class="chips"><span>Python</span><span>C++</span><span>MATLAB</span><span>Linux</span></div></div>
+      <div class="sk-r"><b><span class="tr">Görüntü işleme ve YZ</span><span class="en">Vision &amp; AI</span></b><div class="chips"><span>OpenCV</span><span><span class="tr">Hedef tespiti</span><span class="en">Object detection</span></span><span><span class="tr">Derinlik sensörleri</span><span class="en">Depth sensors</span></span><span><span class="tr">Dijital ikiz</span><span class="en">Digital twin</span></span></div></div>
+      <div class="sk-r"><b><span class="tr">Haberleşme</span><span class="en">Communication</span></b><div class="chips"><span>MAVLink</span><span>Xbee</span><span>UART</span><span><span class="tr">Otonom sürü sistemleri</span><span class="en">Autonomous swarms</span></span></div></div>
+      <div class="sk-r"><b><span class="tr">Süreç</span><span class="en">Process</span></b><div class="chips"><span><span class="tr">Ar-Ge yönetimi</span><span class="en">R&amp;D management</span></span><span><span class="tr">Test ve kalite güvence</span><span class="en">Testing &amp; QA</span></span><span><span class="tr">Takım liderliği</span><span class="en">Team leadership</span></span></div></div>
     </div>
 
-    <p class="label" style="margin-top:52px;margin-bottom:18px"><span class="tr">Sertifikalar</span><span class="en">Certifications</span></p>
-    <div class="cg">
-      <div class="ci"><div class="ci-ic">🤖</div><div><div class="ci-n">e-Series Core Track</div><div class="ci-i">Universal Robots · <span class="tr">Mart</span><span class="en">Mar</span> 2024</div></div></div>
-      <div class="ci"><div class="ci-ic">⚙️</div><div><div class="ci-n">e-Series Pro Track</div><div class="ci-i">Universal Robots · <span class="tr">Mart</span><span class="en">Mar</span> 2024</div></div></div>
-      <div class="ci"><div class="ci-ic">📋</div><div><div class="ci-n">CB3 e-Learning &amp; Risk Assessment</div><div class="ci-i">Universal Robots · <span class="tr">Mart</span><span class="en">Mar</span> 2024</div></div></div>
-      <div class="ci"><div class="ci-ic">🛠️</div><div><div class="ci-n">e-Series Application Track</div><div class="ci-i">Universal Robots · <span class="tr">Mart</span><span class="en">Mar</span> 2024</div></div></div>
-      <div class="ci"><div class="ci-ic">✈️</div><div><div class="ci-n"><span class="tr">TEKNOFEST Uluslararası İHA</span><span class="en">TEKNOFEST International UAV</span></div><div class="ci-i">TEKNOFEST · <span class="tr">Eylül</span><span class="en">Sep</span> 2021</div></div></div>
-      <div class="ci"><div class="ci-ic">🚁</div><div><div class="ci-n"><span class="tr">ODTÜ</span><span class="en">METU</span> VTOL 2023</div><div class="ci-i"><span class="tr">ODTÜ · Aralık</span><span class="en">METU · Dec</span> 2023</div></div></div>
+    <h3 class="h3s mt"><span class="tr">Sertifikalar</span><span class="en">Certifications</span></h3>
+    <div class="ce">
+      <div class="ce-r"><span>e-Series Core Track</span><span>Universal Robots · Mar 2024</span></div>
+      <div class="ce-r"><span>e-Series Pro Track</span><span>Universal Robots · Mar 2024</span></div>
+      <div class="ce-r"><span>e-Series Application Track</span><span>Universal Robots · Mar 2024</span></div>
+      <div class="ce-r"><span>CB3 e-Learning &amp; Risk Assessment</span><span>Universal Robots · Mar 2024</span></div>
+      <div class="ce-r"><span><span class="tr">TEKNOFEST Uluslararası İHA Yarışması</span><span class="en">TEKNOFEST International UAV Competition</span></span><span>TEKNOFEST · <span class="tr">Eyl</span><span class="en">Sep</span> 2021</span></div>
+      <div class="ce-r"><span><span class="tr">ODTÜ VTOL 2023</span><span class="en">METU VTOL 2023</span></span><span><span class="tr">ODTÜ · Ara</span><span class="en">METU · Dec</span> 2023</span></div>
     </div>
   </div>
 </section>
 
-<hr class="div">
-
-<section id="contact">
-  <div class="wrap">
-    <div class="cg2">
-      <div>
-        <p class="label"><span class="tr">İletişim</span><span class="en">Contact</span></p>
-        <h2 class="c-head"><span class="tr">Birlikte bir şeyler üretelim.</span><span class="en">Let's build something together.</span></h2>
-        <p class="c-sub">
-          <span class="tr">Yeni bir proje, iş birliği teklifi ya da sadece merhaba demek için yazmaktan çekinme.</span>
-          <span class="en">Whether it's a new project, a collaboration or just a hello — feel free to reach out.</span>
-        </p>
-        <a class="btn btn-p" href="mailto:emretasar02@hotmail.com"><span class="tr">Mesaj Gönder</span><span class="en">Send a Message</span></a>
-      </div>
-      <div class="citems">
-        <div class="citem">
-          <div class="citem-ic">📧</div>
-          <div class="citem-t"><strong><span class="tr">E-posta</span><span class="en">Email</span></strong><span>emretasar02@hotmail.com</span></div>
-        </div>
-        <div class="citem">
-          <div class="citem-ic">🎓</div>
-          <div class="citem-t"><strong><span class="tr">Okul E-postası</span><span class="en">University Email</span></strong><span>255113003@kocaeli.edu.tr</span></div>
-        </div>
-        <div class="citem">
-          <div class="citem-ic">📱</div>
-          <div class="citem-t"><strong><span class="tr">Telefon</span><span class="en">Phone</span></strong><span>+90 553 497 81 05</span></div>
-        </div>
-        <div class="citem">
-          <div class="citem-ic">💻</div>
-          <div class="citem-t"><strong>GitHub</strong><a href="https://github.com/emretasar02" target="_blank" rel="noopener">github.com/emretasar02</a></div>
-        </div>
-        <div class="citem">
-          <div class="citem-ic">📍</div>
-          <div class="citem-t"><strong><span class="tr">Konum</span><span class="en">Location</span></strong><span><span class="tr">Karamürsel, Kocaeli — Türkiye</span><span class="en">Karamürsel, Kocaeli — Türkiye</span></span></div>
-        </div>
-      </div>
+<section id="contact" class="band">
+  <div class="shell ct">
+    <div>
+      <p class="kicker">05 <b>/</b> <span class="tr">İletişim</span><span class="en">Contact</span></p>
+      <h2 class="h2"><span class="tr">İş birliği ve teknik görüşmeler için yazın.</span><span class="en">Get in touch about collaboration or a technical conversation.</span></h2>
+      <p class="lede"><span class="tr">eTekno ile ilgili konular için <a href="/#contact">eTekno iletişim sayfasını</a> kullanabilirsiniz.</span><span class="en">For anything about eTekno, please use the <a href="/#contact">eTekno contact section</a>.</span></p>
+      <div class="btns" style="margin-top:28px"><a class="btn btn-p" href="mailto:emretasar02@hotmail.com"><span class="tr">E-posta gönder</span><span class="en">Send an email</span></a></div>
+    </div>
+    <div class="ct-list">
+      <div class="ct-row"><b><span class="tr">E-posta</span><span class="en">Email</span></b><span class="sel">emretasar02@hotmail.com</span></div>
+      <div class="ct-row"><b><span class="tr">Telefon</span><span class="en">Phone</span></b><span class="sel">+90 553 497 81 05</span></div>
+      <div class="ct-row"><b>GitHub</b><a href="https://github.com/emretasar02" target="_blank" rel="noopener">github.com/emretasar02</a></div>
+      <div class="ct-row"><b>Web</b><a href="/">etekno.com.tr</a></div>
+      <div class="ct-row"><b><span class="tr">Konum</span><span class="en">Location</span></b><span>Kocaeli, Türkiye</span></div>
     </div>
   </div>
 </section>
 
-<footer>© 2026 Emre Taşar · <a href="/">etekno.com.tr</a></footer>
+<footer>
+  <div class="shell">
+    <span>© 2026 Emre Taşar</span>
+    <span><a href="/">eTekno</a> · <a href="https://github.com/emretasar02" target="_blank" rel="noopener">GitHub</a></span>
+  </div>
+</footer>
 
 <script>
 (function(){
-  var root=document.documentElement, btns=document.querySelectorAll('.lang button');
-  function set(l){
-    root.setAttribute('data-lang',l); root.setAttribute('lang',l);
+  var root=document.documentElement,btns=document.querySelectorAll('.lang button');
+  function set(l){root.setAttribute('data-lang',l);root.setAttribute('lang',l);
     btns.forEach(function(b){b.setAttribute('aria-pressed',b.dataset.set===l?'true':'false')});
-    try{localStorage.setItem('lang',l)}catch(e){}
-  }
-  var saved=null; try{saved=localStorage.getItem('lang')}catch(e){}
-  if(!saved){ saved=(navigator.language||'tr').toLowerCase().indexOf('tr')===0?'tr':'en'; }
-  set(saved);
+    try{localStorage.setItem('etk-lang',l)}catch(e){}}
+  set(root.getAttribute('data-lang')||'en');
   btns.forEach(function(b){b.addEventListener('click',function(){set(b.dataset.set)})});
 })();
 </script>
