@@ -263,6 +263,23 @@ h1 em{font-style:normal;color:var(--accent)}
 .ghs li{display:grid;grid-template-columns:minmax(0,190px) minmax(0,1fr);gap:14px;padding:8px 0;border-bottom:1px dashed var(--line);font-size:.88rem}
 .ghs code{font-family:var(--mono);font-size:.8rem;color:var(--acc-txt);overflow-wrap:anywhere}
 .ghs li span{color:var(--fg2)}
+.xm,.pl{display:grid;gap:16px}
+.xm{grid-template-columns:repeat(3,minmax(0,1fr))}
+.pl{grid-template-columns:repeat(4,minmax(0,1fr))}
+.xm .card,.pl .card{padding:20px}
+.xm .card .xm-w{font:500 .7rem/1.5 var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--fg3);margin-bottom:8px}
+.xm h4,.pl h4{font-size:1rem;font-weight:600;letter-spacing:-.01em;line-height:1.35;margin-bottom:6px}
+.xm .card > p,.pl .card > p{font-size:.88rem}
+.xm .xm-do{margin-bottom:14px}
+.xm .xm-to{margin-top:auto;padding-top:12px;border-top:1px dashed var(--line)}
+.xm-to b{display:block;color:var(--acc-txt);font-weight:600;font-size:.9rem;margin-bottom:3px}
+.xm-to b::before{content:'→ '}
+.xm-to a{color:var(--acc-txt);font-weight:600;text-decoration:none;white-space:nowrap}
+.xm-to a:hover{text-decoration:underline}
+.pl .tag{align-self:flex-start}
+.pl h4{margin-top:12px}
+.pl .card .pl-x{margin-top:auto;padding-top:12px;font:500 .72rem/1.5 var(--mono);color:var(--fg3)}
+#deneyim,#plan{scroll-margin-top:80px}
 
 /* contact */
 .ct{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:48px;align-items:start}
@@ -287,7 +304,7 @@ footer a{text-decoration:none}footer a:hover{color:var(--acc-txt)}
   .chain .node,.chain.short .node{flex:none}
   .chain .arrow{flex:none}
   .arch-note{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .trust,.team{grid-template-columns:1fr 1fr}
+  .trust,.team,.xm,.pl{grid-template-columns:1fr 1fr}
   .trust .card:first-child{grid-column:1/-1}
   .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
   .cta{grid-template-columns:minmax(0,1fr)}
@@ -310,7 +327,7 @@ footer a{text-decoration:none}footer a:hover{color:var(--acc-txt)}
   .arch-note{grid-template-columns:1fr}
   .rm-i{grid-template-columns:1fr;padding-left:22px}
   .cx pre{font-size:.7rem}
-  .cmp,.diff,.trust,.team{grid-template-columns:1fr}
+  .cmp,.diff,.trust,.team,.xm,.pl{grid-template-columns:1fr}
   .ghs li{grid-template-columns:1fr;gap:2px}
 }
 @media(max-width:420px){
@@ -830,6 +847,76 @@ footer a{text-decoration:none}footer a:hover{color:var(--acc-txt)}
           <a class="btn btn-s" href="emre.html"><span class="tr">Kurucu profili</span><span class="en">Founder profile</span></a>
           <a class="btn btn-s" href="https://github.com/emretasar02" target="_blank" rel="noopener">GitHub ↗</a>
         </div>
+      </div>
+    </div>
+
+    <h3 class="h3s mt" id="deneyim"><span class="tr">Deneyimden ürüne</span><span class="en">From experience to product</span></h3>
+    <p class="lede" style="margin:0 0 20px"><span class="tr">eTekno'nun her parçası, kurucunun daha önce sahada ya da projelerde yaptığı bir işe dayanıyor. Her kartta önce deneyim, altında eTekno'daki karşılığı var.</span><span class="en">Each part of eTekno builds on work the founder has already done in the field or in projects. Each card shows the experience first, then what it became in eTekno.</span></p>
+    <div class="xm">
+      <div class="card">
+        <p class="xm-w"><span class="tr">Tersane · 2025 — halen</span><span class="en">Shipyard · 2025 — present</span></p>
+        <h4><span class="tr">Robotik kaynak hattının saha testleri</span><span class="en">Field tests of a robotic welding line</span></h4>
+        <p class="xm-do"><span class="tr">PLC'ye bağlı Raspberry Pi ile üretim kaydı, enerji analizörüyle faz bazlı ölçüm ve kamera kaydıyla olay incelemesi.</span><span class="en">Production logging with a Raspberry Pi wired to the PLC, per-phase energy measurement with an energy analyzer, and camera footage for incident review.</span></p>
+        <p class="xm-to"><b><span class="tr">Uç cihaz, enerji ve kamera</span><span class="en">Edge device, energy and camera</span></b><span class="tr">eTekno bu kurulumun ürüne dönüşmüş hâli. Hangi verinin işe yaradığı ve kurulumun üretimi aksatmadan nasıl yapılacağı sahada görüldü.</span><span class="en">eTekno is that setup turned into a product. The field showed which data is worth collecting and how to install without stopping production.</span></p>
+      </div>
+      <div class="card">
+        <p class="xm-w"><span class="tr">Saha projeleri · 4× UR sertifikası</span><span class="en">Field projects · 4× UR certified</span></p>
+        <h4><span class="tr">PLC ve robot kolu projeleri</span><span class="en">PLC and robot-arm projects</span></h4>
+        <p class="xm-do"><span class="tr">Siemens ve Delta PLC altyapıları; Fanuc, Yaskawa ve Universal Robots kolları.</span><span class="en">Siemens and Delta PLC systems; Fanuc, Yaskawa and Universal Robots arms.</span></p>
+        <p class="xm-to"><b><span class="tr">Bağlantı katmanı</span><span class="en">Connectivity layer</span></b><span class="tr">Her cihazdan hangi verinin, hangi protokolle ve kontrol mantığına dokunmadan okunacağı bu deneyimle tasarlandı. Prototip bugün Modbus TCP okuyor. <a href="baglanti.html">Bağlantı şeması →</a></span><span class="en">Which data to read from each device, over which protocol and without touching the control logic, was designed from this experience. The prototype reads Modbus TCP today. <a href="baglanti.html">Connectivity map →</a></span></p>
+      </div>
+      <div class="card">
+        <p class="xm-w">Epik Robotik, Metarob · 2022 — 2025</p>
+        <h4><span class="tr">Görüntü işleme ve otonom mobil robotlar</span><span class="en">Computer vision and autonomous mobile robots</span></h4>
+        <p class="xm-do"><span class="tr">ROS ve Python ile otonom mobil robotlar; derinlik kamerasıyla haritalama ve konumlandırma; yapay zekâ tabanlı görüntü işleme.</span><span class="en">Autonomous mobile robots with ROS and Python; depth-camera mapping and localization; AI-based computer vision.</span></p>
+        <p class="xm-to"><b><span class="tr">Kamera modülü</span><span class="en">Camera module</span></b><span class="tr">Korumalı bölgede kişi tespiti, yüz bulanıklaştırma ve yalnızca olay anında klip kaydı; küçük bir cihazda gerçek zamanlı görüntü işleme.</span><span class="en">Person-in-zone detection, face blurring and clips recorded only around events: real-time vision on a small device.</span></p>
+      </div>
+      <div class="card">
+        <p class="xm-w">Metarob · 2023 — 2025</p>
+        <h4><span class="tr">Endüstri 4.0 ve dijital ikiz</span><span class="en">Industry 4.0 and digital twins</span></h4>
+        <p class="xm-do"><span class="tr">Fabrika otomasyon sistemleri ve dijital ikiz çözümleri.</span><span class="en">Factory automation systems and digital-twin solutions.</span></p>
+        <p class="xm-to"><b><span class="tr">Simülatör ve yerel model</span><span class="en">Simulator and local model</span></b><span class="tr">Prototip, gerçek bir hatta çıkmadan önce sanal bir üretim hattına karşı geliştirildi; yerel arıza modeli de bu simülatörün verisiyle eğitildi. Sitedeki demo aynı yaklaşımla hazırlandı.</span><span class="en">The prototype was built against a virtual production line before any real one, and the local fault model was trained on that simulator's data. The demo on this site uses the same approach.</span></p>
+      </div>
+      <div class="card">
+        <p class="xm-w">TEKNOFEST, ORET · 2018 — 2023</p>
+        <h4><span class="tr">İHA ve otonom araç projeleri</span><span class="en">UAV and autonomous-vehicle projects</span></h4>
+        <p class="xm-do"><span class="tr">Raspberry Pi üzerinde hedef tespiti, Pixhawk ile UART haberleşmesi, Xbee telemetri; Robotik Fetih 1453'te birincilik.</span><span class="en">Target detection on a Raspberry Pi, UART link to a Pixhawk, Xbee telemetry; first place in Robotik Fetih 1453.</span></p>
+        <p class="xm-to"><b><span class="tr">Kesintiye dayanıklı uç yazılım</span><span class="en">Edge software that tolerates outages</span></b><span class="tr">Küçük bir bilgisayarda gerçek zamanlı çalışma ve kopabilen bağlantılarla yaşama deneyimi. Cihaz kararlarını yerelde verir; internet yokken Claude analizlerini kuyrukta bekletir.</span><span class="en">Experience running in real time on a small computer over links that drop. The device decides locally and holds Claude analyses in a queue while the internet is down.</span></p>
+      </div>
+      <div class="card">
+        <p class="xm-w"><span class="tr">Tersane · 2025 — halen</span><span class="en">Shipyard · 2025 — present</span></p>
+        <h4><span class="tr">Ar-Ge yönetimi, test ve kalite güvence</span><span class="en">R&amp;D management, testing and QA</span></h4>
+        <p class="xm-do"><span class="tr">Otomasyon projelerinde Ar-Ge, test ve kalite güvence süreçleri.</span><span class="en">R&amp;D, testing and quality-assurance processes on automation projects.</span></p>
+        <p class="xm-to"><b><span class="tr">Doğrulama disiplini</span><span class="en">Validation discipline</span></b><span class="tr">Prototip otomatik testlerle denetleniyor. Yerel modelin doğruluğu yalnızca ayrı tutulmuş simülasyon verisiyle raporlanıyor ve gerçek bir hatta ölçülene kadar saha sonucu gibi sunulmuyor.</span><span class="en">The prototype is checked by automated tests. The local model's accuracy is reported only on held-out simulated data and is not presented as a field result until it is measured on a real line.</span></p>
+      </div>
+    </div>
+
+    <h3 class="h3s mt" id="plan"><span class="tr">Geliştirme planında kurucunun rolü</span><span class="en">The founder's role in the plan</span></h3>
+    <p class="lede" style="margin:0 0 20px"><span class="tr">Teknik tarafı ve saha çalışmasını kurucu üstleniyor. Her aşamada kurucunun yaptığı iş ve dayandığı deneyim:</span><span class="en">The founder owns the technology and the field work. What the founder does at each stage, and the experience behind it:</span></p>
+    <div class="pl">
+      <div class="card">
+        <span class="tag design"><span class="tr">Şu an</span><span class="en">Now</span></span>
+        <h4><span class="tr">Prototipi olgunlaştırmak</span><span class="en">Mature the prototype</span></h4>
+        <p><span class="tr">Uç ajanı, yerel arıza modelini, bakım sayaçlarını ve Claude entegrasyonunu geliştiriyor. Sırada gerçek Claude API ile uçtan uca deneme ve demo videosu var.</span><span class="en">Developing the edge agent, the local fault model, the maintenance counters and the Claude integration. Next come an end-to-end run against the live Claude API and a demo video.</span></p>
+        <p class="pl-x"><span class="tr">Dayandığı deneyim: Python, Raspberry Pi, dijital ikiz</span><span class="en">Draws on: Python, Raspberry Pi, digital twins</span></p>
+      </div>
+      <div class="card">
+        <span class="tag plain"><span class="tr">2027 · 1.–2. çeyrek</span><span class="en">Q1–Q2 2027</span></span>
+        <h4><span class="tr">Gerçek donanıma geçmek</span><span class="en">Move to real hardware</span></h4>
+        <p><span class="tr">Endüstriyel Raspberry Pi, gerçek bir Siemens ya da Delta PLC ve RS-485 enerji analizöründen oluşan test düzeneğini kurup doğruluyor. Aynı dönemde Kocaeli'deki üreticilerle görüşüyor.</span><span class="en">Building and validating a test rig with an industrial Raspberry Pi, a real Siemens or Delta PLC and an RS-485 energy meter, while meeting manufacturers in Kocaeli.</span></p>
+        <p class="pl-x"><span class="tr">Dayandığı deneyim: PLC projeleri, saha kurulumu</span><span class="en">Draws on: PLC projects, field installation</span></p>
+      </div>
+      <div class="card">
+        <span class="tag plain"><span class="tr">2027 · 3.–4. çeyrek</span><span class="en">Q3–Q4 2027</span></span>
+        <h4><span class="tr">İlk pilotu sahada yürütmek</span><span class="en">Run the first pilot on site</span></h4>
+        <p><span class="tr">Kurulumu bir sistem entegratörüyle, salt okuma modunda ve tesisin izniyle yapıyor. Yerel modeli tesisin kendi verisiyle yeniden ölçüyor ve operatörlere kısa bir kullanım eğitimi veriyor.</span><span class="en">Installing with a system integrator, read-only and with the plant's permission; re-measuring the local model on the plant's own data and giving operators a short hands-on training.</span></p>
+        <p class="pl-x"><span class="tr">Dayandığı deneyim: tersane saha testleri, Deneyap eğitmenliği</span><span class="en">Draws on: shipyard field tests, teaching at Deneyap</span></p>
+      </div>
+      <div class="card">
+        <span class="tag plain"><span class="tr">Sürekli</span><span class="en">Ongoing</span></span>
+        <h4><span class="tr">Eksik alanlarda ekip kurmak</span><span class="en">Build the team around the gaps</span></h4>
+        <p><span class="tr">Satış, hukuk ve iş güvenliği kurucunun uzmanlık alanı değil. Bu alanlar için aşağıdaki roller aranıyor; teknik taraf ve saha çalışması kurucuda kalıyor.</span><span class="en">Sales, law and workplace safety are outside the founder's expertise, so the roles below are open; the technology and the field work stay with the founder.</span></p>
+        <p class="pl-x"><span class="tr">Dayandığı deneyim: Ar-Ge yönetimi, takım liderliği</span><span class="en">Draws on: R&amp;D management, team leadership</span></p>
       </div>
     </div>
 
